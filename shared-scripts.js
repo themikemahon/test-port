@@ -114,6 +114,67 @@ async function loadSocialLinks() {
     }
 }
 
+// Add this function to your shared-scripts.js file
+// This should go before the DOMContentLoaded event listener's closing bracket
+
+// Load site settings from Contentful
+function loadSiteSettings() {
+    // Check if Contentful client is available
+    if (typeof contentful === 'undefined') {
+        console.warn('Contentful SDK not loaded, skipping site settings');
+        return;
+    }
+    
+    const client = contentful.createClient({
+        space: '2ic80tk26lba',
+        accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+    });
+    
+    client.getEntries({
+        content_type: 'siteSettings',
+        limit: 1
+    }).then(response => {
+        if (response.items.length > 0) {
+            const settings = response.items[0].fields;
+            
+            // Update homepage brief statement if we're on the homepage
+            if (settings.briefStatement) {
+                const briefStatement = document.querySelector('.brief-statement p');
+                if (briefStatement) {
+                    briefStatement.textContent = settings.briefStatement;
+                }
+            }
+            
+            // Update footer text
+            if (settings.footerText) {
+                const footerInfo = document.querySelector('.footer-info p:last-child');
+                if (footerInfo) {
+                    footerInfo.textContent = settings.footerText;
+                }
+            }
+        }
+    }).catch(error => {
+        console.error('Error loading site settings:', error);
+    });
+}
+
+// Modify your existing DOMContentLoaded event listener to include loadSiteSettings
+document.addEventListener('DOMContentLoaded', function() {
+    setupMobileNav();
+    setupAnimations();
+    
+    // Add touch-friendly behavior for mobile
+    if ('ontouchstart' in window) {
+        document.body.classList.add('touch-device');
+    }
+    
+    // Load social links for footer
+    loadSocialLinks();
+    
+    // Add this line to load site settings
+    loadSiteSettings();
+});
+
 // Initialize all shared functionality
 document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
