@@ -323,6 +323,15 @@
             space: '2ic80tk26lba',
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
+
+        // Add this to your loadAboutContent function
+const response = await client.getEntries({
+    content_type: 'aboutPage',
+    limit: 1,
+    include: 2
+});
+
+console.log('FULL CONTENTFUL RESPONSE:', JSON.stringify(response, null, 2));
         
 // Load about page content
 async function loadAboutContent() {
@@ -378,43 +387,73 @@ async function loadAboutContent() {
                 'https:' + aboutContent.profileImage.fields.file.url;
         }
         
-        // Update experience items
-        if (aboutContent.experience && aboutContent.experience.length) {
-            const experienceSection = document.querySelector('.experience-section');
-            
-            // Keep the title, remove everything else
-            const experienceTitle = experienceSection.querySelector('.experience-title');
-            experienceSection.innerHTML = '';
-            experienceSection.appendChild(experienceTitle);
-            
-            console.log('Experience items:', aboutContent.experience);
-            
-            // Add each experience item
-            aboutContent.experience.forEach((expRef, index) => {
-                // Make sure we have a valid reference with fields
-                if (!expRef || !expRef.sys || !expRef.fields) {
-                    console.warn('Invalid experience reference:', expRef);
-                    return;
-                }
-                
-                const item = document.createElement('div');
-                item.className = 'experience-item fade-in';
-                if (index > 0) {
-                    item.style.transitionDelay = `${index * 0.1}s`;
-                }
-                
-                item.innerHTML = `
-                    <div class="experience-period">${expRef.fields.period || ''}</div>
-                    <div class="experience-details">
-                        <h3>${expRef.fields.title || ''}</h3>
-                        <p>${expRef.fields.company || ''}</p>
-                        <p>${expRef.fields.description || ''}</p>
-                    </div>
-                `;
-                
-                experienceSection.appendChild(item);
-            });
+  // Update experience items
+if (aboutContent.experience) {
+    console.log('Experience raw data:', aboutContent.experience);
+    
+    const experienceSection = document.querySelector('.experience-section');
+    const experienceTitle = experienceSection.querySelector('.experience-title');
+    experienceSection.innerHTML = '';
+    experienceSection.appendChild(experienceTitle);
+    
+    // Try to handle different possible formats of the data
+    let experienceItems = [];
+    
+    if (Array.isArray(aboutContent.experience)) {
+        experienceItems = aboutContent.experience;
+    } else if (typeof aboutContent.experience === 'object') {
+        experienceItems = [aboutContent.experience];
+    }
+    
+    experienceItems.forEach((item, index) => {
+        console.log('Processing experience item:', item);
+        
+        // Try to extract fields from different possible structures
+        let fields = {};
+        if (item && item.fields) {
+            fields = item.fields;
+        } else if (item && item.sys && item.sys.id) {
+            // This might be a direct reference, try to find it in the includes
+            const linkedItem = findLinkedItem(response, item.sys.id);
+            if (linkedItem) {
+                fields = linkedItem.fields;
+            }
+        } else {
+            // The item might be the fields directly
+            fields = item;
         }
+        
+        if (!fields) {
+            console.warn('Could not extract fields from item:', item);
+            return;
+        }
+        
+        const elem = document.createElement('div');
+        elem.className = 'experience-item fade-in';
+        if (index > 0) {
+            elem.style.transitionDelay = `${index * 0.1}s`;
+        }
+        
+        elem.innerHTML = `
+            <div class="experience-period">${fields.period || ''}</div>
+            <div class="experience-details">
+                <h3>${fields.title || ''}</h3>
+                <p>${fields.company || ''}</p>
+                <p>${fields.description || ''}</p>
+            </div>
+        `;
+        
+        experienceSection.appendChild(elem);
+    });
+}
+
+// Helper function to find a linked item in the response
+function findLinkedItem(response, id) {
+    if (response.includes && response.includes.Entry) {
+        return response.includes.Entry.find(entry => entry.sys.id === id);
+    }
+    return null;
+}
         
         // Update awards
         if (aboutContent.awards && aboutContent.awards.length) {
