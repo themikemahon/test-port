@@ -387,9 +387,9 @@
                         item.innerHTML = `
                             <div class="experience-period">${exp.period || ''}</div>
                             <div class="experience-details">
-                                <h3>${exp.title || ''}</h3>
-                                <p>${exp.company || ''}</p>
-                                <p>${exp.description || ''}</p>
+                                <h3>${exp.fields.title || ''}</h3>
+                                <p>${exp.fields.company || ''}</p>
+                                <p>${exp.fields.description || ''}</p>
                             </div>
                         `;
                         
@@ -408,9 +408,9 @@
                         item.style.transitionDelay = `${index * 0.1}s`;
                         
                         item.innerHTML = `
-                            <div class="award-year">${award.year || ''}</div>
-                            <div class="award-name">${award.name || ''}</div>
-                            <div class="award-project">${award.project || ''}</div>
+                            <div class="award-year">${award.fields.year || ''}</div>
+                            <div class="award-name">${award.fields.name || ''}</div>
+                            <div class="award-project">${award.fields.project || ''}</div>
                         `;
                         
                         awardsGrid.appendChild(item);
