@@ -310,163 +310,160 @@
         </div>
     </footer>
 
-    <!-- Modified Contentful script with debugging -->
+    <!-- Shared scripts -->
     <script src="shared-scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
     <script>
-        // Debug function that will display messages on the page
-        function debug(message, data) {
-            console.log(message, data);
-            
-            // Also display in page for visibility
-            const debugDiv = document.getElementById('debug-output') || (() => {
-                const div = document.createElement('div');
-                div.id = 'debug-output';
-                div.style = 'background: #f0f0f0; padding: 20px; margin: 20px; border: 1px solid #ddd; max-height: 300px; overflow: auto;';
-                document.body.appendChild(div);
-                return div;
-            })();
-            
-            const msgElem = document.createElement('p');
-            msgElem.innerHTML = `<strong>${message}</strong>: ${data ? JSON.stringify(data).substring(0, 500) + '...' : 'undefined'}`;
-            debugDiv.appendChild(msgElem);
-        }
-
-        // Initialize Contentful client 
+        // Initialize Contentful client
         const client = contentful.createClient({
             space: '2ic80tk26lba',
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
-        // Simplified load function for debugging
-        async function loadAboutContent() {
+        // Simple, focused function to update the experience section
+        async function updateExperienceSection() {
             try {
-                debug('Starting content load', new Date().toISOString());
+                const response = await client.getEntries({
+                    content_type: 'experienceItem'
+                });
                 
-                // Test basic connection to Contentful
-                debug('Testing Contentful connection', null);
-                try {
-                    const spaceInfo = await client.getSpace();
-                    debug('Connected to Contentful space', { name: spaceInfo.name });
-                } catch (e) {
-                    debug('Failed to connect to Contentful', e.message);
-                }
-                
-                // 1. First try to get a list of all content types
-                try {
-                    debug('Fetching content types', null);
-                    const contentTypes = await client.getContentTypes();
-                    debug('Content types available', contentTypes.items.map(type => type.sys.id));
-                } catch (e) {
-                    debug('Failed to fetch content types', e.message);
-                }
-                
-                // 2. Try to fetch experience items directly
-                try {
-                    debug('Fetching experience items', null);
-                    // Try with exact content type ID from your screenshots
-                    const experienceResponse = await client.getEntries({
-                        content_type: 'experienceItem'
-                    });
-                    debug('Experience items found', { 
-                        total: experienceResponse.total,
-                        items: experienceResponse.items ? experienceResponse.items.length : 0
+                if (response.items && response.items.length > 0) {
+                    const experienceSection = document.querySelector('.experience-section');
+                    const experienceTitle = experienceSection.querySelector('.experience-title');
+                    
+                    // Clear existing content but keep the title
+                    experienceSection.innerHTML = '';
+                    experienceSection.appendChild(experienceTitle);
+                    
+                    // Sort experience items by period (newest first)
+                    const sortedItems = response.items.sort((a, b) => {
+                        // Simple heuristic - assume items with "Present" are newest
+                        const aHasPresent = a.fields.period.includes('Present');
+                        const bHasPresent = b.fields.period.includes('Present');
+                        
+                        if (aHasPresent && !bHasPresent) return -1;
+                        if (!aHasPresent && bHasPresent) return 1;
+                        
+                        // Otherwise sort alphabetically (which works for year ranges)
+                        return b.fields.period.localeCompare(a.fields.period);
                     });
                     
-                    // If we got items, display the first one
-                    if (experienceResponse.items && experienceResponse.items.length > 0) {
-                        debug('Sample experience item', experienceResponse.items[0].fields);
-                        
-                        // Now try to render experience items
-                        const experienceSection = document.querySelector('.experience-section');
-                        const experienceTitle = experienceSection.querySelector('.experience-title');
-                        experienceSection.innerHTML = '';
-                        experienceSection.appendChild(experienceTitle);
-                        
-                        experienceResponse.items.forEach((item, index) => {
-                            debug(`Processing experience item ${index}`, item.fields);
-                            const exp = item.fields;
-                            
-                            const element = document.createElement('div');
-                            element.className = 'experience-item fade-in';
-                            if (index > 0) {
-                                element.style.transitionDelay = `${index * 0.1}s`;
-                            }
-                            
-                            element.innerHTML = `
-                                <div class="experience-period">${exp.period || ''}</div>
-                                <div class="experience-details">
-                                    <h3>${exp.title || ''}</h3>
-                                    <p>${exp.company || ''}</p>
-                                    <p>${exp.description || ''}</p>
-                                </div>
-                            `;
-                            
-                            experienceSection.appendChild(element);
-                        });
-                        
-                        debug('Experience items rendered', null);
-                    }
-                } catch (e) {
-                    debug('Failed to fetch experience items', e.message);
-                }
-                
-                // 3. Try to fetch awards directly
-                try {
-                    debug('Fetching awards', null);
-                    // Try with content type ID from your screenshots
-                    const awardsResponse = await client.getEntries({
-                        content_type: 'awards'
-                    });
-                    debug('Awards found', { 
-                        total: awardsResponse.total,
-                        items: awardsResponse.items ? awardsResponse.items.length : 0 
-                    });
-                    
-                    // If we got items, display the first one
-                    if (awardsResponse.items && awardsResponse.items.length > 0) {
-                        debug('Sample award item', awardsResponse.items[0].fields);
-                        
-                        // Now try to render awards
-                        const awardsGrid = document.querySelector('.awards-grid');
-                        awardsGrid.innerHTML = '';
-                        
-                        awardsResponse.items.forEach((item, index) => {
-                            debug(`Processing award item ${index}`, item.fields);
-                            const award = item.fields;
-                            
-                            const element = document.createElement('div');
-                            element.className = 'award-item fade-in';
+                    // Add each experience item
+                    sortedItems.forEach((item, index) => {
+                        const exp = item.fields;
+                        const element = document.createElement('div');
+                        element.className = 'experience-item fade-in';
+                        if (index > 0) {
                             element.style.transitionDelay = `${index * 0.1}s`;
-                            
-                            element.innerHTML = `
-                                <div class="award-year">${award.year || ''}</div>
-                                <div class="award-name">${award.name || ''}</div>
-                                <div class="award-project">${award.project || ''}</div>
-                            `;
-                            
-                            awardsGrid.appendChild(element);
-                        });
+                        }
                         
-                        debug('Awards rendered', null);
-                    }
-                } catch (e) {
-                    debug('Failed to fetch awards', e.message);
+                        element.innerHTML = `
+                            <div class="experience-period">${exp.period || ''}</div>
+                            <div class="experience-details">
+                                <h3>${exp.title || ''}</h3>
+                                <p>${exp.company || ''}</p>
+                                <p>${exp.description || ''}</p>
+                            </div>
+                        `;
+                        
+                        experienceSection.appendChild(element);
+                    });
                 }
-                
             } catch (error) {
-                debug('Error in main function', error.message);
-                if (error.stack) {
-                    debug('Stack trace', error.stack);
-                }
+                console.error('Error updating experience section:', error);
             }
         }
         
-        // Load about content when DOM is ready
+        // Simple, focused function to update the awards section
+        async function updateAwardsSection() {
+            try {
+                const response = await client.getEntries({
+                    content_type: 'awards'
+                });
+                
+                if (response.items && response.items.length > 0) {
+                    const awardsGrid = document.querySelector('.awards-grid');
+                    
+                    // Clear existing content
+                    awardsGrid.innerHTML = '';
+                    
+                    // Sort awards by year (newest first)
+                    const sortedItems = response.items.sort((a, b) => {
+                        return parseInt(b.fields.year) - parseInt(a.fields.year);
+                    });
+                    
+                    // Add each award
+                    sortedItems.forEach((item, index) => {
+                        const award = item.fields;
+                        const element = document.createElement('div');
+                        element.className = 'award-item fade-in';
+                        element.style.transitionDelay = `${index * 0.1}s`;
+                        
+                        element.innerHTML = `
+                            <div class="award-year">${award.year || ''}</div>
+                            <div class="award-name">${award.name || ''}</div>
+                            <div class="award-project">${award.project || ''}</div>
+                        `;
+                        
+                        awardsGrid.appendChild(element);
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating awards section:', error);
+            }
+        }
+        
+        // Load all content when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            debug('DOM Content Loaded', new Date().toISOString());
-            loadAboutContent();
+            // Get content for About page
+            client.getEntries({
+                content_type: 'aboutPage',
+                limit: 1
+            }).then(response => {
+                if (response.items.length > 0) {
+                    const aboutContent = response.items[0].fields;
+                    
+                    // Update biography text
+                    if (aboutContent.biography) {
+                        const bioContainer = document.querySelector('.about-text');
+                        bioContainer.innerHTML = '';
+                        
+                        const paragraphs = aboutContent.biography.split('\n\n');
+                        paragraphs.forEach(paragraph => {
+                            if (paragraph.trim()) {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph;
+                                bioContainer.appendChild(p);
+                            }
+                        });
+                    }
+                    
+                    // Update services
+                    if (aboutContent.services && aboutContent.services.length) {
+                        const servicesList = document.querySelector('.services-list');
+                        servicesList.innerHTML = '';
+                        
+                        aboutContent.services.forEach(service => {
+                            const li = document.createElement('li');
+                            li.textContent = service;
+                            servicesList.appendChild(li);
+                        });
+                    }
+                    
+                    // Update profile image
+                    if (aboutContent.profileImage && aboutContent.profileImage.fields) {
+                        document.querySelector('.about-image img').src = 
+                            'https:' + aboutContent.profileImage.fields.file.url;
+                    }
+                }
+            }).catch(error => {
+                console.error('Error loading about page content:', error);
+            });
+            
+            // Update experience and awards sections
+            updateExperienceSection();
+            updateAwardsSection();
         });
     </script>
 </body>
