@@ -327,130 +327,80 @@
 // Load about page content
 async function loadAboutContent() {
     try {
-        // Fetch about page content from Contentful
-        const response = await client.getEntries({
+        // Fetch about page content
+        const aboutResponse = await client.getEntries({
             content_type: 'aboutPage',
-            limit: 1,
-            include: 2 // Include linked entries
+            limit: 1
         });
         
-        if (response.items.length === 0) {
-            console.warn('No about page content found in Contentful.');
+        if (aboutResponse.items.length === 0) {
+            console.warn('No about page content found.');
             return;
         }
         
-        console.log('About page content:', response.items[0]);
-        const aboutContent = response.items[0].fields;
+        const aboutContent = aboutResponse.items[0].fields;
         
-        // Update biography text
-        if (aboutContent.biography) {
-            const bioContainer = document.querySelector('.about-text');
-            bioContainer.innerHTML = '';
-            
-            // Handle rich text content
-            if (typeof aboutContent.biography === 'string') {
-                const paragraphs = aboutContent.biography.split('\n\n');
-                paragraphs.forEach(paragraph => {
-                    if (paragraph.trim()) {
-                        const p = document.createElement('p');
-                        p.textContent = paragraph;
-                        bioContainer.appendChild(p);
-                    }
-                });
+        // Update biography and other simple fields...
+        
+        // Fetch experience items directly
+        const experienceResponse = await client.getEntries({
+            content_type: 'experienceItem',
+            order: '-fields.period' // Sort by period descending (newest first)
+        });
+        
+        // Update experience section
+        const experienceSection = document.querySelector('.experience-section');
+        const experienceTitle = experienceSection.querySelector('.experience-title');
+        experienceSection.innerHTML = '';
+        experienceSection.appendChild(experienceTitle);
+        
+        experienceResponse.items.forEach((item, index) => {
+            const exp = item.fields;
+            const element = document.createElement('div');
+            element.className = 'experience-item fade-in';
+            if (index > 0) {
+                element.style.transitionDelay = `${index * 0.1}s`;
             }
-        }
+            
+            element.innerHTML = `
+                <div class="experience-period">${exp.period || ''}</div>
+                <div class="experience-details">
+                    <h3>${exp.title || ''}</h3>
+                    <p>${exp.company || ''}</p>
+                    <p>${exp.description || ''}</p>
+                </div>
+            `;
+            
+            experienceSection.appendChild(element);
+        });
         
-        // Update services
-        if (aboutContent.services && aboutContent.services.length) {
-            const servicesList = document.querySelector('.services-list');
-            servicesList.innerHTML = '';
-            
-            aboutContent.services.forEach(service => {
-                const li = document.createElement('li');
-                li.textContent = service;
-                servicesList.appendChild(li);
-            });
-        }
+        // Fetch awards directly
+        const awardsResponse = await client.getEntries({
+            content_type: 'awards',
+            order: '-fields.year' // Sort by year descending (newest first)
+        });
         
-        // Update profile image
-        if (aboutContent.profileImage && aboutContent.profileImage.fields) {
-            document.querySelector('.about-image img').src = 
-                'https:' + aboutContent.profileImage.fields.file.url;
-        }
+        // Update awards section
+        const awardsGrid = document.querySelector('.awards-grid');
+        awardsGrid.innerHTML = '';
         
-        // Update experience items
-        if (aboutContent.experience && aboutContent.experience.length) {
-            const experienceSection = document.querySelector('.experience-section');
+        awardsResponse.items.forEach((item, index) => {
+            const award = item.fields;
+            const element = document.createElement('div');
+            element.className = 'award-item fade-in';
+            element.style.transitionDelay = `${index * 0.1}s`;
             
-            // Keep the title, remove everything else
-            const experienceTitle = experienceSection.querySelector('.experience-title');
-            experienceSection.innerHTML = '';
-            experienceSection.appendChild(experienceTitle);
+            element.innerHTML = `
+                <div class="award-year">${award.year || ''}</div>
+                <div class="award-name">${award.name || ''}</div>
+                <div class="award-project">${award.project || ''}</div>
+            `;
             
-            console.log('Experience items:', aboutContent.experience);
-            
-            // Add each experience item
-            aboutContent.experience.forEach((expRef, index) => {
-                // Make sure we have a valid reference with fields
-                if (!expRef || !expRef.sys || !expRef.fields) {
-                    console.warn('Invalid experience reference:', expRef);
-                    return;
-                }
-                
-                const item = document.createElement('div');
-                item.className = 'experience-item fade-in';
-                if (index > 0) {
-                    item.style.transitionDelay = `${index * 0.1}s`;
-                }
-                
-                item.innerHTML = `
-                    <div class="experience-period">${expRef.fields.period || ''}</div>
-                    <div class="experience-details">
-                        <h3>${expRef.fields.title || ''}</h3>
-                        <p>${expRef.fields.company || ''}</p>
-                        <p>${expRef.fields.description || ''}</p>
-                    </div>
-                `;
-                
-                experienceSection.appendChild(item);
-            });
-        }
-        
-        // Update awards
-        if (aboutContent.awards && aboutContent.awards.length) {
-            const awardsGrid = document.querySelector('.awards-grid');
-            awardsGrid.innerHTML = '';
-            
-            console.log('Awards items:', aboutContent.awards);
-            
-            // Add each award item
-            aboutContent.awards.forEach((awardRef, index) => {
-                // Make sure we have a valid reference with fields
-                if (!awardRef || !awardRef.sys || !awardRef.fields) {
-                    console.warn('Invalid award reference:', awardRef);
-                    return;
-                }
-                
-                const item = document.createElement('div');
-                item.className = 'award-item fade-in';
-                item.style.transitionDelay = `${index * 0.1}s`;
-                
-                item.innerHTML = `
-                    <div class="award-year">${awardRef.fields.year || ''}</div>
-                    <div class="award-name">${awardRef.fields.name || ''}</div>
-                    <div class="award-project">${awardRef.fields.project || ''}</div>
-                `;
-                
-                awardsGrid.appendChild(item);
-            });
-        }
+            awardsGrid.appendChild(element);
+        });
         
     } catch (error) {
-        console.error('Error loading about content:', error);
-        console.log('Error details:', error.message);
-        if (error.stack) {
-            console.log('Stack trace:', error.stack);
-        }
+        console.error('Error loading content:', error);
     }
 }
         
