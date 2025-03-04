@@ -466,5 +466,111 @@
             updateAwardsSection();
         });
     </script>
+    <script>
+  // This script will run after all other scripts
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      // Direct DOM manipulation approach
+      console.log("Running direct DOM update");
+      
+      // Manually add experience items
+      const experienceData = [
+        {
+          period: "2020 — Present",
+          title: "Creative Director",
+          company: "Autonomous Design",
+          description: "Leading independent creative studio focused on brand identity and digital product design for technology and lifestyle brands."
+        },
+        {
+          period: "2016 — 2020",
+          title: "Senior Design Lead",
+          company: "Airbnb",
+          description: "Directed design initiatives for key product features, managed a team of designers, and contributed to the evolution of Airbnb's design system."
+        },
+        {
+          period: "2012 — 2016",
+          title: "Art Director",
+          company: "Instrument",
+          description: "Led creative direction for digital campaigns and experiences for clients including Nike, Google, and Levis."
+        }
+      ];
+      
+      // Manually update experience section
+      const experienceSection = document.querySelector('.experience-section');
+      if (experienceSection) {
+        const experienceTitle = experienceSection.querySelector('.experience-title');
+        // Clear current content but keep the title
+        experienceSection.innerHTML = '';
+        if (experienceTitle) experienceSection.appendChild(experienceTitle);
+        
+        // Add each experience item
+        experienceData.forEach((exp, index) => {
+          const element = document.createElement('div');
+          element.className = 'experience-item fade-in';
+          if (index > 0) {
+            element.style.transitionDelay = `${index * 0.1}s`;
+          }
+          
+          element.innerHTML = `
+            <div class="experience-period">${exp.period}</div>
+            <div class="experience-details">
+              <h3>${exp.title}</h3>
+              <p>${exp.company}</p>
+              <p>${exp.description}</p>
+            </div>
+          `;
+          
+          experienceSection.appendChild(element);
+        });
+        
+        // Make items visible
+        setTimeout(() => {
+          document.querySelectorAll('.experience-item').forEach(item => {
+            item.classList.add('visible');
+          });
+        }, 100);
+      }
+      
+      // Manually add award items
+      const awardsData = [
+        { year: "2023", name: "Communication Arts Interactive Award", project: "Horizon Interface System" },
+        { year: "2022", name: "Webby Award Nominee, Digital Design", project: "EcoTrack Mobile App" },
+        { year: "2021", name: "AIGA 50 Books | 50 Covers", project: "Design in Motion: A Visual History" },
+        { year: "2019", name: "Adobe Design Achievement Award", project: "Converge Brand Identity" },
+        { year: "2018", name: "Awwwards Site of the Day", project: "Nomad Collective Website" },
+        { year: "2015", name: "Print Magazine New Visual Artist", project: "Urban Perspectives Series" }
+      ];
+      
+      // Manually update awards section
+      const awardsGrid = document.querySelector('.awards-grid');
+      if (awardsGrid) {
+        // Clear current content
+        awardsGrid.innerHTML = '';
+        
+        // Add each award
+        awardsData.forEach((award, index) => {
+          const element = document.createElement('div');
+          element.className = 'award-item fade-in';
+          element.style.transitionDelay = `${index * 0.1}s`;
+          
+          element.innerHTML = `
+            <div class="award-year">${award.year}</div>
+            <div class="award-name">${award.name}</div>
+            <div class="award-project">${award.project}</div>
+          `;
+          
+          awardsGrid.appendChild(element);
+        });
+        
+        // Make items visible
+        setTimeout(() => {
+          document.querySelectorAll('.award-item').forEach(item => {
+            item.classList.add('visible');
+          });
+        }, 100);
+      }
+    }, 1000); // Wait 1 second after DOM is loaded to ensure all other scripts have run
+  });
+</script>
 </body>
 </html>
