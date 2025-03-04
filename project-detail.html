@@ -1,0 +1,439 @@
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">MIKE MAHON</div>
+            <button class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Work</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="project-header">
+                <h1 class="project-title slide-in-left">Project Title One</h1>
+                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Client</div>
+                        <div class="project-meta-value">Client Name</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, Brand Strategy</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>This is a description of the project, outlining the challenge, approach, and solution. It provides context about the creative direction and how it aligned with the client's goals.</p>
+                    <p>The project succeeded in achieving its objectives through strategic thinking, innovative design, and thoughtful execution across multiple touchpoints.</p>
+                </div>
+            </div>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 1">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 2">
+                    </div>
+                </div>
+                
+                <!-- Another full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project implementation" class="project-image-full">
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 3">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project.html?id=next-project-id" class="project-next-link">Project Title Two</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>Creative Director based in [Your Location].</p>
+                    <p>Available for collaborations and new opportunities.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Menu</h4>
+                        <ul>
+                            <li><a href="index.html">Work</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Social</h4>
+                        <ul>
+                            <li><a href="#" target="_blank">LinkedIn</a></li>
+                            <li><a href="#" target="_blank">Instagram</a></li>
+                            <li><a href="#" target="_blank">Behance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Shared scripts -->
+    <script src="shared-scripts.js"></script>
+    
+    <!-- Contentful SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+    
+    <!-- Contentful integration -->
+    <script>
+        // Initialize Contentful client with your space ID and API key
+        const client = contentful.createClient({
+            space: 'YOUR_SPACE_ID',
+            accessToken: 'YOUR_ACCESS_TOKEN'
+        });
+        
+        // Load project details
+        async function loadProjectDetails() {
+            try {
+                // Get project ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+                
+                if (!projectId) {
+                    console.warn('No project ID provided. Showing demo content.');
+                    return; // Show demo content if no ID
+                }
+                
+                // Fetch project data
+                const entry = await client.getEntry(projectId);
+                const project = entry.fields;
+                
+                // Update page title
+                document.title = `${project.title} | Mike Mahon | Creative Director`;
+                
+                // Set project details
+                document.querySelector('.project-title').textContent = project.title;
+                
+                // Set meta info
+                const metaItems = document.querySelectorAll('.project-meta-item');
+                if (metaItems[0] && project.client) 
+                    metaItems[0].querySelector('.project-meta-value').textContent = project.client;
+                if (metaItems[1] && project.role) 
+                    metaItems[1].querySelector('.project-meta-value').textContent = project.role;
+                if (metaItems[2] && project.year) 
+                    metaItems[2].querySelector('.project-meta-value').textContent = project.year;
+                
+                // Set description
+                if (project.description) {
+                    // For rich text content, we'll need more processing
+                    // This is a simplified version for text content
+                    const descriptionEl = document.querySelector('.project-description');
+                    descriptionEl.innerHTML = '';
+                    
+                    if (typeof project.description === 'string') {
+                        // Simple text
+                        const p = document.createElement('p');
+                        p.textContent = project.description;
+                        descriptionEl.appendChild(p);
+                    } else if (project.description.content) {
+                        // Rich text from Contentful
+                        project.description.content.forEach(paragraph => {
+                            if (paragraph.nodeType === 'paragraph') {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph.content
+                                    .filter(item => item.nodeType === 'text')
+                                    .map(item => item.value)
+                                    .join('');
+                                descriptionEl.appendChild(p);
+                            }
+                        });
+                    }
+                }
+                
+                // Set main image
+                if (project.mainImage) {
+                    const mainImg = document.querySelector('.project-image-container:first-child img');
+                    mainImg.src = 'https:' + project.mainImage.fields.file.url;
+                    mainImg.alt = project.title;
+                }
+                
+                // Set gallery images
+                if (project.galleryImages && project.galleryImages.length) {
+                    const gridImages = document.querySelectorAll('.project-image-grid img');
+                    project.galleryImages.forEach((image, index) => {
+                        if (index < gridImages.length) {
+                            gridImages[index].src = 'https:' + image.fields.file.url;
+                        }
+                    });
+                }
+                
+                // Set next project if available
+                if (project.nextProject) {
+                    const nextLink = document.querySelector('.project-next-link');
+                    nextLink.textContent = project.nextProject.fields.title;
+                    nextLink.href = `project.html?id=${project.nextProject.sys.id}`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading project details:', error);
+            }
+        }
+        
+        // Load project details when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uncomment when ready to load from Contentful
+            // loadProjectDetails();
+        });
+    </script>
+</body>
+
+        .footer-column h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer-column ul li a:hover {
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: white;
+                padding: 80px 20px 20px;
+                transition: right 0.3s ease;
+            }
+
+            nav.active {
+                right: 0;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 0 0 20px 0;
+            }
+
+            .project-meta {
+                flex-direction: column;
+            }
+
+            .project-meta-item {
+                margin-bottom: 15px;
+            }
+
+            .project-image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                margin-top: 40px;
+            }
+
+            .footer-column {
+                margin-left: 0;
+                margin-right: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">MIKE MAHON</div>
+            <button class="nav-toggle">Menu</button>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Work</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="project-header">
+                <h1 class="project-title slide-in-left">Project Title One</h1>
+                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Client</div>
+                        <div class="project-meta-value">Client Name</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, Brand Strategy</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>This is a description of the project, outlining the challenge, approach, and solution. It provides context about the creative direction and how it aligned with the client's goals.</p>
+                    <p>The project succeeded in achieving its objectives through strategic thinking, innovative design, and thoughtful execution across multiple touchpoints.</p>
+                </div>
+            </div>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 1">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 2">
+                    </div>
+                </div>
+                
+                <!-- Another full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project implementation" class="project-image-full">
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 3">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project2.html" class="project-next-link">Project Title Two</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>Creative Director based in [Your Location].</p>
+                    <p>Available for collaborations and new opportunities.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Menu</h4>
+                        <ul>
+                            <li><a href="index.html">Work</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Social</h4>
+                        <ul>
+                            <li><a href="#" target="_blank">LinkedIn</a></li>
+                            <li><a href="#" target="_blank">Instagram</a></li>
+                            <li><a href="#" target="_blank">Behance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple navigation toggle for mobile
+        const navToggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('nav');
+
+        navToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+        
+        // Intersection Observer for scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animations for elements entering viewport
+            const animatedElements = document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            animatedElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>
