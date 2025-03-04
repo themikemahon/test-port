@@ -316,32 +316,10 @@
         });
         
         // Load about page content
-        async function loadAboutContent() {
-            try {
-                // Fetch about page content
-                const aboutPageResponse = await client.getEntries({
+                const response = await client.getEntries({
                     content_type: 'aboutPage',
                     limit: 1
                 });
-
-                // Fetch experience items
-                const experienceResponse = await client.getEntries({
-                    content_type: 'experienceItem',
-                    order: '-fields.period'
-                });
-
-                // Fetch awards
-                const awardsResponse = await client.getEntries({
-                    content_type: 'awards',
-                    order: '-fields.year'
-                });
-
-                // Rest of your existing logic, using these separate responses
-                // ...
-            } catch (error) {
-                console.error('Error loading about content:', error);
-            }
-        }
                 
                 const aboutContent = response.items[0].fields;
                 
