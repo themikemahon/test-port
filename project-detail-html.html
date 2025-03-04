@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Title One | Creative Director Portfolio</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            background-color: #fff;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Animation Base Styles */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            background-color: rgba(255,255,255,0.95);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 40px;
+        }
+
+        nav ul li a {
+            font-size: 14px;
+            position: relative;
+        }
+
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background: #333;
+            left: 0;
+            bottom: -3px;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+
+        /* Project Detail */
+        main {
+            margin-top: 100px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .project-header {
+            margin-bottom: 60px;
+        }
+
+        .project-title {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .project-meta {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .project-meta-item {
+            margin-right: 30px;
+        }
+
+        .project-meta-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            color: #888;
+        }
+
+        .project-meta-value {
+            font-size: 14px;
+        }
+
+        .project-description {
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .project-images {
+            display: flex;
+            flex-direction: column;
+            gap: 100px;
+            margin-bottom: 100px;
+        }
+
+        .project-image-container {
+            width: 100%;
+        }
+
+        .project-image-full {
+            width: 100%;
+            height: auto;
+        }
+
+        .project-image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+
+        .project-next {
+            margin: 100px 0;
+            text-align: center;
+        }
+
+        .project-next-title {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .project-next-link {
+            font-size: 24px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .project-next-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background: #333;
+            left: 0;
+            bottom: -3px;
+            transition: width 0.3s ease;
+        }
+
+        .project-next-link:hover:after {
+            width: 100%;
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-info {
+            max-width: 400px;
+        }
+
+        .footer-links {
+            display: flex;
+        }
+
+        .footer-column {
+            margin-left: 60px;
+        }
+
+        .footer-column h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer-column ul li a:hover {
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: white;
+                padding: 80px 20px 20px;
+                transition: right 0.3s ease;
+            }
+
+            nav.active {
+                right: 0;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 0 0 20px 0;
+            }
+
+            .project-meta {
+                flex-direction: column;
+            }
+
+            .project-meta-item {
+                margin-bottom: 15px;
+            }
+
+            .project-image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                margin-top: 40px;
+            }
+
+            .footer-column {
+                margin-left: 0;
+                margin-right: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">MIKE MAHON</div>
+            <button class="nav-toggle">Menu</button>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Work</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="project-header">
+                <h1 class="project-title slide-in-left">Project Title One</h1>
+                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Client</div>
+                        <div class="project-meta-value">Client Name</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, Brand Strategy</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>This is a description of the project, outlining the challenge, approach, and solution. It provides context about the creative direction and how it aligned with the client's goals.</p>
+                    <p>The project succeeded in achieving its objectives through strategic thinking, innovative design, and thoughtful execution across multiple touchpoints.</p>
+                </div>
+            </div>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 1">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 2">
+                    </div>
+                </div>
+                
+                <!-- Another full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project implementation" class="project-image-full">
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 3">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Project detail 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project2.html" class="project-next-link">Project Title Two</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>Creative Director based in [Your Location].</p>
+                    <p>Available for collaborations and new opportunities.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Menu</h4>
+                        <ul>
+                            <li><a href="index.html">Work</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Social</h4>
+                        <ul>
+                            <li><a href="#" target="_blank">LinkedIn</a></li>
+                            <li><a href="#" target="_blank">Instagram</a></li>
+                            <li><a href="#" target="_blank">Behance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple navigation toggle for mobile
+        const navToggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('nav');
+
+        navToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+        
+        // Intersection Observer for scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animations for elements entering viewport
+            const animatedElements = document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.15,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            animatedElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>
