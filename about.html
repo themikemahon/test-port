@@ -316,10 +316,18 @@
         });
         
         // Load about page content
+        async function loadAboutContent() {
+            try {
+                // Fetch about page content from Contentful
                 const response = await client.getEntries({
                     content_type: 'aboutPage',
                     limit: 1
                 });
+                
+                if (response.items.length === 0) {
+                    console.warn('No about page content found in Contentful.');
+                    return;
+                }
                 
                 const aboutContent = response.items[0].fields;
                 
