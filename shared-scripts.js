@@ -72,6 +72,12 @@ function setupAnimations() {
 // Function to load social links for the footer
 async function loadSocialLinks() {
     try {
+        // Check if Contentful is available
+        if (typeof contentful === 'undefined') {
+            console.warn('Contentful SDK not loaded');
+            return;
+        }
+
         // Initialize Contentful client
         const client = contentful.createClient({
             space: '2ic80tk26lba',
@@ -114,9 +120,6 @@ async function loadSocialLinks() {
     }
 }
 
-// Add this function to your shared-scripts.js file
-// This should go before the DOMContentLoaded event listener's closing bracket
-
 // Load site settings from Contentful
 function loadSiteSettings() {
     // Check if Contentful client is available
@@ -158,7 +161,7 @@ function loadSiteSettings() {
     });
 }
 
-// Modify your existing DOMContentLoaded event listener to include loadSiteSettings
+// Combine DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
     setupAnimations();
@@ -171,20 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load social links for footer
     loadSocialLinks();
     
-    // Add this line to load site settings
+    // Load site settings
     loadSiteSettings();
-});
-
-// Initialize all shared functionality
-document.addEventListener('DOMContentLoaded', function() {
-    setupMobileNav();
-    setupAnimations();
-    
-    // Add touch-friendly behavior for mobile
-    if ('ontouchstart' in window) {
-        document.body.classList.add('touch-device');
-    }
-    
-    // Load social links for footer
-    loadSocialLinks();
 });
