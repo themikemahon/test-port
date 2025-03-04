@@ -320,7 +320,7 @@
             try {
                 // Fetch about page content from Contentful
                 const response = await client.getEntries({
-                    content_type: ['aboutPage', 'experienceItem', 'awards'],
+                    content_type: 'aboutPage',
                     limit: 1
                 });
                 
