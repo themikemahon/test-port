@@ -69,6 +69,51 @@ function setupAnimations() {
     });
 }
 
+// Function to load social links for the footer
+async function loadSocialLinks() {
+    try {
+        // Initialize Contentful client
+        const client = contentful.createClient({
+            space: '2ic80tk26lba',
+            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+        });
+        
+        // Fetch social links
+        const response = await client.getEntries({
+            content_type: 'socialLinks'
+        });
+        
+        if (response.items.length === 0) {
+            console.warn('No social links found in Contentful.');
+            return;
+        }
+        
+        // Update footer social links
+        const socialLinksContainer = document.querySelector('.footer-column:nth-of-type(2) ul');
+        if (socialLinksContainer) {
+            socialLinksContainer.innerHTML = '';
+            
+            // Add each social link
+            response.items.forEach(item => {
+                const platform = item.fields.platform;
+                const url = item.fields.url;
+                
+                if (platform && url) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = "_blank";
+                    a.textContent = platform;
+                    li.appendChild(a);
+                    socialLinksContainer.appendChild(li);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error loading social links:', error);
+    }
+}
+
 // Initialize all shared functionality
 document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
@@ -78,4 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if ('ontouchstart' in window) {
         document.body.classList.add('touch-device');
     }
+    
+    // Load social links for footer
+    loadSocialLinks();
 });
