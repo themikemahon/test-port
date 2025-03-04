@@ -19,6 +19,7 @@
             height: 0;
             padding-bottom: 75%; /* Aspect ratio of image */
             background-color: #f5f5f5;
+            position: relative;
         }
     </style>
 </head>
@@ -48,10 +49,11 @@
                 <p>Hands-on creative leader, bridging strategy to purposeful execution. Let's make work that makes a difference.</p>
             </div>
             
-            <div class="projects-grid">
-                <!-- Project 1 -->
+            <div class="projects-grid" id="projects-container">
+                <!-- Projects will be dynamically loaded from Contentful -->
+                <!-- Fallback static content if Contentful is not set up -->
                 <div class="project-card">
-                    <a href="project1.html">
+                    <a href="project-detail.html?id=project1">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 1">
                         </div>
@@ -62,9 +64,8 @@
                     </a>
                 </div>
 
-                <!-- Project 2 -->
                 <div class="project-card">
-                    <a href="project2.html">
+                    <a href="project-detail.html?id=project2">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 2">
                         </div>
@@ -75,9 +76,8 @@
                     </a>
                 </div>
 
-                <!-- Project 3 -->
                 <div class="project-card">
-                    <a href="project3.html">
+                    <a href="project-detail.html?id=project3">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 3">
                         </div>
@@ -88,9 +88,8 @@
                     </a>
                 </div>
 
-                <!-- Project 4 -->
                 <div class="project-card">
-                    <a href="project4.html">
+                    <a href="project-detail.html?id=project4">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 4">
                         </div>
@@ -101,9 +100,8 @@
                     </a>
                 </div>
 
-                <!-- Project 5 -->
                 <div class="project-card">
-                    <a href="project5.html">
+                    <a href="project-detail.html?id=project5">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 5">
                         </div>
@@ -114,9 +112,8 @@
                     </a>
                 </div>
 
-                <!-- Project 6 -->
                 <div class="project-card">
-                    <a href="project6.html">
+                    <a href="project-detail.html?id=project6">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 6">
                         </div>
@@ -159,35 +156,78 @@
         </div>
     </footer>
 
+    <!-- Shared scripts -->
+    <script src="shared-scripts.js"></script>
+    
+    <!-- Contentful SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+    
+    <!-- Contentful integration for homepage -->
     <script>
-        // Simple navigation toggle for mobile
-        document.addEventListener('DOMContentLoaded', function() {
-            const navToggle = document.querySelector('.nav-toggle');
-            const nav = document.querySelector('nav');
-
-            if (navToggle) {
-                navToggle.addEventListener('click', () => {
-                    nav.classList.toggle('active');
+        // Initialize Contentful client with your space ID and API key
+        const client = contentful.createClient({
+            space: 'YOUR_SPACE_ID',
+            accessToken: 'YOUR_ACCESS_TOKEN'
+        });
+        
+        // Load projects from Contentful
+        async function loadProjects() {
+            try {
+                // Fetch projects from Contentful
+                const response = await client.getEntries({
+                    content_type: 'project',
+                    order: 'fields.order' // If you have an order field
                 });
+                
+                if (response.items.length === 0) {
+                    console.warn('No projects found in Contentful. Showing demo content.');
+                    return;
+                }
+                
+                // Clear the container 
+                const projectsContainer = document.getElementById('projects-container');
+                projectsContainer.innerHTML = '';
+                
+                // Add each project
+                response.items.forEach((item, index) => {
+                    const project = item.fields;
+                    const projectId = item.sys.id;
+                    
+                    // Create project card
+                    const card = document.createElement('div');
+                    card.className = 'project-card';
+                    
+                    // Delay for animation 
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 500 + (index * 100));
+                    
+                    // Create card HTML
+                    card.innerHTML = `
+                        <a href="project-detail.html?id=${projectId}">
+                            <div class="project-image">
+                                <img src="${project.thumbnail ? 'https:' + project.thumbnail.fields.file.url : '/api/placeholder/600/450'}" alt="${project.title}">
+                            </div>
+                            <div class="project-info">
+                                <h3 class="project-title">${project.title}</h3>
+                                <p class="project-category">${project.category || ''}</p>
+                            </div>
+                        </a>
+                    `;
+                    
+                    projectsContainer.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Error loading projects:', error);
             }
-            
-            // Add animation to project cards with staggered timing
-            const projectCards = document.querySelectorAll('.project-card');
-            projectCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, (index + 1) * 100); // +1 to start after brief statement
-            });
-            
-            // Animate brief statement first
-            const briefStatement = document.querySelector('.brief-statement p');
-            if (briefStatement) {
-                setTimeout(() => {
-                    briefStatement.style.opacity = '1';
-                    briefStatement.style.transform = 'translateY(0)';
-                }, 100);
-            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uncomment this line when you're ready to use Contentful
+            // loadProjects();
         });
     </script>
 </body>

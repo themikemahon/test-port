@@ -308,7 +308,7 @@ footer {
 
     /* Responsive grid adjustments */
     .projects-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 30px;
     }
 
