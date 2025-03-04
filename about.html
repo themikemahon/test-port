@@ -36,11 +36,12 @@
         .about-text {
             margin-bottom: 30px;
         }
+
+        /* Add paragraph spacing for biography */
         .about-text p {
             margin-bottom: 20px;
         }
 
-        /* Make sure the last paragraph doesn't have extra space at the bottom */
         .about-text p:last-child {
             margin-bottom: 0;
         }
@@ -329,8 +330,14 @@
                 // Fetch about page content from Contentful
                 const response = await client.getEntries({
                     content_type: 'aboutPage',
-                    limit: 1
+                    limit: 1,
+                    include: 2 // This tells Contentful to include linked entries 2 levels deep
                 });
+                
+                if (response.items.length === 0) {
+                    console.warn('No about page content found in Contentful.');
+                    return;
+                }
                 
                 const aboutContent = response.items[0].fields;
                 
@@ -380,7 +387,10 @@
                     experienceSection.appendChild(experienceTitle);
                     
                     // Add each experience item
-                    aboutContent.experience.forEach((exp, index) => {
+                    aboutContent.experience.forEach((expEntry, index) => {
+                        // Access the fields of the referenced entry
+                        const exp = expEntry.fields;
+                        
                         const item = document.createElement('div');
                         item.className = 'experience-item fade-in';
                         if (index > 0) {
@@ -405,7 +415,10 @@
                     const awardsGrid = document.querySelector('.awards-grid');
                     awardsGrid.innerHTML = '';
                     
-                    aboutContent.awards.forEach((award, index) => {
+                    aboutContent.awards.forEach((awardEntry, index) => {
+                        // Access the fields of the referenced entry
+                        const award = awardEntry.fields;
+                        
                         const item = document.createElement('div');
                         item.className = 'award-item fade-in';
                         item.style.transitionDelay = `${index * 0.1}s`;
@@ -422,12 +435,12 @@
                 
             } catch (error) {
                 console.error('Error loading about content:', error);
+                console.log('Error details:', error.message);
             }
         }
         
         // Load about content when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Uncomment when ready to load from Contentful
             loadAboutContent();
         });
     </script>
