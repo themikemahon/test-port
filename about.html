@@ -316,36 +316,13 @@
         });
         
         // Load about page content
-async function loadAboutContent() {
-    try {
-        // Fetch About Page content
-        const aboutPageResponse = await client.getEntries({
-            content_type: 'aboutPage',
-            limit: 1
-        });
-        
-        // Fetch Experience Items
-        const experienceResponse = await client.getEntries({
-            content_type: 'experienceItem',
-            order: '-fields.period'
-        });
-        
-        // Fetch Awards
-        const awardsResponse = await client.getEntries({
-            content_type: 'awards',
-            order: '-fields.year'
-        });
-        
-        // Combine and process
-        const aboutContent = aboutPageResponse.items[0]?.fields || {};
-        aboutContent.experience = experienceResponse.items;
-        aboutContent.awards = awardsResponse.items;
-        
-        // Your existing rendering logic, but use .fields for nested entries
-    } catch (error) {
-        console.error('Comprehensive error:', error);
-    }
-}
+        async function loadAboutContent() {
+            try {
+                // Fetch about page content from Contentful
+                const response = await client.getEntries({
+                    content_type: 'aboutPage',
+                    limit: 1
+                });
                 
                 const aboutContent = response.items[0].fields;
                 
