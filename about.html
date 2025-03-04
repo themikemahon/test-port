@@ -310,146 +310,162 @@
         </div>
     </footer>
 
-    <!-- Shared scripts -->
+    <!-- Modified Contentful script with debugging -->
     <script src="shared-scripts.js"></script>
-    
-    <!-- Contentful SDK -->
     <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
-    <!-- Contentful integration -->
     <script>
-        // Initialize Contentful client with your space ID and API key
+        // Debug function that will display messages on the page
+        function debug(message, data) {
+            console.log(message, data);
+            
+            // Also display in page for visibility
+            const debugDiv = document.getElementById('debug-output') || (() => {
+                const div = document.createElement('div');
+                div.id = 'debug-output';
+                div.style = 'background: #f0f0f0; padding: 20px; margin: 20px; border: 1px solid #ddd; max-height: 300px; overflow: auto;';
+                document.body.appendChild(div);
+                return div;
+            })();
+            
+            const msgElem = document.createElement('p');
+            msgElem.innerHTML = `<strong>${message}</strong>: ${data ? JSON.stringify(data).substring(0, 500) + '...' : 'undefined'}`;
+            debugDiv.appendChild(msgElem);
+        }
+
+        // Initialize Contentful client 
         const client = contentful.createClient({
             space: '2ic80tk26lba',
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
-        // Load about page content using separate API calls
+        // Simplified load function for debugging
         async function loadAboutContent() {
             try {
-                // 1. Fetch about page content
-                const aboutResponse = await client.getEntries({
-                    content_type: 'aboutPage',
-                    limit: 1
-                });
+                debug('Starting content load', new Date().toISOString());
                 
-                if (aboutResponse.items.length === 0) {
-                    console.warn('No about page content found.');
-                    return;
+                // Test basic connection to Contentful
+                debug('Testing Contentful connection', null);
+                try {
+                    const spaceInfo = await client.getSpace();
+                    debug('Connected to Contentful space', { name: spaceInfo.name });
+                } catch (e) {
+                    debug('Failed to connect to Contentful', e.message);
                 }
                 
-                const aboutContent = aboutResponse.items[0].fields;
+                // 1. First try to get a list of all content types
+                try {
+                    debug('Fetching content types', null);
+                    const contentTypes = await client.getContentTypes();
+                    debug('Content types available', contentTypes.items.map(type => type.sys.id));
+                } catch (e) {
+                    debug('Failed to fetch content types', e.message);
+                }
                 
-                // 2. Update biography text
-                if (aboutContent.biography) {
-                    const bioContainer = document.querySelector('.about-text');
-                    bioContainer.innerHTML = '';
+                // 2. Try to fetch experience items directly
+                try {
+                    debug('Fetching experience items', null);
+                    // Try with exact content type ID from your screenshots
+                    const experienceResponse = await client.getEntries({
+                        content_type: 'experienceItem'
+                    });
+                    debug('Experience items found', { 
+                        total: experienceResponse.total,
+                        items: experienceResponse.items ? experienceResponse.items.length : 0
+                    });
                     
-                    // Handle rich text content
-                    if (typeof aboutContent.biography === 'string') {
-                        const paragraphs = aboutContent.biography.split('\n\n');
-                        paragraphs.forEach(paragraph => {
-                            if (paragraph.trim()) {
-                                const p = document.createElement('p');
-                                p.textContent = paragraph;
-                                bioContainer.appendChild(p);
+                    // If we got items, display the first one
+                    if (experienceResponse.items && experienceResponse.items.length > 0) {
+                        debug('Sample experience item', experienceResponse.items[0].fields);
+                        
+                        // Now try to render experience items
+                        const experienceSection = document.querySelector('.experience-section');
+                        const experienceTitle = experienceSection.querySelector('.experience-title');
+                        experienceSection.innerHTML = '';
+                        experienceSection.appendChild(experienceTitle);
+                        
+                        experienceResponse.items.forEach((item, index) => {
+                            debug(`Processing experience item ${index}`, item.fields);
+                            const exp = item.fields;
+                            
+                            const element = document.createElement('div');
+                            element.className = 'experience-item fade-in';
+                            if (index > 0) {
+                                element.style.transitionDelay = `${index * 0.1}s`;
                             }
+                            
+                            element.innerHTML = `
+                                <div class="experience-period">${exp.period || ''}</div>
+                                <div class="experience-details">
+                                    <h3>${exp.title || ''}</h3>
+                                    <p>${exp.company || ''}</p>
+                                    <p>${exp.description || ''}</p>
+                                </div>
+                            `;
+                            
+                            experienceSection.appendChild(element);
                         });
+                        
+                        debug('Experience items rendered', null);
                     }
+                } catch (e) {
+                    debug('Failed to fetch experience items', e.message);
                 }
                 
-                // 3. Update services
-                if (aboutContent.services && aboutContent.services.length) {
-                    const servicesList = document.querySelector('.services-list');
-                    servicesList.innerHTML = '';
-                    
-                    aboutContent.services.forEach(service => {
-                        const li = document.createElement('li');
-                        li.textContent = service;
-                        servicesList.appendChild(li);
+                // 3. Try to fetch awards directly
+                try {
+                    debug('Fetching awards', null);
+                    // Try with content type ID from your screenshots
+                    const awardsResponse = await client.getEntries({
+                        content_type: 'awards'
                     });
-                }
-                
-                // 4. Update profile image
-                if (aboutContent.profileImage && aboutContent.profileImage.fields) {
-                    document.querySelector('.about-image img').src = 
-                        'https:' + aboutContent.profileImage.fields.file.url;
-                }
-                
-                // 5. Fetch experience items directly
-                const experienceResponse = await client.getEntries({
-                    content_type: 'experienceItem'
-                });
-                
-                console.log('Experience response:', experienceResponse);
-                
-                if (experienceResponse.items && experienceResponse.items.length > 0) {
-                    // Update experience section
-                    const experienceSection = document.querySelector('.experience-section');
-                    const experienceTitle = experienceSection.querySelector('.experience-title');
-                    experienceSection.innerHTML = '';
-                    experienceSection.appendChild(experienceTitle);
+                    debug('Awards found', { 
+                        total: awardsResponse.total,
+                        items: awardsResponse.items ? awardsResponse.items.length : 0 
+                    });
                     
-                    experienceResponse.items.forEach((item, index) => {
-                        const exp = item.fields;
-                        const element = document.createElement('div');
-                        element.className = 'experience-item fade-in';
-                        if (index > 0) {
+                    // If we got items, display the first one
+                    if (awardsResponse.items && awardsResponse.items.length > 0) {
+                        debug('Sample award item', awardsResponse.items[0].fields);
+                        
+                        // Now try to render awards
+                        const awardsGrid = document.querySelector('.awards-grid');
+                        awardsGrid.innerHTML = '';
+                        
+                        awardsResponse.items.forEach((item, index) => {
+                            debug(`Processing award item ${index}`, item.fields);
+                            const award = item.fields;
+                            
+                            const element = document.createElement('div');
+                            element.className = 'award-item fade-in';
                             element.style.transitionDelay = `${index * 0.1}s`;
-                        }
+                            
+                            element.innerHTML = `
+                                <div class="award-year">${award.year || ''}</div>
+                                <div class="award-name">${award.name || ''}</div>
+                                <div class="award-project">${award.project || ''}</div>
+                            `;
+                            
+                            awardsGrid.appendChild(element);
+                        });
                         
-                        element.innerHTML = `
-                            <div class="experience-period">${exp.period || ''}</div>
-                            <div class="experience-details">
-                                <h3>${exp.title || ''}</h3>
-                                <p>${exp.company || ''}</p>
-                                <p>${exp.description || ''}</p>
-                            </div>
-                        `;
-                        
-                        experienceSection.appendChild(element);
-                    });
-                }
-                
-                // 6. Fetch awards directly
-                const awardsResponse = await client.getEntries({
-                    content_type: 'awards'
-                });
-                
-                console.log('Awards response:', awardsResponse);
-                
-                if (awardsResponse.items && awardsResponse.items.length > 0) {
-                    // Update awards section
-                    const awardsGrid = document.querySelector('.awards-grid');
-                    awardsGrid.innerHTML = '';
-                    
-                    awardsResponse.items.forEach((item, index) => {
-                        const award = item.fields;
-                        const element = document.createElement('div');
-                        element.className = 'award-item fade-in';
-                        element.style.transitionDelay = `${index * 0.1}s`;
-                        
-                        element.innerHTML = `
-                            <div class="award-year">${award.year || ''}</div>
-                            <div class="award-name">${award.name || ''}</div>
-                            <div class="award-project">${award.project || ''}</div>
-                        `;
-                        
-                        awardsGrid.appendChild(element);
-                    });
+                        debug('Awards rendered', null);
+                    }
+                } catch (e) {
+                    debug('Failed to fetch awards', e.message);
                 }
                 
             } catch (error) {
-                console.error('Error loading content:', error);
-                console.log('Error details:', error.message);
+                debug('Error in main function', error.message);
                 if (error.stack) {
-                    console.log('Stack trace:', error.stack);
+                    debug('Stack trace', error.stack);
                 }
             }
         }
         
         // Load about content when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            debug('DOM Content Loaded', new Date().toISOString());
             loadAboutContent();
         });
     </script>
