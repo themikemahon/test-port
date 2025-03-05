@@ -9,49 +9,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
     <style>
-        /* Custom styles to override the shared-styles.css animations */
-        
-        /* Remove hover animations from email and phone */
+        /* Remove hover animations from email and phone links */
         .contact-link {
+            text-decoration: none;
             transition: none;
-        }
-        
-        .contact-link:after {
-            display: none;
+            transform: none !important;
         }
         
         .contact-link:hover {
-            transform: none;
+            transform: none !important;
         }
         
-        /* Change button animation to left-to-right orange wipe without position change */
+        .contact-link:after {
+            display: none !important;
+        }
+        
+        /* Create a reliable button animation using background-image gradient */
         .form-button {
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            transition: color 0.3s ease;
-            transform: none !important; /* Prevent the button from moving */
+            background-image: linear-gradient(to right, var(--accent-color) 50%, var(--primary-color) 50%);
+            background-size: 200% 100%;
+            background-position: right bottom;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px 30px;
+            transition: background-position 0.3s ease !important;
+            transform: none !important;
         }
         
         .form-button:hover {
-            color: white;
-            transform: none !important; /* Ensure no transform on hover */
-        }
-        
-        .form-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background-color: var(--accent-color);
-            transition: width 0.3s ease;
-            z-index: -1;
-        }
-        
-        .form-button:hover::before {
-            width: 100%;
+            background-position: left bottom;
+            transform: none !important;
         }
     </style>
 </head>
