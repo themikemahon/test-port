@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Detail | Mike Mahon | Creative Director</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        /* Project Detail specific styles */
+        .project-title {
+            font-size: 42px;
+            margin-bottom: 40px;
+            margin-top: 80px; /* Added more space above project title */
+        }
+        
+        .project-image-container img {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .project-image-grid img {
+            transition: transform 0.5s ease;
+        }
+        
+        .project-image-grid img:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Next project link hover effect with orange highlight wipe */
+        .project-next-link {
+            position: relative;
+            display: inline-block;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+            z-index: 1; 
+        }
+        
+        .project-next-link::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .project-next-link:hover {
+            color: white;
+        }
+        
+        .project-next-link:hover::before {
+            width: 100%;
+        }
+        
+        /* Video container styles */
+        .project-video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .project-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Credits section styles */
+        .project-credits {
+            margin-top: 60px;
+            margin-bottom: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+        }
+        
+        .project-credits-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .credit-item {
+            margin-bottom: 20px;
+        }
+        
+        .credit-role {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .credit-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .credit-company {
+            font-size: 14px;
+            margin-top: 2px;
+            color: var(--secondary-color);
+        }
+        
+        /* Ensure proper spacing in header for this page */
+        @media (max-width: 768px) {
+            .logo {
+                margin-left: 10px;
+            }
+            
+            .project-title {
+                font-size: 32px;
+            }
+            
+            .credits-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
+            <button class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Work</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="project-header">
+                <h1 class="project-title slide-in-left">Horizon Interface System</h1>
+                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Client</div>
+                        <div class="project-meta-value">Horizon Technologies</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, UI/UX Design</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
+                    <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
+                </div>
+            </div>
+
+            <!-- Video Hero Section (New) -->
+            <div class="project-video-container fade-in">
+                <iframe src="https://player.vimeo.com/video/76979871" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Dashboard UI component">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
+                    </div>
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Design system components">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="User testing session">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credits Section (New) -->
+            <div class="project-credits fade-in">
+                <h2 class="project-credits-title">Credits</h2>
+                <div class="credits-grid">
+                    <div class="credit-item">
+                        <div class="credit-role">Creative Direction</div>
+                        <div class="credit-name">Mike Mahon</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">UX Design</div>
+                        <div class="credit-name">Sarah Johnson</div>
+                        <div class="credit-company">Interface Lab</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">UI Design</div>
+                        <div class="credit-name">David Chen</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Development</div>
+                        <div class="credit-name">Alex Patel</div>
+                        <div class="credit-company">CodeCraft</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Animation</div>
+                        <div class="credit-name">Maya Rodriguez</div>
+                        <div class="credit-company">Motion Works</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Project Management</div>
+                        <div class="credit-name">James Wilson</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
+                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Menu</h4>
+                        <ul>
+                            <li><a href="index.html">Work</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Social</h4>
+                        <ul>
+                            <li><a href="#" target="_blank">LinkedIn</a></li>
+                            <li><a href="#" target="_blank">Instagram</a></li>
+                            <li><a href="#" target="_blank">Behance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Shared scripts -->
+    <script src="shared-scripts.js"></script>
+    
+    <!-- Contentful SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+    
+    <!-- Contentful integration -->
+    <script>
+        // Initialize Contentful client with your space ID and API key
+        const client = contentful.createClient({
+            space: '2ic80tk26lba',
+            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+        });
+        
+        // Load project details
+        async function loadProjectDetails() {
+            try {
+                // Get project ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+                
+                if (!projectId) {
+                    console.warn('No project ID provided. Showing demo content.');
+                    return; // Show demo content if no ID
+                }
+                
+                // Fetch project data
+                const entry = await client.getEntry(projectId);
+                const project = entry.fields;
+                
+                // Update page title
+                document.title = `${project.title} | Mike Mahon | Creative Director`;
+                
+                // Set project details
+                document.querySelector('.project-title').textContent = project.title;
+                
+                // Set meta info
+                const metaItems = document.querySelectorAll('.project-meta-item');
+                if (metaItems[0] && project.client) 
+                    metaItems[0].querySelector('.project-meta-value').textContent = project.client;
+                if (metaItems[1] && project.role) 
+                    metaItems[1].querySelector('.project-meta-value').textContent = project.role;
+                if (metaItems[2] && project.year) 
+                    metaItems[2].querySelector('.project-meta-value').textContent = project.year;
+                
+                // Set description
+                if (project.description) {
+                    // For rich text content, we'll need more processing
+                    // This is a simplified version for text content
+                    const descriptionEl = document.querySelector('.project-description');
+                    descriptionEl.innerHTML = '';
+                    
+                    if (typeof project.description === 'string') {
+                        // Simple text
+                        const paragraphs = project.description.split('\n\n');
+                        paragraphs.forEach(paragraph => {
+                            if (paragraph.trim()) {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph;
+                                descriptionEl.appendChild(p);
+                            }
+                        });
+                    } else if (project.description.content) {
+                        // Rich text from Contentful
+                        project.description.content.forEach(paragraph => {
+                            if (paragraph.nodeType === 'paragraph') {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph.content
+                                    .filter(item => item.nodeType === 'text')
+                                    .map(item => item.value)
+                                    .join('');
+                                descriptionEl.appendChild(p);
+                            }
+                        });
+                    }
+                }
+                
+                // Set video if available (New)
+                if (project.videoUrl) {
+                    const videoContainer = document.querySelector('.project-video-container iframe');
+                    videoContainer.src = project.videoUrl;
+                }
+                
+                // Set main image
+                if (project.mainImage) {
+                    const mainImg = document.querySelector('.project-image-container:first-child img');
+                    mainImg.src = 'https:' + project.mainImage.fields.file.url;
+                    mainImg.alt = project.title;
+                }
+                
+                // Set gallery images
+                if (project.galleryImages && project.galleryImages.length) {
+                    const gridImages = document.querySelectorAll('.project-image-grid img');
+                    project.galleryImages.forEach((image, index) => {
+                        if (index < gridImages.length) {
+                            gridImages[index].src = 'https:' + image.fields.file.url;
+                            gridImages[index].alt = image.fields.title || `${project.title} detail ${index + 1}`;
+                        }
+                    });
+                }
+                
+                // Set credits if available (New)
+                if (project.credits && project.credits.length) {
+                    const creditsGrid = document.querySelector('.credits-grid');
+                    creditsGrid.innerHTML = ''; // Clear existing credits
+                    
+                    project.credits.forEach(credit => {
+                        if (credit.role && credit.name) {
+                            const creditItem = document.createElement('div');
+                            creditItem.className = 'credit-item';
+                            
+                            const roleDiv = document.createElement('div');
+                            roleDiv.className = 'credit-role';
+                            roleDiv.textContent = credit.role;
+                            
+                            const nameDiv = document.createElement('div');
+                            nameDiv.className = 'credit-name';
+                            nameDiv.textContent = credit.name;
+                            
+                            creditItem.appendChild(roleDiv);
+                            creditItem.appendChild(nameDiv);
+                            
+                            if (credit.company) {
+                                const companyDiv = document.createElement('div');
+                                companyDiv.className = 'credit-company';
+                                companyDiv.textContent = credit.company;
+                                creditItem.appendChild(companyDiv);
+                            }
+                            
+                            creditsGrid.appendChild(creditItem);
+                        }
+                    });
+                }
+                
+                // Set next project if available
+                if (project.nextProject) {
+                    const nextLink = document.querySelector('.project-next-link');
+                    nextLink.textContent = project.nextProject.fields.title;
+                    nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading project details:', error);
+            }
+        }
+        
+        // Load project details when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProjectDetails();
+            
+            // Setup animations for elements
+            setTimeout(function() {
+                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
