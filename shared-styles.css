@@ -182,9 +182,13 @@ main {
 
 .statement-text .highlight {
     position: relative;
-    display: inline-block;
+    display: inline-block;  /* This is already correct */
     z-index: 1;
     color: white;
+    /* Add these properties: */
+    white-space: nowrap;  /* Prevent the highlighted text from wrapping */
+    box-decoration-break: clone;  /* For browsers that support it */
+    -webkit-box-decoration-break: clone;
 }
 
 .statement-text .highlight::after {
@@ -196,6 +200,8 @@ main {
     bottom: 0;
     left: 0;
     z-index: -1;
+    /* You could add a small padding here if you want more space */
+    padding: 0;  /* Adjust as needed */
 }
 
 /* Animation Base Styles */
