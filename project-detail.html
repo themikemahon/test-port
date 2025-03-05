@@ -8,6 +8,69 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        /* Project Detail specific styles */
+        .project-title {
+            font-size: 42px;
+            margin-bottom: 40px;
+            margin-top: 80px; /* Added more space above project title */
+        }
+        
+        .project-image-container img {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .project-image-grid img {
+            transition: transform 0.5s ease;
+        }
+        
+        .project-image-grid img:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Next project link hover effect with orange highlight wipe */
+        .project-next-link {
+            position: relative;
+            display: inline-block;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+            z-index: 1; 
+        }
+        
+        .project-next-link::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .project-next-link:hover {
+            color: white;
+        }
+        
+        .project-next-link:hover::before {
+            width: 100%;
+        }
+        
+        /* Ensure proper spacing in header for this page */
+        @media (max-width: 768px) {
+            .logo {
+                margin-left: 10px;
+            }
+            
+            .project-title {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -37,6 +100,52 @@
                         <div class="project-meta-label">Client</div>
                         <div class="project-meta-value">Horizon Technologies</div>
                     </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, UI/UX Design</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
+                    <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
+                </div>
+            </div>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Dashboard UI component">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
+                    </div>
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Design system components">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="User testing session">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
+            </div>
         </div>
     </main>
 
@@ -179,58 +288,14 @@
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             loadProjectDetails();
+            
+            // Setup animations for elements
+            setTimeout(function() {
+                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 100);
         });
     </script>
 </body>
 </html>
-
-            <div class="project-images">
-                <!-- Full width image -->
-                <div class="project-image-container fade-in">
-                    <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
-                </div>
-                
-                <!-- Grid of images -->
-                <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Dashboard UI component" >
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
-                    </div>
-                </div>
-                
-                <!-- Another full width image -->
-                <div class="project-image-container fade-in">
-                    <img src="/api/placeholder/1400/800" alt="System in use by team" class="project-image-full">
-                </div>
-                
-                <!-- Another grid of images -->
-                <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Design system components">
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="User testing session">
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-next">
-                <div class="project-next-title">Next Project</div>
-                <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
-            </div>>
-                    <div class="project-meta-item">
-                        <div class="project-meta-label">Role</div>
-                        <div class="project-meta-value">Creative Direction, UI/UX Design</div>
-                    </div>
-                    <div class="project-meta-item">
-                        <div class="project-meta-label">Year</div>
-                        <div class="project-meta-value">2024</div>
-                    </div>
-                </div>
-                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
-                    <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
-                    <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
-                </div>
-            </div

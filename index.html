@@ -8,6 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        /* Ensure proper spacing in header for this page */
+        @media (max-width: 768px) {
+            .logo {
+                margin-left: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -32,6 +40,90 @@
         <div class="container">
             <!-- Brief Statement Section -->
             <div class="brief-statement">
+                <div class="statement-text">
+                    CREATING BOLD BRAND IDENTITIES & <span class="highlight">IMPACTFUL</span> DIGITAL EXPERIENCES
+                </div>
+            </div>
+            
+            <div class="projects-grid" id="projects-container">
+                <!-- Projects will be dynamically loaded from Contentful -->
+                <!-- Fallback static content if Contentful is not set up -->
+                <div class="project-card">
+                    <a href="project-detail.html?id=project1">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 1">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title One</h3>
+                                <p class="project-category">Brand Direction / Campaign</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project2">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 2">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Two</h3>
+                                <p class="project-category">Digital Experience / UX</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project3">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 3">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Three</h3>
+                                <p class="project-category">Art Direction / Photography</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project4">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 4">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Four</h3>
+                                <p class="project-category">Branding / Identity</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
                 <div class="project-card">
                     <a href="project-detail.html?id=project5">
                         <div class="project-image">
@@ -40,6 +132,35 @@
                                 <div class="project-overlay-content">
                                     <div class="view-project">View Project</div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Five</h3>
+                                <p class="project-category">Packaging / Visual Design</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project6">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 6">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Six</h3>
+                                <p class="project-category">Advertising / Campaigns</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </main>
@@ -168,117 +289,6 @@
                 }, 500 + (index * 100));
             });
         });
-    </script>>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title Five</h3>
-                                <p class="project-category">Packaging / Visual Design</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project6">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 6">
-                            <div class="project-overlay">
-                                <div class="project-overlay-content">
-                                    <div class="view-project">View Project</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title Six</h3>
-                                <p class="project-category">Advertising / Campaigns</p>
-                            </div>
-                        </div>
-                    </a>
-                </div class="statement-text">
-                    CREATING BOLD BRAND IDENTITIES & <span class="highlight">IMPACTFUL</span> DIGITAL EXPERIENCES
-                </div>
-            </div>
-            
-            <div class="projects-grid" id="projects-container">
-                <!-- Projects will be dynamically loaded from Contentful -->
-                <!-- Fallback static content if Contentful is not set up -->
-                <div class="project-card">
-                    <a href="project-detail.html?id=project1">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 1">
-                            <div class="project-overlay">
-                                <div class="project-overlay-content">
-                                    <div class="view-project">View Project</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title One</h3>
-                                <p class="project-category">Brand Direction / Campaign</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project2">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 2">
-                            <div class="project-overlay">
-                                <div class="project-overlay-content">
-                                    <div class="view-project">View Project</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title Two</h3>
-                                <p class="project-category">Digital Experience / UX</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project3">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 3">
-                            <div class="project-overlay">
-                                <div class="project-overlay-content">
-                                    <div class="view-project">View Project</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title Three</h3>
-                                <p class="project-category">Art Direction / Photography</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project4">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 4">
-                            <div class="project-overlay">
-                                <div class="project-overlay-content">
-                                    <div class="view-project">View Project</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-info">
-                            <div class="project-title-container">
-                                <h3 class="project-title">Project Title Four</h3>
-                                <p class="project-category">Branding / Identity</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div
+    </script>
+</body>
+</html>
