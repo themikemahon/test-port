@@ -144,13 +144,23 @@ function loadSiteSettings() {
             if (settings.briefStatement) {
                 const briefStatement = document.querySelector('.brief-statement p');
                 if (briefStatement) {
-                    briefStatement.textContent = settings.briefStatement;
+                    // Replace [word] with <span class="highlight">word</span>
+                    const formattedText = settings.briefStatement.replace(
+                        /\[([^\]]+)\]/g, 
+                        '<span class="highlight">$1</span>'
+                    );
+                    briefStatement.innerHTML = formattedText;
                 }
                 
                 // For new design with statement-text class
                 const statementText = document.querySelector('.statement-text');
                 if (statementText) {
-                    statementText.innerHTML = settings.briefStatement.replace(/(IMPACTFUL)/g, '<span class="highlight">$1</span>');
+                    // Replace [word] with <span class="highlight">word</span>
+                    const formattedText = settings.briefStatement.replace(
+                        /\[([^\]]+)\]/g, 
+                        '<span class="highlight">$1</span>'
+                    );
+                    statementText.innerHTML = formattedText;
                 }
             }
             
