@@ -172,11 +172,11 @@ function loadSiteSettings() {
                 }
             }
             
-            // Update footer tagline
+            // Update footer tagline - MODIFIED TO HANDLE LINE BREAKS
             if (settings.footerTagline) {
                 const footerTagline = document.querySelector('.footer-tagline');
                 if (footerTagline) {
-                    footerTagline.textContent = settings.footerTagline;
+                    footerTagline.innerHTML = settings.footerTagline.replace(/\n/g, '<br>');
                 }
             }
         }
