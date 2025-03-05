@@ -23,7 +23,13 @@
             display: block;
         }
         
-        /* Removed hover effect for gallery images */
+        .project-image-grid img {
+            transition: transform 0.5s ease;
+        }
+        
+        .project-image-grid img:hover {
+            transform: scale(1.02);
+        }
         
         /* Next project link hover effect with orange highlight wipe */
         .project-next-link {
@@ -46,17 +52,74 @@
             z-index: -1;
         }
         
-        /* Override the default underline animation for project-next-link */
-        .project-next-link::after {
-            display: none;
-        }
-        
         .project-next-link:hover {
             color: white;
         }
         
         .project-next-link:hover::before {
             width: 100%;
+        }
+        
+        /* Video container styles */
+        .project-video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .project-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Credits section styles */
+        .project-credits {
+            margin-top: 60px;
+            margin-bottom: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+        }
+        
+        .project-credits-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .credit-item {
+            margin-bottom: 20px;
+        }
+        
+        .credit-role {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .credit-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .credit-company {
+            font-size: 14px;
+            margin-top: 2px;
+            color: var(--secondary-color);
         }
         
         /* Ensure proper spacing in header for this page */
@@ -67,6 +130,11 @@
             
             .project-title {
                 font-size: 32px;
+            }
+            
+            .credits-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
         }
     </style>
@@ -93,9 +161,8 @@
     <main>
         <div class="container">
             <div class="project-header">
-                <!-- Changed slide-in-left to fade-in for consistency with other pages -->
-                <h1 class="project-title fade-in">Horizon Interface System</h1>
-                <div class="project-meta fade-in" style="transition-delay: 0.1s;">
+                <h1 class="project-title slide-in-left">Horizon Interface System</h1>
+                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
                     <div class="project-meta-item">
                         <div class="project-meta-label">Client</div>
                         <div class="project-meta-value">Horizon Technologies</div>
@@ -109,10 +176,15 @@
                         <div class="project-meta-value">2024</div>
                     </div>
                 </div>
-                <div class="project-description fade-in" style="transition-delay: 0.2s;">
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
                     <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
                     <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
                 </div>
+            </div>
+
+            <!-- Video Hero Section (New) -->
+            <div class="project-video-container fade-in">
+                <iframe src="https://player.vimeo.com/video/76979871" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </div>
 
             <div class="project-images">
@@ -142,6 +214,43 @@
                 </div>
             </div>
 
+            <!-- Credits Section (New) -->
+            <div class="project-credits fade-in">
+                <h2 class="project-credits-title">Credits</h2>
+                <div class="credits-grid">
+                    <div class="credit-item">
+                        <div class="credit-role">Creative Direction</div>
+                        <div class="credit-name">Mike Mahon</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">UX Design</div>
+                        <div class="credit-name">Sarah Johnson</div>
+                        <div class="credit-company">Interface Lab</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">UI Design</div>
+                        <div class="credit-name">David Chen</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Development</div>
+                        <div class="credit-name">Alex Patel</div>
+                        <div class="credit-company">CodeCraft</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Animation</div>
+                        <div class="credit-name">Maya Rodriguez</div>
+                        <div class="credit-company">Motion Works</div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-role">Project Management</div>
+                        <div class="credit-name">James Wilson</div>
+                        <div class="credit-company">Studio M</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="project-next">
                 <div class="project-next-title">Next Project</div>
                 <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
@@ -154,7 +263,7 @@
             <div class="footer-content">
                 <div class="footer-info">
                     <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
-                    <p class="footer-copyright">&copy; 2025 Mike Mahon. All rights reserved.</p>
+                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
@@ -168,7 +277,9 @@
                     <div class="footer-column">
                         <h4>Social</h4>
                         <ul>
-                            <!-- Social links loaded dynamically -->
+                            <li><a href="#" target="_blank">LinkedIn</a></li>
+                            <li><a href="#" target="_blank">Instagram</a></li>
+                            <li><a href="#" target="_blank">Behance</a></li>
                         </ul>
                     </div>
                 </div>
@@ -253,6 +364,12 @@
                     }
                 }
                 
+                // Set video if available (New)
+                if (project.videoUrl) {
+                    const videoContainer = document.querySelector('.project-video-container iframe');
+                    videoContainer.src = project.videoUrl;
+                }
+                
                 // Set main image
                 if (project.mainImage) {
                     const mainImg = document.querySelector('.project-image-container:first-child img');
@@ -267,6 +384,39 @@
                         if (index < gridImages.length) {
                             gridImages[index].src = 'https:' + image.fields.file.url;
                             gridImages[index].alt = image.fields.title || `${project.title} detail ${index + 1}`;
+                        }
+                    });
+                }
+                
+                // Set credits if available (New)
+                if (project.credits && project.credits.length) {
+                    const creditsGrid = document.querySelector('.credits-grid');
+                    creditsGrid.innerHTML = ''; // Clear existing credits
+                    
+                    project.credits.forEach(credit => {
+                        if (credit.role && credit.name) {
+                            const creditItem = document.createElement('div');
+                            creditItem.className = 'credit-item';
+                            
+                            const roleDiv = document.createElement('div');
+                            roleDiv.className = 'credit-role';
+                            roleDiv.textContent = credit.role;
+                            
+                            const nameDiv = document.createElement('div');
+                            nameDiv.className = 'credit-name';
+                            nameDiv.textContent = credit.name;
+                            
+                            creditItem.appendChild(roleDiv);
+                            creditItem.appendChild(nameDiv);
+                            
+                            if (credit.company) {
+                                const companyDiv = document.createElement('div');
+                                companyDiv.className = 'credit-company';
+                                companyDiv.textContent = credit.company;
+                                creditItem.appendChild(companyDiv);
+                            }
+                            
+                            creditsGrid.appendChild(creditItem);
                         }
                     });
                 }
@@ -289,7 +439,7 @@
             
             // Setup animations for elements
             setTimeout(function() {
-                document.querySelectorAll('.fade-in').forEach(el => {
+                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
                     el.classList.add('visible');
                 });
             }, 100);
