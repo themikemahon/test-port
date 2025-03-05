@@ -189,32 +189,44 @@
                     phoneLink.textContent = contactContent.phone;
                 }
                 
-                // Update social links
-                if (contactContent.socialLinks) {
-                    const socialLinksContainer = document.querySelector('.social-links');
-                    
-                    // Clear existing links
-                    socialLinksContainer.innerHTML = '';
-                    
-                    // Check if socialLinks is an array or needs to be parsed
-                    const links = Array.isArray(contactContent.socialLinks) 
-                        ? contactContent.socialLinks 
-                        : JSON.parse(contactContent.socialLinks);
-                    
-                    // Add each social link
-                    links.forEach(link => {
-                        if (link.platform && link.url) {
-                            const a = document.createElement('a');
-                            a.href = link.url;
-                            a.className = 'social-link';
-                            a.target = '_blank';
-                            a.textContent = link.platform;
-                            socialLinksContainer.appendChild(a);
-                        }
+                // Fetch social links from the shared content type
+                try {
+                    const socialResponse = await client.getEntries({
+                        content_type: 'socialLinks'
                     });
                     
-                    // If no links were added, add some fallback links
-                    if (socialLinksContainer.children.length === 0) {
+                    if (socialResponse.items.length > 0) {
+                        // Update social links in the Connect section
+                        const socialLinksContainer = document.querySelector('.social-links');
+                        
+                        // Clear existing links
+                        socialLinksContainer.innerHTML = '';
+                        
+                        // Add each social link
+                        socialResponse.items.forEach(item => {
+                            const platform = item.fields.platform;
+                            const url = item.fields.url;
+                            
+                            if (platform && url) {
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.className = 'social-link';
+                                a.target = '_blank';
+                                a.textContent = platform;
+                                socialLinksContainer.appendChild(a);
+                            }
+                        });
+                    } else {
+                        console.warn('No social links found in Contentful.');
+                    }
+                } catch (error) {
+                    console.error('Error loading social links:', error);
+                    
+                    // If there's an error, use fallback links
+                    const socialLinksContainer = document.querySelector('.social-links');
+                    if (socialLinksContainer) {
+                        socialLinksContainer.innerHTML = '';
+                        
                         const fallbackLinks = [
                             { platform: 'LinkedIn', url: '#' },
                             { platform: 'Instagram', url: '#' },
@@ -234,25 +246,6 @@
                 
             } catch (error) {
                 console.error('Error loading contact content:', error);
-                
-                // If there's an error, ensure we have fallback social links
-                const socialLinksContainer = document.querySelector('.social-links');
-                if (socialLinksContainer && socialLinksContainer.children.length === 0) {
-                    const fallbackLinks = [
-                        { platform: 'LinkedIn', url: '#' },
-                        { platform: 'Instagram', url: '#' },
-                        { platform: 'Behance', url: '#' }
-                    ];
-                    
-                    fallbackLinks.forEach(link => {
-                        const a = document.createElement('a');
-                        a.href = link.url;
-                        a.className = 'social-link';
-                        a.target = '_blank';
-                        a.textContent = link.platform;
-                        socialLinksContainer.appendChild(a);
-                    });
-                }
             }
         }
         
