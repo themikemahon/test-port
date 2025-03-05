@@ -179,6 +179,14 @@ function loadSiteSettings() {
                     footerTagline.innerHTML = settings.footerTagline.replace(/\n/g, '<br>');
                 }
             }
+
+            // Update footer copyright (Inter font text)
+            if (settings.footerCopyright) {
+                const footerCopyright = document.querySelector('.footer-copyright');
+                if (footerCopyright) {
+                    footerCopyright.textContent = settings.footerCopyright;
+                }
+            }
         }
     }).catch(error => {
         console.error('Error loading site settings:', error);
