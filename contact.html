@@ -8,6 +8,52 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        /* Custom styles to override the shared-styles.css animations */
+        
+        /* Remove hover animations from email and phone */
+        .contact-link {
+            transition: none;
+        }
+        
+        .contact-link:after {
+            display: none;
+        }
+        
+        .contact-link:hover {
+            transform: none;
+        }
+        
+        /* Change button animation to left-to-right orange wipe without position change */
+        .form-button {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: color 0.3s ease;
+            transform: none !important; /* Prevent the button from moving */
+        }
+        
+        .form-button:hover {
+            color: white;
+            transform: none !important; /* Ensure no transform on hover */
+        }
+        
+        .form-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .form-button:hover::before {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -116,8 +162,6 @@
             space: '2ic80tk26lba',
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
-        
-        // Modified section of the loadContactContent function in contact.html
         
         async function loadContactContent() {
             try {
