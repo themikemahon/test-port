@@ -4,29 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio | Mike Mahon | Creative Director</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
-    <style>
-        /* Homepage specific styles */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-            margin-bottom: 80px;
-        }
-        
-        .project-image {
-            width: 100%;
-            height: 0;
-            padding-bottom: 75%; /* Aspect ratio of image */
-            background-color: #f5f5f5;
-            position: relative;
-        }
-    </style>
 </head>
 <body>
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="logo">MIKE MAHON</div>
+            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
             <button class="nav-toggle">
                 <span></span>
                 <span></span>
@@ -46,83 +32,14 @@
         <div class="container">
             <!-- Brief Statement Section -->
             <div class="brief-statement">
-                <p></p>
-            </div>
-            
-            <div class="projects-grid" id="projects-container">
-                <!-- Projects will be dynamically loaded from Contentful -->
-                <!-- Fallback static content if Contentful is not set up -->
-                <div class="project-card">
-                    <a href="project-detail.html?id=project1">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 1">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title One</h3>
-                            <p class="project-category">Brand Direction / Campaign</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project2">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 2">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title Two</h3>
-                            <p class="project-category">Digital Experience / UX</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project3">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 3">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title Three</h3>
-                            <p class="project-category">Art Direction / Photography</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project4">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 4">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title Four</h3>
-                            <p class="project-category">Branding / Identity</p>
-                        </div>
-                    </a>
-                </div>
-
                 <div class="project-card">
                     <a href="project-detail.html?id=project5">
                         <div class="project-image">
                             <img src="/api/placeholder/600/450" alt="Project 5">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title Five</h3>
-                            <p class="project-category">Packaging / Visual Design</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="project-card">
-                    <a href="project-detail.html?id=project6">
-                        <div class="project-image">
-                            <img src="/api/placeholder/600/450" alt="Project 6">
-                        </div>
-                        <div class="project-info">
-                            <h3 class="project-title">Project Title Six</h3>
-                            <p class="project-category">Advertising / Campaigns</p>
-                        </div>
-                    </a>
-                </div>
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
             </div>
         </div>
     </main>
@@ -131,7 +48,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p></p>
+                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
+                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
@@ -155,7 +73,7 @@
         </div>
     </footer>
 
-     <!-- Contentful SDK -->
+    <!-- Contentful SDK -->
     <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
     <!-- Shared scripts -->
@@ -200,17 +118,24 @@
                     setTimeout(() => {
                         card.style.opacity = '1';
                         card.style.transform = 'translateY(0)';
-                    }, 500 + (index * 100));
+                    }, 300 + (index * 100));
                     
                     // Create card HTML
                     card.innerHTML = `
                         <a href="project-detail.html?id=${projectId}">
                             <div class="project-image">
                                 <img src="${project.thumbnail ? 'https:' + project.thumbnail.fields.file.url : '/api/placeholder/600/450'}" alt="${project.title}">
+                                <div class="project-overlay">
+                                    <div class="project-overlay-content">
+                                        <div class="view-project">View Project</div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="project-info">
-                                <h3 class="project-title">${project.title}</h3>
-                                <p class="project-category">${project.category || ''}</p>
+                                <div class="project-title-container">
+                                    <h3 class="project-title">${project.title}</h3>
+                                    <p class="project-category">${project.category || ''}</p>
+                                </div>
                             </div>
                         </a>
                     `;
@@ -225,9 +150,135 @@
         
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Uncomment this line when you're ready to use Contentful
+            // Load projects
             loadProjects();
+            
+            // Make statement text visible
+            setTimeout(() => {
+                document.querySelector('.statement-text').style.opacity = '1';
+                document.querySelector('.statement-text').style.transform = 'translateY(0)';
+            }, 300);
+            
+            // Animate project cards
+            const projectCards = document.querySelectorAll('.project-card');
+            projectCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 500 + (index * 100));
+            });
         });
-    </script>
-</body>
-</html>
+    </script>>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Five</h3>
+                                <p class="project-category">Packaging / Visual Design</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project6">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 6">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Six</h3>
+                                <p class="project-category">Advertising / Campaigns</p>
+                            </div>
+                        </div>
+                    </a>
+                </div class="statement-text">
+                    CREATING BOLD BRAND IDENTITIES & <span class="highlight">IMPACTFUL</span> DIGITAL EXPERIENCES
+                </div>
+            </div>
+            
+            <div class="projects-grid" id="projects-container">
+                <!-- Projects will be dynamically loaded from Contentful -->
+                <!-- Fallback static content if Contentful is not set up -->
+                <div class="project-card">
+                    <a href="project-detail.html?id=project1">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 1">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title One</h3>
+                                <p class="project-category">Brand Direction / Campaign</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project2">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 2">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Two</h3>
+                                <p class="project-category">Digital Experience / UX</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project3">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 3">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Three</h3>
+                                <p class="project-category">Art Direction / Photography</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="project-card">
+                    <a href="project-detail.html?id=project4">
+                        <div class="project-image">
+                            <img src="/api/placeholder/600/450" alt="Project 4">
+                            <div class="project-overlay">
+                                <div class="project-overlay-content">
+                                    <div class="view-project">View Project</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="project-title-container">
+                                <h3 class="project-title">Project Title Four</h3>
+                                <p class="project-category">Branding / Identity</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div

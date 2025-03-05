@@ -4,125 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Detail | Mike Mahon | Creative Director</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
-    <style>
-        /* Project Detail Page Specific Styles */
-        .project-header {
-            margin-bottom: 60px;
-        }
-
-        .project-title {
-            font-size: 32px;
-            font-weight: 500;
-            margin-bottom: 30px;
-        }
-
-        .project-meta {
-            display: flex;
-            margin-bottom: 40px;
-        }
-
-        .project-meta-item {
-            margin-right: 60px;
-        }
-
-        .project-meta-label {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .project-meta-value {
-            font-size: 16px;
-        }
-
-        .project-description {
-            max-width: 800px;
-            margin-bottom: 60px;
-        }
-
-        .project-description p {
-            margin-bottom: 20px;
-        }
-
-        .project-images {
-            margin-bottom: 80px;
-        }
-
-        .project-image-container {
-            margin-bottom: 40px;
-        }
-
-        .project-image-full {
-            width: 100%;
-            height: auto;
-        }
-
-        .project-image-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .project-image-grid img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .project-next {
-            padding-top: 40px;
-            border-top: 1px solid #eee;
-            margin-bottom: 80px;
-        }
-
-        .project-next-title {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .project-next-link {
-            font-size: 20px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .project-next-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 1px;
-            background: #333;
-            left: 0;
-            bottom: -3px;
-            transition: width 0.3s ease;
-        }
-
-        .project-next-link:hover:after {
-            width: 100%;
-        }
-
-        @media (max-width: 768px) {
-            .project-meta {
-                flex-direction: column;
-            }
-
-            .project-meta-item {
-                margin-bottom: 20px;
-            }
-
-            .project-image-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="logo">MIKE MAHON</div>
+            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
             <button class="nav-toggle">
                 <span></span>
                 <span></span>
@@ -141,63 +31,12 @@
     <main>
         <div class="container">
             <div class="project-header">
-                <h1 class="project-title slide-in-left">Project Title One</h1>
+                <h1 class="project-title slide-in-left">Horizon Interface System</h1>
                 <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
                     <div class="project-meta-item">
                         <div class="project-meta-label">Client</div>
-                        <div class="project-meta-value">Client Name</div>
+                        <div class="project-meta-value">Horizon Technologies</div>
                     </div>
-                    <div class="project-meta-item">
-                        <div class="project-meta-label">Role</div>
-                        <div class="project-meta-value">Creative Direction, Brand Strategy</div>
-                    </div>
-                    <div class="project-meta-item">
-                        <div class="project-meta-label">Year</div>
-                        <div class="project-meta-value">2024</div>
-                    </div>
-                </div>
-                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
-                    <p>This is a description of the project, outlining the challenge, approach, and solution. It provides context about the creative direction and how it aligned with the client's goals.</p>
-                    <p>The project succeeded in achieving its objectives through strategic thinking, innovative design, and thoughtful execution across multiple touchpoints.</p>
-                </div>
-            </div>
-
-            <div class="project-images">
-                <!-- Full width image -->
-                <div class="project-image-container fade-in">
-                    <img src="/api/placeholder/1400/800" alt="Project overview" class="project-image-full">
-                </div>
-                
-                <!-- Grid of images -->
-                <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Project detail 1">
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="Project detail 2">
-                    </div>
-                </div>
-                
-                <!-- Another full width image -->
-                <div class="project-image-container fade-in">
-                    <img src="/api/placeholder/1400/800" alt="Project implementation" class="project-image-full">
-                </div>
-                
-                <!-- Another grid of images -->
-                <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Project detail 3">
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="Project detail 4">
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-next">
-                <div class="project-next-title">Next Project</div>
-                <a href="project-detail.html?id=project2" class="project-next-link">Project Title Two</a>
-            </div>
         </div>
     </main>
 
@@ -205,7 +44,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p></p>
+                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
+                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
@@ -338,9 +178,59 @@
         
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Uncomment when ready to load from Contentful
             loadProjectDetails();
         });
     </script>
 </body>
 </html>
+
+            <div class="project-images">
+                <!-- Full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
+                </div>
+                
+                <!-- Grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Dashboard UI component" >
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
+                    </div>
+                </div>
+                
+                <!-- Another full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="System in use by team" class="project-image-full">
+                </div>
+                
+                <!-- Another grid of images -->
+                <div class="project-image-grid">
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Design system components">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="User testing session">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-next">
+                <div class="project-next-title">Next Project</div>
+                <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
+            </div>>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Role</div>
+                        <div class="project-meta-value">Creative Direction, UI/UX Design</div>
+                    </div>
+                    <div class="project-meta-item">
+                        <div class="project-meta-label">Year</div>
+                        <div class="project-meta-value">2024</div>
+                    </div>
+                </div>
+                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                    <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
+                    <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
+                </div>
+            </div

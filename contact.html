@@ -4,172 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact | Mike Mahon | Creative Director</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
-    <style>
-        /* Contact Page Specific Styles */
-        .contact-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-bottom: 80px;
-        }
-
-        .contact-info {
-            padding-top: 40px;
-        }
-
-        .contact-title {
-            font-size: 32px;
-            font-weight: 500;
-            margin-bottom: 30px;
-        }
-
-        .contact-text {
-            margin-bottom: 40px;
-            max-width: 500px;
-        }
-
-        .contact-links {
-            margin-bottom: 40px;
-        }
-
-        .contact-link {
-            display: block;
-            margin-bottom: 15px;
-            font-size: 18px;
-            position: relative;
-            transition: transform 0.3s ease;
-        }
-
-        .contact-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 1px;
-            background: #333;
-            left: 0;
-            bottom: -3px;
-            transition: width 0.3s ease;
-        }
-
-        .contact-link:hover:after {
-            width: 100%;
-        }
-        
-        .contact-link:hover {
-            transform: translateX(5px);
-        }
-
-        .contact-social {
-            margin-top: 60px;
-        }
-
-        .social-title {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .social-link {
-            font-size: 14px;
-            position: relative;
-        }
-
-        .social-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 1px;
-            background: #333;
-            left: 0;
-            bottom: -3px;
-            transition: width 0.3s ease;
-        }
-
-        .social-link:hover:after {
-            width: 100%;
-        }
-
-        .contact-form {
-            padding-top: 40px;
-        }
-
-        .form-title {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .form-input, 
-        .form-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            font-family: inherit;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
-            transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .form-input:focus, 
-        .form-textarea:focus {
-            outline: none;
-            border-color: #333;
-            background-color: #fff;
-            transform: translateY(-3px);
-        }
-
-        .form-textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .form-button {
-            padding: 12px 30px;
-            font-size: 14px;
-            font-weight: 500;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .form-button:hover {
-            background-color: #555;
-            transform: translateY(-3px);
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .contact-section {
-                grid-template-columns: 1fr;
-            }
-
-            .contact-form {
-                padding-top: 0;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="logo">MIKE MAHON</div>
+            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
             <button class="nav-toggle">
                 <span></span>
                 <span></span>
@@ -194,8 +37,8 @@
                         <p>I'm open to discussing new projects, creative collaborations, or opportunities to be part of your vision.</p>
                     </div>
                     <div class="contact-links fade-in" style="transition-delay: 0.2s;">
-                        <a href="mailto:email@example.com" class="contact-link">email@example.com</a>
-                        <a href="tel:+1234567890" class="contact-link">+1 (234) 567-890</a>
+                        <a href="mailto:hello@mikemahon.com" class="contact-link">hello@mikemahon.com</a>
+                        <a href="tel:+12125551234" class="contact-link">+1 (212) 555-1234</a>
                     </div>
                     <div class="contact-social fade-in" style="transition-delay: 0.3s;">
                         <h3 class="social-title">Connect</h3>
@@ -238,7 +81,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p></p>
+                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
+                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
@@ -357,8 +201,6 @@
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             setupContactForm();
-            
-            // Uncomment when ready to load from Contentful
             loadContactContent();
         });
     </script>

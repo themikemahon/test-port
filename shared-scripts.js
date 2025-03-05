@@ -52,7 +52,7 @@ function setupAnimations() {
     }
     
     // Special handling for brief statement and project cards on homepage
-    const briefStatement = document.querySelector('.brief-statement p');
+    const briefStatement = document.querySelector('.brief-statement p, .statement-text');
     if (briefStatement) {
         setTimeout(() => {
             briefStatement.style.opacity = '1';
@@ -146,6 +146,12 @@ function loadSiteSettings() {
                 if (briefStatement) {
                     briefStatement.textContent = settings.briefStatement;
                 }
+                
+                // For new design with statement-text class
+                const statementText = document.querySelector('.statement-text');
+                if (statementText) {
+                    statementText.innerHTML = settings.briefStatement.replace(/(IMPACTFUL)/g, '<span class="highlight">$1</span>');
+                }
             }
             
             // Update footer text
@@ -153,6 +159,14 @@ function loadSiteSettings() {
                 const footerInfo = document.querySelector('.footer-info p:last-child');
                 if (footerInfo) {
                     footerInfo.textContent = settings.footerText;
+                }
+            }
+            
+            // Update footer tagline
+            if (settings.footerTagline) {
+                const footerTagline = document.querySelector('.footer-tagline');
+                if (footerTagline) {
+                    footerTagline.textContent = settings.footerTagline;
                 }
             }
         }
