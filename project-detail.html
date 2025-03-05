@@ -23,13 +23,7 @@
             display: block;
         }
         
-        .project-image-grid img {
-            transition: transform 0.5s ease;
-        }
-        
-        .project-image-grid img:hover {
-            transform: scale(1.02);
-        }
+        /* Removed hover effect for gallery images */
         
         /* Next project link hover effect with orange highlight wipe */
         .project-next-link {
@@ -50,6 +44,11 @@
             background-color: var(--accent-color);
             transition: width 0.3s ease;
             z-index: -1;
+        }
+        
+        /* Override the default underline animation for project-next-link */
+        .project-next-link::after {
+            display: none;
         }
         
         .project-next-link:hover {
@@ -94,8 +93,9 @@
     <main>
         <div class="container">
             <div class="project-header">
-                <h1 class="project-title slide-in-left">Horizon Interface System</h1>
-                <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
+                <!-- Changed slide-in-left to fade-in for consistency with other pages -->
+                <h1 class="project-title fade-in">Horizon Interface System</h1>
+                <div class="project-meta fade-in" style="transition-delay: 0.1s;">
                     <div class="project-meta-item">
                         <div class="project-meta-label">Client</div>
                         <div class="project-meta-value">Horizon Technologies</div>
@@ -109,7 +109,7 @@
                         <div class="project-meta-value">2024</div>
                     </div>
                 </div>
-                <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
+                <div class="project-description fade-in" style="transition-delay: 0.2s;">
                     <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
                     <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
                 </div>
@@ -291,7 +291,7 @@
             
             // Setup animations for elements
             setTimeout(function() {
-                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
+                document.querySelectorAll('.fade-in').forEach(el => {
                     el.classList.add('visible');
                 });
             }, 100);
