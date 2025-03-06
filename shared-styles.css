@@ -1056,3 +1056,28 @@ footer {
     margin-right: 10px; /* Add some right margin to prevent text from touching edge */
   }
 }
+
+/* Remove tap highlight and underline on mobile devices */
+.touch-device a {
+    -webkit-tap-highlight-color: transparent; /* Removes the default orange highlight on iOS */
+    tap-highlight-color: transparent;
+}
+
+/* Specifically for project-next-link to ensure no underline appears */
+.touch-device .project-next-link {
+    text-decoration: none !important; /* Force no underline */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Make sure our active state works properly */
+.touch-device .project-next-link.touch-active {
+    text-decoration: none !important;
+    color: white;
+    background-color: var(--accent-color);
+    outline: none;
+}
+
+/* Prevent any default browser styling */
+.touch-device a:focus {
+    outline: none;
+}
