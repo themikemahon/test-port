@@ -217,6 +217,57 @@
                         document.querySelector('.about-image img').src = 
                             'https:' + aboutContent.profileImage.fields.file.url;
                     }
+                        // NEW CODE: Update experience items
+                    if (aboutContent.experienceItems && aboutContent.experienceItems.length) {
+                        const experienceSection = document.querySelector('.experience-section');
+                        
+                        // Keep the title element
+                        const experienceTitle = experienceSection.querySelector('.experience-title');
+                        experienceSection.innerHTML = '';
+                        experienceSection.appendChild(experienceTitle);
+                        
+                        // Add each experience item
+                        aboutContent.experienceItems.forEach((item, index) => {
+                            const expItem = document.createElement('div');
+                            expItem.className = 'experience-item fade-in';
+                            
+                            // Add transition delay for staggered animation
+                            if (index > 0) {
+                                expItem.style.transitionDelay = `${0.1 * index}s`;
+                            }
+                            
+                            expItem.innerHTML = `
+                                <div class="experience-period">${item.fields.period}</div>
+                                <div class="experience-details">
+                                    <h3>${item.fields.title}</h3>
+                                    <p>${item.fields.company}</p>
+                                    <p>${item.fields.description}</p>
+                                </div>
+                            `;
+                            
+                            experienceSection.appendChild(expItem);
+                        });
+                    }
+                    
+                    // NEW CODE: Update awards
+                    if (aboutContent.awards && aboutContent.awards.length) {
+                        const awardsGrid = document.querySelector('.awards-grid');
+                        awardsGrid.innerHTML = '';
+                        
+                        aboutContent.awards.forEach((award, index) => {
+                            const awardItem = document.createElement('div');
+                            awardItem.className = 'award-item fade-in';
+                            awardItem.style.transitionDelay = `${0.1 * (index + 1)}s`;
+                            
+                            awardItem.innerHTML = `
+                                <div class="award-year">${award.fields.year}</div>
+                                <div class="award-name">${award.fields.name}</div>
+                                <div class="award-project">${award.fields.project}</div>
+                            `;
+                            
+                            awardsGrid.appendChild(awardItem);
+                        });
+                    }
                 }
             }).catch(error => {
                 console.error('Error loading about page content:', error);
