@@ -1111,3 +1111,38 @@ footer {
     display: none; /* Don't use the ::after element on mobile */
   }
 }
+
+/* Remove default focus styling on touch devices */
+.touch-device .project-next-link:focus,
+.touch-device .project-next-link:active {
+    outline: none !important; /* Remove the default outline */
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important; /* Transparent tap highlight */
+}
+
+/* Create a custom focus style that matches our design */
+.touch-device .project-next-link:focus {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Override any browser-specific focus styling */
+.touch-device a:focus-visible {
+    outline: none !important;
+}
+
+/* Add this to handle the horizontal line in your screenshot */
+.project-next-link::after {
+    display: none !important; /* Completely remove any after pseudo-element on mobile */
+}
+
+/* Target the specific horizontal line element if it exists in the markup */
+.touch-device .next-project-line,
+.touch-device .project-next hr,
+.touch-device .project-next::after,
+.touch-device .project-next-link::after {
+    opacity: 0 !important;
+    display: none !important;
+}
