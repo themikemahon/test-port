@@ -176,12 +176,21 @@
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
-        // Load all content when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Get content for About page
+            // Load biography, services, and profile image
+            loadMainAboutContent();
+            
+            // Load experience items separately
+            loadExperienceItems();
+            
+            // Load awards separately
+            loadAwards();
+        });
+        
+        // Function to load the main about page content
+        function loadMainAboutContent() {
             client.getEntries({
                 content_type: 'aboutPage',
-                include: 10, // Important: This ensures referenced entries are resolved
                 limit: 1
             }).then(response => {
                 if (response.items.length > 0) {
@@ -220,104 +229,146 @@
                             'https:' + aboutContent.profileImage.fields.file.url;
                     }
                     
-                    // Update experience items - handles both direct embedding and references
-                    if (aboutContent.experienceItems && aboutContent.experienceItems.length) {
-                        const experienceSection = document.querySelector('.experience-section');
-                        
-                        // Keep the title element
-                        const experienceTitle = experienceSection.querySelector('.experience-title');
-                        experienceSection.innerHTML = '';
-                        experienceSection.appendChild(experienceTitle);
-                        
-                        // Add each experience item
-                        aboutContent.experienceItems.forEach((item, index) => {
-                            // Extract the fields - handles both direct fields and references
-                            const fields = item.fields || item;
-                            
-                            // Skip if we don't have the essential data
-                            if (!fields.period || !fields.title) return;
-                            
-                            const expItem = document.createElement('div');
-                            expItem.className = 'experience-item fade-in';
-                            
-                            // Add transition delay for staggered animation
-                            if (index > 0) {
-                                expItem.style.transitionDelay = `${0.1 * index}s`;
-                            }
-                            
-                            expItem.innerHTML = `
-                                <div class="experience-period">${fields.period}</div>
-                                <div class="experience-details">
-                                    <h3>${fields.title}</h3>
-                                    <p>${fields.company || ''}</p>
-                                    <p>${fields.description || ''}</p>
-                                </div>
-                            `;
-                            
-                            experienceSection.appendChild(expItem);
-                        });
-                    }
+                    // Activate animations for these elements
+                    document.querySelectorAll('.about-text, .about-services').forEach(el => {
+                        el.classList.add('visible');
+                    });
                     
-                    // Update awards - handles both direct embedding and references
-                    if (aboutContent.awards && aboutContent.awards.length) {
-                        const awardsGrid = document.querySelector('.awards-grid');
-                        awardsGrid.innerHTML = '';
-                        
-                        aboutContent.awards.forEach((award, index) => {
-                            // Extract the fields - handles both direct fields and references
-                            const fields = award.fields || award;
-                            
-                            // Skip if we don't have the essential data
-                            if (!fields.name) return;
-                            
-                            const awardItem = document.createElement('div');
-                            awardItem.className = 'award-item fade-in';
-                            awardItem.style.transitionDelay = `${0.1 * (index + 1)}s`;
-                            
-                            awardItem.innerHTML = `
-                                <div class="award-year">${fields.year || ''}</div>
-                                <div class="award-name">${fields.name}</div>
-                                <div class="award-project">${fields.project || ''}</div>
-                            `;
-                            
-                            awardsGrid.appendChild(awardItem);
-                        });
-                    }
-                    
-                    // Trigger animation for the loaded elements
-                    setTimeout(() => {
-                        document.querySelectorAll('.fade-in').forEach(el => {
-                            el.classList.add('visible');
-                        });
-                    }, 200);
+                } else {
+                    console.warn('No about page content found');
                 }
             }).catch(error => {
                 console.error('Error loading about page content:', error);
             });
-        });
+        }
         
-        // Optional: Add this code to log what we're getting from Contentful (for debugging)
-        // You can comment this out or remove it after fixing the issue
-        function debugContentful() {
+        // Function to load experience items directly
+        function loadExperienceItems() {
             client.getEntries({
-                content_type: 'aboutPage',
-                include: 10,
-                limit: 1
+                content_type: 'experienceItem',
+                order: 'fields.order' // If you have an order field, otherwise remove this
             }).then(response => {
-                console.log('About page content from Contentful:', response);
-                
                 if (response.items.length > 0) {
-                    const aboutContent = response.items[0].fields;
-                    console.log('Experience items:', aboutContent.experienceItems);
-                    console.log('Awards:', aboutContent.awards);
+                    const experienceSection = document.querySelector('.experience-section');
+                    
+                    // Keep the title element
+                    const experienceTitle = experienceSection.querySelector('.experience-title');
+                    experienceSection.innerHTML = '';
+                    experienceSection.appendChild(experienceTitle);
+                    
+                    // Add each experience item
+                    response.items.forEach((item, index) => {
+                        const fields = item.fields;
+                        
+                        const expItem = document.createElement('div');
+                        expItem.className = 'experience-item fade-in';
+                        
+                        // Add transition delay for staggered animation
+                        if (index > 0) {
+                            expItem.style.transitionDelay = `${0.1 * index}s`;
+                        }
+                        
+                        expItem.innerHTML = `
+                            <div class="experience-period">${fields.period || ''}</div>
+                            <div class="experience-details">
+                                <h3>${fields.title || ''}</h3>
+                                <p>${fields.company || ''}</p>
+                                <p>${fields.description || ''}</p>
+                            </div>
+                        `;
+                        
+                        experienceSection.appendChild(expItem);
+                    });
+                    
+                    // Activate animations
+                    setTimeout(() => {
+                        experienceSection.querySelectorAll('.fade-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }, 200);
+                    
+                } else {
+                    console.warn('No experience items found');
                 }
             }).catch(error => {
-                console.error('Debug error:', error);
+                console.error('Error loading experience items:', error);
             });
         }
         
-        // Uncomment the line below to enable debugging
-           debugContentful();
+        // Function to load awards directly
+        function loadAwards() {
+            client.getEntries({
+                content_type: 'award',
+                order: '-fields.year' // Order by year descending
+            }).then(response => {
+                if (response.items.length > 0) {
+                    const awardsGrid = document.querySelector('.awards-grid');
+                    awardsGrid.innerHTML = '';
+                    
+                    // Add each award
+                    response.items.forEach((item, index) => {
+                        const fields = item.fields;
+                        
+                        const awardItem = document.createElement('div');
+                        awardItem.className = 'award-item fade-in';
+                        awardItem.style.transitionDelay = `${0.1 * (index + 1)}s`;
+                        
+                        awardItem.innerHTML = `
+                            <div class="award-year">${fields.year || ''}</div>
+                            <div class="award-name">${fields.name || ''}</div>
+                            <div class="award-project">${fields.project || ''}</div>
+                        `;
+                        
+                        awardsGrid.appendChild(awardItem);
+                    });
+                    
+                    // Activate animations
+                    setTimeout(() => {
+                        awardsGrid.querySelectorAll('.fade-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }, 300);
+                    
+                } else {
+                    console.warn('No awards found');
+                }
+            }).catch(error => {
+                console.error('Error loading awards:', error);
+            });
+        }
+        
+        // Add this if you need to debug
+        function logContentfulEnvironment() {
+            console.log('Checking Contentful environment...');
+            
+            // Check if the client exists
+            if (!client) {
+                console.error('Contentful client is not defined!');
+                return;
+            }
+            
+            // Check SDK version
+            console.log('Contentful SDK initialized:', typeof contentful !== 'undefined');
+            
+            // Log credentials (don't include this in production)
+            console.log('Using space ID:', client.space);
+            console.log('Using access token:', client.accessToken ? 'Token exists (hidden)' : 'No token');
+            
+            // Log content types in space
+            client.getContentTypes()
+                .then(response => {
+                    console.log('Content types in space:');
+                    response.items.forEach(type => {
+                        console.log(`- ${type.name} (ID: ${type.sys.id})`);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error retrieving content types:', error);
+                });
+        }
+        
+        // Uncomment to run the debugging
+        // logContentfulEnvironment();
     </script>
 </body>
 </html>
