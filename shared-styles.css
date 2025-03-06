@@ -1081,3 +1081,32 @@ footer {
 .touch-device a:focus {
     outline: none;
 }
+
+/* Fix for highlighted text in the brief statement */
+@media (max-width: 768px) {
+  .brief-statement p,
+  .statement-text {
+    font-size: 32px;
+    line-height: 1.2;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Change how the highlight works on mobile */
+  .statement-text .highlight {
+    display: inline; /* Change from inline-block to inline for proper wrapping */
+    position: relative;
+    color: white;
+    background-color: var(--accent-color); /* Direct background instead of pseudo-element */
+    box-decoration-break: clone; /* This is the key property for multi-line highlights */
+    -webkit-box-decoration-break: clone;
+    padding: 0 4px; /* Small padding for better appearance */
+  }
+  
+  /* Remove the pseudo-element approach for mobile */
+  .statement-text .highlight::after {
+    display: none; /* Don't use the ::after element on mobile */
+  }
+}
