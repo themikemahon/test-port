@@ -380,38 +380,52 @@
                     });
                 }
                 
-                // Set credits if available (New)
+                // Set credits if available (for References, many field type)
                 if (project.credits && project.credits.length) {
                     const creditsGrid = document.querySelector('.credits-grid');
-                    creditsGrid.innerHTML = ''; // Clear existing credits
-                    
-                    project.credits.forEach(credit => {
-                        if (credit.role && credit.name) {
-                            const creditItem = document.createElement('div');
-                            creditItem.className = 'credit-item';
-                            
-                            const roleDiv = document.createElement('div');
-                            roleDiv.className = 'credit-role';
-                            roleDiv.textContent = credit.role;
-                            
-                            const nameDiv = document.createElement('div');
-                            nameDiv.className = 'credit-name';
-                            nameDiv.textContent = credit.name;
-                            
-                            creditItem.appendChild(roleDiv);
-                            creditItem.appendChild(nameDiv);
-                            
-                            if (credit.company) {
-                                const companyDiv = document.createElement('div');
-                                companyDiv.className = 'credit-company';
-                                companyDiv.textContent = credit.company;
-                                creditItem.appendChild(companyDiv);
+                    if (creditsGrid) {
+                        creditsGrid.innerHTML = ''; // Clear existing credits
+                        
+                        project.credits.forEach(creditRef => {
+                            // For References field type, data is in creditRef.fields
+                            if (creditRef.fields) {
+                                const role = creditRef.fields.role;
+                                const name = creditRef.fields.name;
+                                const company = creditRef.fields.company;
+                                
+                                if (role && name) {
+                                    const creditItem = document.createElement('div');
+                                    creditItem.className = 'credit-item';
+                                    
+                                    const roleDiv = document.createElement('div');
+                                    roleDiv.className = 'credit-role';
+                                    roleDiv.textContent = role;
+                                    
+                                    const nameDiv = document.createElement('div');
+                                    nameDiv.className = 'credit-name';
+                                    nameDiv.textContent = name;
+                                    
+                                    creditItem.appendChild(roleDiv);
+                                    creditItem.appendChild(nameDiv);
+                                    
+                                    if (company) {
+                                        const companyDiv = document.createElement('div');
+                                        companyDiv.className = 'credit-company';
+                                        companyDiv.textContent = company;
+                                        creditItem.appendChild(companyDiv);
+                                    }
+                                    
+                                    creditsGrid.appendChild(creditItem);
+                                }
                             }
-                            
-                            creditsGrid.appendChild(creditItem);
-                        }
-                    });
+                        });
+                    }
                 }
+
+                // Fetch project data with linked entries (like credits)
+                const entry = await client.getEntry(projectId, {
+                    include: 2  // This will include linked entries up to 2 levels deep
+                });
                 
                 // Set next project if available
                 if (project.nextProject) {
