@@ -169,7 +169,6 @@
     <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
     <script>
-        
         // Initialize Contentful client
         const client = contentful.createClient({
             space: '2ic80tk26lba',
@@ -177,6 +176,9 @@
         });
         
         document.addEventListener('DOMContentLoaded', function() {
+            // First, verify our content types and space
+            verifyContentfulSetup();
+            
             // Load biography, services, and profile image
             loadMainAboutContent();
             
@@ -187,46 +189,105 @@
             loadAwards();
         });
         
+        // Function to verify Contentful setup
+        function verifyContentfulSetup() {
+            console.log('Verifying Contentful setup...');
+            
+            client.getContentTypes()
+                .then(response => {
+                    console.log('Available content types:');
+                    response.items.forEach(type => {
+                        console.log(`- ${type.name} (ID: ${type.sys.id})`);
+                    });
+                    
+                    // Check for our specific content types
+                    const experienceType = response.items.find(type => type.sys.id === 'experienceItem');
+                    const awardType = response.items.find(type => type.sys.id === 'award');
+                    
+                    if (!experienceType) {
+                        console.error('⚠️ experienceItem content type not found! Check the content type ID.');
+                    } else {
+                        console.log('✓ experienceItem content type found');
+                        
+                        // Check fields in experienceItem
+                        console.log('experienceItem fields:');
+                        experienceType.fields.forEach(field => {
+                            console.log(`  - ${field.id} (${field.type})`);
+                        });
+                    }
+                    
+                    if (!awardType) {
+                        console.error('⚠️ award content type not found! Check the content type ID.');
+                    } else {
+                        console.log('✓ award content type found');
+                        
+                        // Check fields in award
+                        console.log('award fields:');
+                        awardType.fields.forEach(field => {
+                            console.log(`  - ${field.id} (${field.type})`);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying Contentful setup:', error);
+                });
+        }
+        
         // Function to load the main about page content
         function loadMainAboutContent() {
             client.getEntries({
                 content_type: 'aboutPage',
                 limit: 1
             }).then(response => {
+                console.log('About page response:', response);
+                
                 if (response.items.length > 0) {
                     const aboutContent = response.items[0].fields;
+                    console.log('About page fields:', aboutContent);
                     
                     // Update biography text
                     if (aboutContent.biography) {
                         const bioContainer = document.querySelector('.about-text');
-                        bioContainer.innerHTML = '';
-                        
-                        const paragraphs = aboutContent.biography.split('\n\n');
-                        paragraphs.forEach(paragraph => {
-                            if (paragraph.trim()) {
-                                const p = document.createElement('p');
-                                p.textContent = paragraph;
-                                bioContainer.appendChild(p);
-                            }
-                        });
+                        if (bioContainer) {
+                            bioContainer.innerHTML = '';
+                            
+                            const paragraphs = aboutContent.biography.split('\n\n');
+                            paragraphs.forEach(paragraph => {
+                                if (paragraph.trim()) {
+                                    const p = document.createElement('p');
+                                    p.textContent = paragraph;
+                                    bioContainer.appendChild(p);
+                                }
+                            });
+                        } else {
+                            console.warn('Biography container (.about-text) not found');
+                        }
                     }
                     
                     // Update services
                     if (aboutContent.services && aboutContent.services.length) {
                         const servicesList = document.querySelector('.services-list');
-                        servicesList.innerHTML = '';
-                        
-                        aboutContent.services.forEach(service => {
-                            const li = document.createElement('li');
-                            li.textContent = service;
-                            servicesList.appendChild(li);
-                        });
+                        if (servicesList) {
+                            servicesList.innerHTML = '';
+                            
+                            aboutContent.services.forEach(service => {
+                                const li = document.createElement('li');
+                                li.textContent = service;
+                                servicesList.appendChild(li);
+                            });
+                        } else {
+                            console.warn('Services list (.services-list) not found');
+                        }
                     }
                     
                     // Update profile image
                     if (aboutContent.profileImage && aboutContent.profileImage.fields) {
-                        document.querySelector('.about-image img').src = 
-                            'https:' + aboutContent.profileImage.fields.file.url;
+                        const profileImg = document.querySelector('.about-image img');
+                        if (profileImg) {
+                            profileImg.src = 'https:' + aboutContent.profileImage.fields.file.url;
+                        } else {
+                            console.warn('Profile image element not found');
+                        }
                     }
                     
                     // Activate animations for these elements
@@ -244,21 +305,45 @@
         
         // Function to load experience items directly
         function loadExperienceItems() {
+            // Get experience items WITHOUT the order parameter first
             client.getEntries({
-                content_type: 'experienceItem',
-                order: 'fields.order' // If you have an order field, otherwise remove this
+                content_type: 'experienceItem'
             }).then(response => {
-                if (response.items.length > 0) {
-                    const experienceSection = document.querySelector('.experience-section');
+                console.log('Experience items response:', response);
+                console.log('Experience items found:', response.items ? response.items.length : 0);
+                
+                if (response.items && response.items.length > 0) {
+                    // Log the first item to see its structure
+                    console.log('First experience item:', response.items[0]);
+                    console.log('First experience item fields:', response.items[0].fields);
                     
-                    // Keep the title element
+                    const experienceSection = document.querySelector('.experience-section');
+                    if (!experienceSection) {
+                        console.error('Experience section not found in DOM');
+                        return;
+                    }
+                    
+                    // Keep the title element safely
                     const experienceTitle = experienceSection.querySelector('.experience-title');
-                    experienceSection.innerHTML = '';
-                    experienceSection.appendChild(experienceTitle);
+                    
+                    // Clear only the experience items, not the whole section
+                    const existingItems = experienceSection.querySelectorAll('.experience-item');
+                    existingItems.forEach(item => item.remove());
+                    
+                    // If we accidentally removed the title too, add it back
+                    if (experienceTitle && !experienceSection.contains(experienceTitle)) {
+                        experienceSection.appendChild(experienceTitle);
+                    }
                     
                     // Add each experience item
                     response.items.forEach((item, index) => {
                         const fields = item.fields;
+                        
+                        // Check if we have the essential fields
+                        if (!fields || !fields.title) {
+                            console.warn(`Experience item #${index} lacks essential fields`, fields);
+                            return; // Skip this item
+                        }
                         
                         const expItem = document.createElement('div');
                         expItem.className = 'experience-item fade-in';
@@ -282,13 +367,15 @@
                     
                     // Activate animations
                     setTimeout(() => {
-                        experienceSection.querySelectorAll('.fade-in').forEach(el => {
+                        const fadeItems = experienceSection.querySelectorAll('.fade-in');
+                        console.log(`Adding 'visible' class to ${fadeItems.length} experience items`);
+                        fadeItems.forEach(el => {
                             el.classList.add('visible');
                         });
                     }, 200);
                     
                 } else {
-                    console.warn('No experience items found');
+                    console.warn('No experience items found or empty response');
                 }
             }).catch(error => {
                 console.error('Error loading experience items:', error);
@@ -297,17 +384,36 @@
         
         // Function to load awards directly
         function loadAwards() {
+            // Get awards WITHOUT the order parameter first
             client.getEntries({
-                content_type: 'award',
-                order: '-fields.year' // Order by year descending
+                content_type: 'award'
             }).then(response => {
-                if (response.items.length > 0) {
+                console.log('Awards response:', response);
+                console.log('Awards found:', response.items ? response.items.length : 0);
+                
+                if (response.items && response.items.length > 0) {
+                    // Log the first item to see its structure
+                    console.log('First award item:', response.items[0]);
+                    console.log('First award item fields:', response.items[0].fields);
+                    
                     const awardsGrid = document.querySelector('.awards-grid');
+                    if (!awardsGrid) {
+                        console.error('Awards grid not found in DOM');
+                        return;
+                    }
+                    
+                    // Clear existing awards
                     awardsGrid.innerHTML = '';
                     
                     // Add each award
                     response.items.forEach((item, index) => {
                         const fields = item.fields;
+                        
+                        // Check if we have the essential fields
+                        if (!fields || !fields.name) {
+                            console.warn(`Award #${index} lacks essential fields`, fields);
+                            return; // Skip this item
+                        }
                         
                         const awardItem = document.createElement('div');
                         awardItem.className = 'award-item fade-in';
@@ -324,51 +430,20 @@
                     
                     // Activate animations
                     setTimeout(() => {
-                        awardsGrid.querySelectorAll('.fade-in').forEach(el => {
+                        const fadeItems = awardsGrid.querySelectorAll('.fade-in');
+                        console.log(`Adding 'visible' class to ${fadeItems.length} award items`);
+                        fadeItems.forEach(el => {
                             el.classList.add('visible');
                         });
                     }, 300);
                     
                 } else {
-                    console.warn('No awards found');
+                    console.warn('No awards found or empty response');
                 }
             }).catch(error => {
                 console.error('Error loading awards:', error);
             });
         }
-        
-        // Add this if you need to debug
-        function logContentfulEnvironment() {
-            console.log('Checking Contentful environment...');
-            
-            // Check if the client exists
-            if (!client) {
-                console.error('Contentful client is not defined!');
-                return;
-            }
-            
-            // Check SDK version
-            console.log('Contentful SDK initialized:', typeof contentful !== 'undefined');
-            
-            // Log credentials (don't include this in production)
-            console.log('Using space ID:', client.space);
-            console.log('Using access token:', client.accessToken ? 'Token exists (hidden)' : 'No token');
-            
-            // Log content types in space
-            client.getContentTypes()
-                .then(response => {
-                    console.log('Content types in space:');
-                    response.items.forEach(type => {
-                        console.log(`- ${type.name} (ID: ${type.sys.id})`);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error retrieving content types:', error);
-                });
-        }
-        
-        // Uncomment to run the debugging
-        // logContentfulEnvironment();
     </script>
 </body>
 </html>
