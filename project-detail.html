@@ -293,66 +293,43 @@
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
-        // Load project details
-        async function loadProjectDetails() {
-            try {
-                // Get project ID from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const projectId = urlParams.get('id');
-                
-                if (!projectId) {
-                    console.warn('No project ID provided. Showing demo content.');
-                    return; // Show demo content if no ID
-                }
-                
-                // Fetch project data
-                const entry = await client.getEntry(projectId);
-                const project = entry.fields;
-                
-                // Update page title
-                document.title = `${project.title} | Mike Mahon | Creative Director`;
-                
-                // Set project details
-                document.querySelector('.project-title').textContent = project.title;
-                
-                // Set meta info
-                const metaItems = document.querySelectorAll('.project-meta-item');
-                if (metaItems[0] && project.client) 
-                    metaItems[0].querySelector('.project-meta-value').textContent = project.client;
-                if (metaItems[1] && project.role) 
-                    metaItems[1].querySelector('.project-meta-value').textContent = project.role;
-                if (metaItems[2] && project.year) 
-                    metaItems[2].querySelector('.project-meta-value').textContent = project.year;
-                
-                // Set description
-                if (project.description) {
-                    // For rich text content, we'll need more processing
-                    // This is a simplified version for text content
-                    const descriptionEl = document.querySelector('.project-description');
-                    descriptionEl.innerHTML = '';
-                    
-                    if (typeof project.description === 'string') {
-                        // Simple text
-                        const paragraphs = project.description.split('\n\n');
-                        paragraphs.forEach(paragraph => {
-                            if (paragraph.trim()) {
-                                const p = document.createElement('p');
-                                p.textContent = paragraph;
-                                descriptionEl.appendChild(p);
-                            }
+                // Load project details
+                async function loadProjectDetails() {
+                    try {
+                        // Get project ID from URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const projectId = urlParams.get('id');
+                        
+                        if (!projectId) {
+                            console.warn('No project ID provided. Showing demo content.');
+                            return; // Show demo content if no ID
+                        }
+                        
+                        // Fetch project data WITH linked entries
+                        const entry = await client.getEntry(projectId, {
+                            include: 2  // This will include linked entries up to 2 levels deep
                         });
-                    } else if (project.description.content) {
-                        // Rich text from Contentful
-                        project.description.content.forEach(paragraph => {
-                            if (paragraph.nodeType === 'paragraph') {
-                                const p = document.createElement('p');
-                                p.textContent = paragraph.content
-                                    .filter(item => item.nodeType === 'text')
-                                    .map(item => item.value)
-                                    .join('');
-                                descriptionEl.appendChild(p);
-                            }
-                        });
+                        const project = entry.fields;
+                        
+                        // Update page title
+                        document.title = `${project.title} | Mike Mahon | Creative Director`;
+                        
+                        // Rest of your code stays the same...
+                        
+                        // REMOVE THIS DUPLICATE LINE:
+                        // const entry = await client.getEntry(projectId, {
+                        //    include: 2  // This will include linked entries up to 2 levels deep
+                        // });
+                        
+                        // Set next project if available
+                        if (project.nextProject) {
+                            const nextLink = document.querySelector('.project-next-link');
+                            nextLink.textContent = project.nextProject.fields.title;
+                            nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error loading project details:', error);
                     }
                 }
                 
