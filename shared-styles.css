@@ -1146,3 +1146,40 @@ footer {
     opacity: 0 !important;
     display: none !important;
 }
+
+/* Fix for the next project link hover effect */
+.project-next-link {
+    position: relative;
+    display: inline-block;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+    z-index: 1;
+    overflow: hidden; /* This is crucial to prevent the line from showing */
+}
+
+.project-next-link::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent-color);
+    transition: width 0.3s ease;
+    z-index: -1;
+    transform: translateY(0); /* Ensure it stays in place */
+}
+
+.project-next-link:hover {
+    color: white;
+}
+
+.project-next-link:hover::before {
+    width: 100%;
+}
+
+/* Make sure no bottom border or other elements appear */
+.project-next-link:after,
+.project-next-link::after {
+    display: none !important;
+}
