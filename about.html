@@ -218,7 +218,7 @@
                             'https:' + aboutContent.profileImage.fields.file.url;
                     }
                         // NEW CODE: Update experience items
-                    if (aboutContent.experienceItems && aboutContent.experienceItems.length) {
+                    if (aboutContent.experienceItem && aboutContent.experienceItem.length) {
                         const experienceSection = document.querySelector('.experience-section');
                         
                         // Keep the title element
@@ -227,7 +227,7 @@
                         experienceSection.appendChild(experienceTitle);
                         
                         // Add each experience item
-                        aboutContent.experienceItems.forEach((item, index) => {
+                        aboutContent.experienceItem.forEach((item, index) => {
                             const expItem = document.createElement('div');
                             expItem.className = 'experience-item fade-in';
                             
