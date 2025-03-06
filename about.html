@@ -169,6 +169,7 @@
     <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
     <script>
+        
         // Initialize Contentful client
         const client = contentful.createClient({
             space: '2ic80tk26lba',
@@ -180,6 +181,7 @@
             // Get content for About page
             client.getEntries({
                 content_type: 'aboutPage',
+                include: 10, // Important: This ensures referenced entries are resolved
                 limit: 1
             }).then(response => {
                 if (response.items.length > 0) {
@@ -217,8 +219,9 @@
                         document.querySelector('.about-image img').src = 
                             'https:' + aboutContent.profileImage.fields.file.url;
                     }
-                        // NEW CODE: Update experience items
-                    if (aboutContent.experienceItem && aboutContent.experienceItem.length) {
+                    
+                    // Update experience items - handles both direct embedding and references
+                    if (aboutContent.experienceItems && aboutContent.experienceItems.length) {
                         const experienceSection = document.querySelector('.experience-section');
                         
                         // Keep the title element
@@ -227,7 +230,13 @@
                         experienceSection.appendChild(experienceTitle);
                         
                         // Add each experience item
-                        aboutContent.experienceItem.forEach((item, index) => {
+                        aboutContent.experienceItems.forEach((item, index) => {
+                            // Extract the fields - handles both direct fields and references
+                            const fields = item.fields || item;
+                            
+                            // Skip if we don't have the essential data
+                            if (!fields.period || !fields.title) return;
+                            
                             const expItem = document.createElement('div');
                             expItem.className = 'experience-item fade-in';
                             
@@ -237,11 +246,11 @@
                             }
                             
                             expItem.innerHTML = `
-                                <div class="experience-period">${item.fields.period}</div>
+                                <div class="experience-period">${fields.period}</div>
                                 <div class="experience-details">
-                                    <h3>${item.fields.title}</h3>
-                                    <p>${item.fields.company}</p>
-                                    <p>${item.fields.description}</p>
+                                    <h3>${fields.title}</h3>
+                                    <p>${fields.company || ''}</p>
+                                    <p>${fields.description || ''}</p>
                                 </div>
                             `;
                             
@@ -249,30 +258,66 @@
                         });
                     }
                     
-                    // NEW CODE: Update awards
+                    // Update awards - handles both direct embedding and references
                     if (aboutContent.awards && aboutContent.awards.length) {
                         const awardsGrid = document.querySelector('.awards-grid');
                         awardsGrid.innerHTML = '';
                         
                         aboutContent.awards.forEach((award, index) => {
+                            // Extract the fields - handles both direct fields and references
+                            const fields = award.fields || award;
+                            
+                            // Skip if we don't have the essential data
+                            if (!fields.name) return;
+                            
                             const awardItem = document.createElement('div');
                             awardItem.className = 'award-item fade-in';
                             awardItem.style.transitionDelay = `${0.1 * (index + 1)}s`;
                             
                             awardItem.innerHTML = `
-                                <div class="award-year">${award.fields.year}</div>
-                                <div class="award-name">${award.fields.name}</div>
-                                <div class="award-project">${award.fields.project}</div>
+                                <div class="award-year">${fields.year || ''}</div>
+                                <div class="award-name">${fields.name}</div>
+                                <div class="award-project">${fields.project || ''}</div>
                             `;
                             
                             awardsGrid.appendChild(awardItem);
                         });
                     }
+                    
+                    // Trigger animation for the loaded elements
+                    setTimeout(() => {
+                        document.querySelectorAll('.fade-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }, 200);
                 }
             }).catch(error => {
                 console.error('Error loading about page content:', error);
             });
         });
+        
+        // Optional: Add this code to log what we're getting from Contentful (for debugging)
+        // You can comment this out or remove it after fixing the issue
+        function debugContentful() {
+            client.getEntries({
+                content_type: 'aboutPage',
+                include: 10,
+                limit: 1
+            }).then(response => {
+                console.log('About page content from Contentful:', response);
+                
+                if (response.items.length > 0) {
+                    const aboutContent = response.items[0].fields;
+                    console.log('Experience items:', aboutContent.experienceItems);
+                    console.log('Awards:', aboutContent.awards);
+                }
+            }).catch(error => {
+                console.error('Debug error:', error);
+            });
+        }
+        
+        // Uncomment the line below to enable debugging
+        // debugContentful();
     </script>
 </body>
 </html>
