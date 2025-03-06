@@ -992,3 +992,67 @@ footer {
         font-size: 24px;
     }
 }
+
+/* Mobile Fixes for Mike Mahon Portfolio Site */
+
+/* 1. Fix brief statement text wrapping and font size on homepage */
+@media (max-width: 768px) {
+  .brief-statement p,
+  .statement-text {
+    font-size: 32px; /* Match the project detail page heading size */
+    line-height: 1.2; /* Tighter line height */
+    word-wrap: break-word; /* Ensure text wraps */
+    overflow-wrap: break-word;
+    width: 100%; /* Ensure container doesn't extend beyond viewport */
+    max-width: 100%;
+  }
+  
+  /* Fix highlight span to ensure it wraps properly */
+  .statement-text .highlight {
+    display: inline; /* Change from inline-block to inline for proper wrapping */
+    box-decoration-break: clone; /* For consistent background when text wraps */
+    -webkit-box-decoration-break: clone;
+  }
+  
+  .statement-text .highlight::after {
+    width: 100%; /* Ensure highlight covers text */
+    height: 100%;
+  }
+  
+  /* 2. Fix for the hover effect on project next link for mobile */
+  .project-next-link {
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  .project-next-link::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent-color);
+    transition: width 0.3s ease;
+    z-index: -1;
+  }
+  
+  /* Remove hover effect for mobile and replace with tap state */
+  .touch-device .project-next-link:hover::before {
+    width: 0; /* Disable the hover effect for touch devices */
+  }
+  
+  .touch-device .project-next-link:active {
+    color: white;
+    background-color: var(--accent-color);
+  }
+}
+
+/* Additional tweaks for iPhone and smaller devices */
+@media (max-width: 390px) {
+  .brief-statement p,
+  .statement-text {
+    font-size: 28px; /* Slightly smaller for very small screens */
+    margin-right: 10px; /* Add some right margin to prevent text from touching edge */
+  }
+}
