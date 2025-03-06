@@ -384,18 +384,15 @@
         
         // Function to load awards directly
         function loadAwards() {
-            // Get awards WITHOUT the order parameter first
+            console.log('Loading awards with correct content type "awards"...');
+            
             client.getEntries({
-                content_type: 'award'
+                content_type: 'awards'  // Changed from 'award' to 'awards' to match your content model
             }).then(response => {
                 console.log('Awards response:', response);
                 console.log('Awards found:', response.items ? response.items.length : 0);
                 
                 if (response.items && response.items.length > 0) {
-                    // Log the first item to see its structure
-                    console.log('First award item:', response.items[0]);
-                    console.log('First award item fields:', response.items[0].fields);
-                    
                     const awardsGrid = document.querySelector('.awards-grid');
                     if (!awardsGrid) {
                         console.error('Awards grid not found in DOM');
@@ -408,12 +405,6 @@
                     // Add each award
                     response.items.forEach((item, index) => {
                         const fields = item.fields;
-                        
-                        // Check if we have the essential fields
-                        if (!fields || !fields.name) {
-                            console.warn(`Award #${index} lacks essential fields`, fields);
-                            return; // Skip this item
-                        }
                         
                         const awardItem = document.createElement('div');
                         awardItem.className = 'award-item fade-in';
@@ -439,9 +430,25 @@
                     
                 } else {
                     console.warn('No awards found or empty response');
+                    
+                    // Make the static HTML items visible
+                    const awardsGrid = document.querySelector('.awards-grid');
+                    if (awardsGrid) {
+                        awardsGrid.querySelectorAll('.fade-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }
                 }
             }).catch(error => {
                 console.error('Error loading awards:', error);
+                
+                // On error, make static items visible
+                const awardsGrid = document.querySelector('.awards-grid');
+                if (awardsGrid) {
+                    awardsGrid.querySelectorAll('.fade-in').forEach(el => {
+                        el.classList.add('visible');
+                    });
+                }
             });
         }
     </script>
