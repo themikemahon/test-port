@@ -175,7 +175,7 @@
             </div>
 
             <!-- Video Hero Section (New) -->
-            <div class="project-video-container fade-in">
+            <div class="project-video-container fade-in" style="display: none;">
                 <iframe src="https://player.vimeo.com/video/76979871" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </div>
 
@@ -358,10 +358,12 @@
                     }
                 }
                 
-                // Set video if available (New)
+                // Set video if available
                 if (project.videoUrl) {
-                    const videoContainer = document.querySelector('.project-video-container iframe');
-                    videoContainer.src = project.videoUrl;
+                    const videoContainer = document.querySelector('.project-video-container');
+                    const videoFrame = videoContainer.querySelector('iframe');
+                    videoFrame.src = project.videoUrl;
+                    videoContainer.style.display = 'block'; // Show container only if video exists
                 }
                 
                 // Set main image
