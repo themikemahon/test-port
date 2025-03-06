@@ -193,81 +193,69 @@ function loadSiteSettings() {
     });
 }
 
-// Add this to the existing shared-scripts.js file
-
 // Enhance touch device detection
 function enhancedTouchDetection() {
-  // Check if device supports touch
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0) {
-    document.body.classList.add('touch-device');
-    
-    // Add specific handling for next project links on touch devices
-    const projectNextLinks = document.querySelectorAll('.project-next-link');
-    projectNextLinks.forEach(link => {
-      // Remove any existing event listeners
-      const newLink = link.cloneNode(true);
-      link.parentNode.replaceChild(newLink, link);
-      
-      // Add touch-specific event handling
-      newLink.addEventListener('touchstart', function(e) {
-        // Only change appearance on touch, don't navigate yet
-        this.classList.add('touch-active');
-      });
-      
-      newLink.addEventListener('touchend', function(e) {
-        // Remove the active state
-        this.classList.remove('touch-active');
-      });
-      
-      newLink.addEventListener('touchcancel', function(e) {
-        // Remove the active state
-        this.classList.remove('touch-active');
-      });
-    });
-  }
+    // Check if device supports touch
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0) {
+        document.body.classList.add('touch-device');
+        
+        // Add specific handling for next project links on touch devices
+        const projectNextLinks = document.querySelectorAll('.project-next-link');
+        projectNextLinks.forEach(link => {
+            // Remove any existing event listeners
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            // Add touch-specific event handling
+            newLink.addEventListener('touchstart', function(e) {
+                // Only change appearance on touch, don't navigate yet
+                this.classList.add('touch-active');
+            });
+            
+            newLink.addEventListener('touchend', function(e) {
+                // Remove the active state
+                this.classList.remove('touch-active');
+            });
+            
+            newLink.addEventListener('touchcancel', function(e) {
+                // Remove the active state
+                this.classList.remove('touch-active');
+            });
+        });
+    }
 }
 
 // Ensure brief statement text fits within viewport on mobile
 function fixBriefStatement() {
-  const briefStatement = document.querySelector('.brief-statement p, .statement-text');
-  if (briefStatement && window.innerWidth <= 768) {
-    // Ensure text wraps properly
-    briefStatement.style.width = '100%';
-    briefStatement.style.maxWidth = '100%';
-    
-    // If using the highlight class, ensure it works with wrapped text
-    const highlightSpans = briefStatement.querySelectorAll('.highlight');
-    highlightSpans.forEach(span => {
-      span.style.display = 'inline';
-    });
-  }
+    const briefStatement = document.querySelector('.brief-statement p, .statement-text');
+    if (briefStatement && window.innerWidth <= 768) {
+        // Ensure text wraps properly
+        briefStatement.style.width = '100%';
+        briefStatement.style.maxWidth = '100%';
+        
+        // If using the highlight class, ensure it works with wrapped text
+        const highlightSpans = briefStatement.querySelectorAll('.highlight');
+        highlightSpans.forEach(span => {
+            span.style.display = 'inline';
+        });
+    }
 }
 
-// Add these functions to the DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', function() {
-  // Call our new functions
-  enhancedTouchDetection();
-  fixBriefStatement();
-  
-  // Ensure they run again if the window is resized
-  window.addEventListener('resize', function() {
-    fixBriefStatement();
-  });
-});
-
-// Combine DOMContentLoaded event listener
+// Single DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
     setupAnimations();
-    
-    // Add touch-friendly behavior for mobile
-    if ('ontouchstart' in window) {
-        document.body.classList.add('touch-device');
-    }
+    enhancedTouchDetection(); // Use the enhanced version instead of the simple check
+    fixBriefStatement();
     
     // Load social links for footer
     loadSocialLinks();
     
     // Load site settings
     loadSiteSettings();
+    
+    // Ensure they run again if the window is resized
+    window.addEventListener('resize', function() {
+        fixBriefStatement();
+    });
 });
