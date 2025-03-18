@@ -597,105 +597,93 @@
           );
         }
 
-        // For the main image/video section
-        if (project.mainImage) {
-          const mainImgContainer = document.querySelector('.project-image-container:first-child');
-          if (!mainImgContainer) {
-            console.warn('Main image container not found');
-          } else {
-            mainImgContainer.innerHTML = ''; // Clear container
-            
-            // Check if the main media is a video
-            const fileDetails = project.mainImage.fields.file;
-            const fileType = fileDetails.contentType;
-            const fileUrl = 'https:' + fileDetails.url;
-            
-            console.log("Main media details:", {
-              contentType: fileType,
-              url: fileUrl,
-              fileName: fileDetails.fileName,
-              details: fileDetails.details
-            });
-            
-            if (fileType && fileType.includes('video')) {
-              console.log("Creating video element for main image");
-              // Create video element for MP4
-              const video = document.createElement('video');
-              video.src = fileUrl;
-              video.className = 'project-image-full';
-              video.autoplay = true;
-              video.loop = true;
-              video.muted = true;
-              video.playsInline = true;
-              video.setAttribute('playsinline', '');
-              video.controls = true; // Add controls to help diagnose playback issues
+        // Set gallery images and videos
+        if (project.galleryImages && project.galleryImages.length) {
+          const gridElements = document.querySelectorAll('.project-image-grid > div');
+          console.log("Found gallery grid elements:", gridElements.length);
+          console.log("Gallery images count:", project.galleryImages.length);
+          
+          project.galleryImages.forEach((media, index) => {
+            if (index < gridElements.length) {
+              const cell = gridElements[index];
+              cell.innerHTML = ''; // Clear existing content
               
-              // Add event listeners to monitor video loading
-              video.addEventListener('loadeddata', () => {
-                console.log("Video data loaded successfully");
-              });
-              
-              video.addEventListener('error', (e) => {
-                console.error("Video loading error:", e);
-              });
-              
-              mainImgContainer.appendChild(video);
-              console.log("Video element created and added to DOM. Element:", video);
-            } else {
-              // Create image element as before
-              // ...
+              if (media && media.fields && media.fields.file) {
+                const fileDetails = media.fields.file;
+                const fileType = fileDetails.contentType;
+                const fileUrl = 'https:' + fileDetails.url;
+                const fileName = fileDetails.fileName || '';
+                
+                console.log(`Gallery item ${index} details:`, {
+                  contentType: fileType,
+                  url: fileUrl,
+                  fileName: fileName
+                });
+                
+                // Enhanced video detection
+                const isVideoContent = fileType && (
+                  fileType.includes('video') || 
+                  fileName.toLowerCase().endsWith('.mp4') || 
+                  fileName.toLowerCase().endsWith('.mov') || 
+                  fileName.toLowerCase().endsWith('.webm')
+                );
+                
+                if (isVideoContent) {
+                  console.log(`Creating video element for gallery item ${index}`);
+                  
+                  // Create container to maintain aspect ratio
+                  const videoContainer = document.createElement('div');
+                  videoContainer.style.position = 'relative';
+                  videoContainer.style.width = '100%';
+                  
+                  // Create video with source element
+                  const video = document.createElement('video');
+                  video.style.width = '100%';
+                  video.style.height = 'auto';
+                  video.style.display = 'block';
+                  video.autoplay = true;
+                  video.loop = true;
+                  video.muted = true;
+                  video.playsInline = true;
+                  video.setAttribute('playsinline', '');
+                  video.controls = false; // Set to true for debugging
+                  
+                  // Use source element instead of src attribute
+                  const source = document.createElement('source');
+                  source.src = fileUrl;
+                  source.type = fileType || 'video/mp4'; // Default to mp4 if type is unknown
+                  video.appendChild(source);
+                  
+                  // Add event listeners for debugging
+                  video.addEventListener('loadeddata', () => {
+                    console.log(`Gallery video ${index} loaded successfully`);
+                  });
+                  
+                  video.addEventListener('error', (e) => {
+                    console.error(`Gallery video ${index} error:`, e.target.error);
+                  });
+                  
+                  // Add video to container
+                  videoContainer.appendChild(video);
+                  cell.appendChild(videoContainer);
+                  
+                  // Force video play (some browsers require this)
+                  setTimeout(() => {
+                    video.play().catch(err => {
+                      console.warn(`Could not autoplay gallery video ${index}:`, err);
+                    });
+                  }, 100);
+                } else {
+                  // Create image element
+                  const img = document.createElement('img');
+                  img.src = fileUrl;
+                  img.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
+                  
+                  cell.appendChild(img);
+                }
+              }
             }
-          }
-        }
-        // For the main image/video section
-        if (project.mainImage) {
-          const mainImgContainer = document.querySelector('.project-image-container:first-child');
-          if (!mainImgContainer) {
-            console.warn('Main image container not found');
-          } else {
-            mainImgContainer.innerHTML = ''; // Clear container
-            
-            // Check if the main media is a video
-            const fileDetails = project.mainImage.fields.file;
-            const fileType = fileDetails.contentType;
-            const fileUrl = 'https:' + fileDetails.url;
-            
-            console.log("Main media details:", {
-              contentType: fileType,
-              url: fileUrl,
-              fileName: fileDetails.fileName,
-              details: fileDetails.details
-            });
-            
-            if (fileType && fileType.includes('video')) {
-              console.log("Creating video element for main image");
-              // Create video element for MP4
-              const video = document.createElement('video');
-              video.src = fileUrl;
-              video.className = 'project-image-full';
-              video.autoplay = true;
-              video.loop = true;
-              video.muted = true;
-              video.playsInline = true;
-              video.setAttribute('playsinline', '');
-              video.controls = true; // Add controls to help diagnose playback issues
-              
-              // Add event listeners to monitor video loading
-              video.addEventListener('loadeddata', () => {
-                console.log("Video data loaded successfully");
-              });
-              
-              video.addEventListener('error', (e) => {
-                console.error("Video loading error:", e);
-              });
-              
-              mainImgContainer.appendChild(video);
-              console.log("Video element created and added to DOM. Element:", video);
-            } else {
-              // Create image element as before
-              // ...
-            }
-          }
+          });
         }
     </script>
 </body>
