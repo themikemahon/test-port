@@ -15,6 +15,19 @@
                 margin-left: 10px;
             }
         }
+        /* Video thumbnail styles */
+        .project-image video {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .project-card:hover .project-image video {
+          transform: scale(1.08);
+        }
     </style>
 </head>
 <body>
@@ -208,63 +221,175 @@
         
         // Load projects from Contentful
         async function loadProjects() {
-            try {
-                // Fetch projects from Contentful
-                const response = await client.getEntries({
-                    content_type: 'project',
-                    order: 'fields.order' // If you have an order field
-                });
-                
-                if (response.items.length === 0) {
-                    console.warn('No projects found in Contentful. Showing demo content.');
-                    return;
-                }
-                
-                // Clear the container 
-                const projectsContainer = document.getElementById('projects-container');
-                projectsContainer.innerHTML = '';
-                
-                // Add each project
-                response.items.forEach((item, index) => {
-                    const project = item.fields;
-                    const projectId = item.sys.id;
-                    
-                    // Create project card
-                    const card = document.createElement('div');
-                    card.className = 'project-card';
-                    
-                    // Delay for animation 
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 300 + (index * 100));
-                    
-                    // Create card HTML
-                    card.innerHTML = `
-                        <a href="project-detail.html?id=${projectId}">
-                            <div class="project-image">
-                                <img src="${project.thumbnail ? 'https:' + project.thumbnail.fields.file.url : '/api/placeholder/600/450'}" alt="${project.title}">
-                                <div class="project-overlay">
-                                    <div class="project-overlay-content">
-                                        <div class="view-project">View Project</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="project-info">
-                                <div class="project-title-container">
-                                    <h3 class="project-title">${project.title}</h3>
-                                    <p class="project-category">${project.category || ''}</p>
-                                </div>
-                            </div>
-                        </a>
-                    `;
-                    
-                    projectsContainer.appendChild(card);
-                });
-                
-            } catch (error) {
-                console.error('Error loading projects:', error);
+          try {
+            // Fetch projects from Contentful
+            const response = await client.getEntries({
+              content_type: 'project',
+              order: 'fields.order' // If you have an order field
+            });
+            
+            if (response.items.length === 0) {
+              console.warn('No projects found in Contentful. Showing demo content.');
+              return;
             }
+            
+            // Clear the container 
+            const projectsContainer = document.getElementById('projects-container');
+            projectsContainer.innerHTML = '';
+            
+            // Check if autoplay is supported (optional)
+            const autoplaySupported = await checkAutoplaySupport();
+            
+            // Add each project
+            response.items.forEach((item, index) => {
+              const project = item.fields;
+              const projectId = item.sys.id;
+              
+              // Create project card
+              const card = document.createElement('div');
+              card.className = 'project-card';
+              
+              // Delay for animation 
+              setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+              }, 300 + (index * 100));
+              
+              // Start with container and link
+              let cardContent = `
+                <a href="project-detail.html?id=${projectId}">
+                  <div class="project-image">
+              `;
+              
+              // Check if thumbnail is a video or image
+              if (project.thumbnail) {
+                const fileType = project.thumbnail.fields.file.contentType;
+                const fileUrl = 'https:' + project.thumbnail.fields.file.url;
+                
+                if (fileType.includes('video')) {
+                  // Add video element
+                  cardContent += `
+                    <video ${autoplaySupported ? 'autoplay' : ''} loop muted playsinline>
+                      <source src="${fileUrl}" type="${fileType}">
+                    </video>
+                  `;
+                } else {
+                  // Add image element
+                  cardContent += `
+                    <img src="${fileUrl}" alt="${project.title}">
+                  `;
+                }
+              } else {
+                // Add placeholder if no media
+                cardContent += `
+                  <img src="/api/placeholder/600/450" alt="${project.title}">
+                `;
+              }
+              
+              // Add overlay and remaining card structure
+              cardContent += `
+                    <div class="project-overlay">
+                      <div class="project-overlay-content">
+                        <div class="view-project">View Project</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="project-info">
+                    <div class="project-title-container">
+                      <h3 class="project-title">${project.title}</h3>
+                      <p class="project-category">${project.category || ''}</p>
+                    </div>
+                  </div>
+                </a>
+              `;
+              
+              // Set the HTML content
+              card.innerHTML = cardContent;
+              
+              // Add to container
+              projectsContainer.appendChild(card);
+              
+              // If video and autoplay is not supported, we need to start videos on hover
+              if (!autoplaySupported) {
+                const video = card.querySelector('video');
+                if (video) {
+                  // Start video when hovering the card
+                  card.addEventListener('mouseenter', () => {
+                    video.play().catch(err => console.log('Play on hover failed:', err));
+                  });
+                  
+                  // Pause video when mouse leaves
+                  card.addEventListener('mouseleave', () => {
+                    video.pause();
+                  });
+                  
+                  // On mobile, try to start the video when visible
+                  if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                      entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                          video.play().catch(err => console.log('Auto-play failed:', err));
+                        } else {
+                          video.pause();
+                        }
+                      });
+                    }, { threshold: 0.5 });
+                    
+                    observer.observe(card);
+                  }
+                }
+              }
+            });
+            
+          } catch (error) {
+            console.error('Error loading projects:', error);
+          }
+        }
+        
+        // Function to check if autoplay is supported
+        function checkAutoplaySupport() {
+          return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.setAttribute('playsinline', '');
+            video.muted = true;
+            video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAFptZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMiA5NTZjOGQ4IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTAgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDExMSBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MCBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTYgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0wIHdlaWdodHA9MCBrZXlpbnQ9MjUwIGtleWludF9taW49MjUgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD00MCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IHZidl9tYXhyYXRlPTc2OCB2YnZfYnVmc2l6ZT0zMDAwIGNyZl9tYXg9MC4wIG5hbF9ocmQ9bm9uZSBmaWxsZXI9MCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMAAgAAAAOWWIhAA3//728P4FNjuZQQAAAn5tb292AAAAbG12aGQAAAAAAAAAAAAAAAAAAAPoAAAAZAABAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACGHRyYWsAAABcdGtoZAAAAAMAAAAAAAAAAAAAAAEAAAAAAAAAZAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAgAAAAIAAAAAACRlZHRzAAAAHGVsc3QAAAAAAAAAAQAAAGQAAAAAAAEAAAAAAZBtZGlhAAAAIG1kaGQAAAAAAAAAAAAAAAAAACgAAAAEAFXEAAAAAAAtaGRscgAAAAAAAAAAdmlkZQAAAAAAAAAAAAAAAFZpZGVvSGFuZGxlcgAAAAE7bWluZgAAABR2bWhkAAAAAQAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAA+3N0YmwAAACXc3RzZAAAAAAAAAABAAAAh2F2YzEAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAACAAgASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAADFhdmNDAWQACv/hABhnZAAKrNlCjfkhAAADAAEAAAMAAg8SJZYBAAZo6+JLIsAAAAAYc3R0cwAAAAAAAAABAAAABAAAEAAAAAAUc3RzcwAAAAAAAAABAAAAAQAAABxzdHNjAAAAAAAAAAEAAAABAAAABAAAAAEAAAAkc3RzegAAAAAAAAAAAAAABAAAAV8AAAAGAAAABgAAABMAAAAUc3RjbwAAAAAAAAABAAAAMAAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTUuMzMuMTAw';
+            
+            video.oncanplay = () => {
+              // Try to play to check if autoplay works
+              const playPromise = video.play();
+              
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    // Autoplay is supported
+                    resolve(true);
+                  })
+                  .catch(error => {
+                    // Autoplay is not supported
+                    console.log('Autoplay not supported, videos will need user interaction:', error);
+                    resolve(false);
+                  });
+              } else {
+                // Older browsers don't return a promise
+                resolve(true);
+              }
+            };
+            
+            video.onerror = () => {
+              // Video failed to load, assume autoplay might not work
+              resolve(false);
+            };
+            
+            // Add the video to the DOM temporarily
+            video.style.display = 'none';
+            document.body.appendChild(video);
+            
+            // Clean up after we're done
+            setTimeout(() => {
+              document.body.removeChild(video);
+            }, 1000);
+          });
         }
         
         // Initialize when DOM is ready
