@@ -408,52 +408,79 @@
               }
             }
             
-            // Set main image
+            // Set video if available from vimeo embed
+            if (project.videoUrl) {
+              const videoContainer = document.querySelector('.project-video-container');
+              if (videoContainer) {
+                const videoFrame = videoContainer.querySelector('iframe');
+                if (videoFrame) {
+                  videoFrame.src = project.videoUrl;
+                  videoContainer.style.display = 'block'; // Show container only if video exists
+                }
+              }
+            }
+            
+            // Set main image or video
             if (project.mainImage) {
               const mainImgContainer = document.querySelector('.project-image-container:first-child');
-              mainImgContainer.innerHTML = ''; // Clear container
-              
-              // Check if the main media is a video
-              const fileType = project.mainImage.fields.file.contentType;
-              const fileUrl = 'https:' + project.mainImage.fields.file.url;
-              
-              if (fileType && fileType.includes('video')) {
-                // Create video element for MP4
-                const video = document.createElement('video');
-                video.src = fileUrl;
-                video.className = 'project-image-full';
-                video.autoplay = true;
-                video.loop = true;
-                video.muted = true;
-                video.playsInline = true;
-                video.setAttribute('playsinline', '');
-                
-                mainImgContainer.appendChild(video);
+              if (!mainImgContainer) {
+                console.warn('Main image container not found');
               } else {
-                // Create image element
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                img.alt = project.title || '';
-                img.className = 'project-image-full';
+                mainImgContainer.innerHTML = ''; // Clear container
                 
-                mainImgContainer.appendChild(img);
+                // Check if the main media is a video
+                const fileType = project.mainImage.fields.file.contentType;
+                const fileUrl = 'https:' + project.mainImage.fields.file.url;
+                
+                console.log("Main media file type:", fileType);
+                console.log("Main media URL:", fileUrl);
+                
+                if (fileType && fileType.includes('video')) {
+                  console.log("Creating video element for main image");
+                  // Create video element for MP4
+                  const video = document.createElement('video');
+                  video.src = fileUrl;
+                  video.className = 'project-image-full';
+                  video.autoplay = true;
+                  video.loop = true;
+                  video.muted = true;
+                  video.playsInline = true;
+                  video.setAttribute('playsinline', '');
+                  video.controls = false;
+                  
+                  mainImgContainer.appendChild(video);
+                  console.log("Video element created and added:", video);
+                } else {
+                  // Create image element
+                  const img = document.createElement('img');
+                  img.src = fileUrl;
+                  img.alt = project.title || '';
+                  img.className = 'project-image-full';
+                  
+                  mainImgContainer.appendChild(img);
+                }
               }
             }
             
             // Set gallery images and videos
             if (project.galleryImages && project.galleryImages.length) {
-              const gridImages = document.querySelectorAll('.project-image-grid > div');
+              const gridElements = document.querySelectorAll('.project-image-grid > div');
+              console.log("Found gallery grid elements:", gridElements.length);
+              console.log("Gallery images count:", project.galleryImages.length);
               
               project.galleryImages.forEach((media, index) => {
-                if (index < gridImages.length) {
-                  const cell = gridImages[index];
+                if (index < gridElements.length) {
+                  const cell = gridElements[index];
                   cell.innerHTML = ''; // Clear existing content
                   
                   if (media && media.fields && media.fields.file) {
                     const fileType = media.fields.file.contentType;
                     const fileUrl = 'https:' + media.fields.file.url;
                     
+                    console.log(`Gallery item ${index} file type:`, fileType);
+                    
                     if (fileType && fileType.includes('video')) {
+                      console.log(`Creating video for gallery item ${index}`);
                       // Create video element
                       const video = document.createElement('video');
                       video.src = fileUrl;
@@ -463,6 +490,7 @@
                       video.muted = true;
                       video.playsInline = true;
                       video.setAttribute('playsinline', '');
+                      video.controls = false;
                       
                       cell.appendChild(video);
                     } else {
@@ -476,6 +504,67 @@
                   }
                 }
               });
+            }
+            
+            // Set credits if available
+            if (project.credits && project.credits.length) {
+              const creditsGrid = document.querySelector('.credits-grid');
+              if (creditsGrid) {
+                console.log("Found credits grid, credits length:", project.credits.length);
+                creditsGrid.innerHTML = ''; // Clear existing credits
+                
+                project.credits.forEach(creditRef => {
+                  // For References field type, data is in creditRef.fields
+                  console.log("Credit reference:", creditRef);
+                  
+                  if (creditRef.fields) {
+                    const role = creditRef.fields.role;
+                    const name = creditRef.fields.name;
+                    const company = creditRef.fields.company;
+                    
+                    console.log(`Credit: ${role}, ${name}, ${company}`);
+                    
+                    if (role && name) {
+                      const creditItem = document.createElement('div');
+                      creditItem.className = 'credit-item';
+                      
+                      const roleDiv = document.createElement('div');
+                      roleDiv.className = 'credit-role';
+                      roleDiv.textContent = role;
+                      
+                      const nameDiv = document.createElement('div');
+                      nameDiv.className = 'credit-name';
+                      nameDiv.textContent = name;
+                      
+                      creditItem.appendChild(roleDiv);
+                      creditItem.appendChild(nameDiv);
+                      
+                      if (company) {
+                        const companyDiv = document.createElement('div');
+                        companyDiv.className = 'credit-company';
+                        companyDiv.textContent = company;
+                        creditItem.appendChild(companyDiv);
+                      }
+                      
+                      creditsGrid.appendChild(creditItem);
+                    }
+                  }
+                });
+              } else {
+                console.warn("Credits grid element not found");
+              }
+            }
+            
+            // Set next project if available
+            if (project.nextProject) {
+              const nextLink = document.querySelector('.project-next-link');
+              if (nextLink) {
+                console.log("Found next project link, next project:", project.nextProject);
+                nextLink.textContent = project.nextProject.fields.title;
+                nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
+              } else {
+                console.warn("Next project link element not found");
+              }
             }
             
             console.log("Project details loaded successfully");
