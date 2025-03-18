@@ -678,6 +678,59 @@
             }
           });
         }
+        // When creating the video element in the gallery
+        if (isVideoContent) {
+          console.log(`Creating video element for gallery item ${index} - detected as video!`);
+          
+          // Create a container div to maintain consistent aspect ratio
+          const videoContainer = document.createElement('div');
+          videoContainer.style.position = 'relative';
+          videoContainer.style.width = '100%';
+          videoContainer.style.height = '0';
+          videoContainer.style.paddingBottom = '75%'; // Match the aspect ratio of your images
+          videoContainer.style.overflow = 'hidden';
+          
+          // Create video element with proper styling to fill container
+          const video = document.createElement('video');
+          video.style.position = 'absolute';
+          video.style.top = '0';
+          video.style.left = '0';
+          video.style.width = '100%';
+          video.style.height = '100%';
+          video.style.objectFit = 'cover'; // This is the key property
+          video.autoplay = true;
+          video.loop = true;
+          video.muted = true;
+          video.playsInline = true;
+          video.setAttribute('playsinline', '');
+          video.controls = false;
+          
+          // Add source
+          const source = document.createElement('source');
+          source.src = fileUrl;
+          source.type = fileType || 'video/mp4';
+          video.appendChild(source);
+          
+          // Add event listeners
+          video.addEventListener('loadeddata', () => {
+            console.log(`Gallery video ${index} loaded successfully`);
+          });
+          
+          video.addEventListener('error', (e) => {
+            console.error(`Gallery video ${index} error:`, e.target.error);
+          });
+          
+          // Append video to container, then container to cell
+          videoContainer.appendChild(video);
+          cell.appendChild(videoContainer);
+          
+          // Force play attempt
+          setTimeout(() => {
+            video.play().catch(err => {
+              console.warn(`Could not autoplay gallery video ${index}:`, err);
+            });
+          }, 100);
+        }
     </script>
 </body>
 </html>
