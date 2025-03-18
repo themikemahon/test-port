@@ -1183,3 +1183,19 @@ footer {
 .project-next-link::after {
     display: none !important;
 }
+
+/* Ensure videos have the same sizing behavior as images */
+.project-image-grid > div video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Make sure the parent div maintains the same aspect ratio */
+.project-image-grid > div {
+  position: relative;
+  overflow: hidden;
+}
