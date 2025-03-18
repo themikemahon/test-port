@@ -339,9 +339,12 @@
         // Load project details
         async function loadProjectDetails() {
           try {
+            console.log("Starting to load project details...");
+            
             // Get project ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             const projectId = urlParams.get('id');
+            console.log("Project ID from URL:", projectId);
             
             if (!projectId) {
               console.warn('No project ID provided. Showing demo content.');
@@ -349,10 +352,14 @@
             }
             
             // Fetch project data WITH linked entries
+            console.log("Fetching from Contentful with ID:", projectId);
             const entry = await client.getEntry(projectId, {
               include: 2  // This will include linked entries up to 2 levels deep
             });
+            console.log("Received data from Contentful:", entry);
+            
             const project = entry.fields;
+            console.log("Project fields:", project);
             
             // Update page title
             document.title = `${project.title} | Mike Mahon | Creative Director`;
@@ -364,20 +371,19 @@
             const metaItems = document.querySelectorAll('.project-meta-item');
             if (metaItems[0] && project.client) 
               metaItems[0].querySelector('.project-meta-value').textContent = project.client;
+            
             if (metaItems[1] && project.role) 
               metaItems[1].querySelector('.project-meta-value').textContent = project.role;
+            
             if (metaItems[2] && project.year) 
               metaItems[2].querySelector('.project-meta-value').textContent = project.year;
             
             // Set description
             if (project.description) {
-              // For rich text content, we'll need more processing
-              // This is a simplified version for text content
               const descriptionEl = document.querySelector('.project-description');
               descriptionEl.innerHTML = '';
               
               if (typeof project.description === 'string') {
-                // Simple text
                 const paragraphs = project.description.split('\n\n');
                 paragraphs.forEach(paragraph => {
                   if (paragraph.trim()) {
@@ -387,7 +393,6 @@
                   }
                 });
               } else if (project.description.content) {
-                // Rich text from Contentful
                 project.description.content.forEach(paragraph => {
                   if (paragraph.nodeType === 'paragraph') {
                     const p = document.createElement('p');
@@ -401,105 +406,12 @@
               }
             }
             
-            // Set video if available (from video embed URL field)
-            if (project.videoUrl) {
-              const videoContainer = document.querySelector('.project-video-container');
-              const videoFrame = videoContainer.querySelector('iframe');
-              videoFrame.src = project.videoUrl;
-              videoContainer.style.display = 'block'; // Show container only if video exists
-            }
-            
-            // Set main image or video
-            if (project.mainImage) {
-              const mainImgContainer = document.querySelector('.project-image-container:first-child');
-              mainImgContainer.innerHTML = ''; // Clear container
-              
-              // Check if the main media is a video
-              const fileType = project.mainImage.fields.file.contentType;
-              const fileUrl = 'https:' + project.mainImage.fields.file.url;
-              
-              if (fileType.includes('video')) {
-                // Create video element for MP4
-                const video = document.createElement('video');
-                video.src = fileUrl;
-                video.className = 'project-image-full';
-                video.autoplay = true;
-                video.loop = true;
-                video.muted = true;
-                video.playsInline = true;
-                video.setAttribute('playsinline', '');
-                video.controls = false;
-                
-                // Set poster image if available
-                if (project.mainImage.fields.file.details && project.mainImage.fields.file.details.image) {
-                  video.poster = project.mainImage.fields.file.details.image.url;
-                }
-                
-                mainImgContainer.appendChild(video);
-              } else {
-                // Create image element
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                img.alt = project.title;
-                img.className = 'project-image-full';
-                
-                mainImgContainer.appendChild(img);
-              }
-            }
-            
-            // Set gallery images and videos
-            if (project.galleryImages && project.galleryImages.length) {
-              const gridImages = document.querySelectorAll('.project-image-grid > div');
-              
-              // Process each gallery media item
-              project.galleryImages.forEach((media, index) => {
-                if (index < gridImages.length) {
-                  const cell = gridImages[index];
-                  cell.innerHTML = ''; // Clear existing content
-                  
-                  const fileType = media.fields.file.contentType;
-                  const fileUrl = 'https:' + media.fields.file.url;
-                  
-                  if (fileType.includes('video')) {
-                    // Create video element
-                    const video = document.createElement('video');
-                    video.src = fileUrl;
-                    video.alt = media.fields.title || `${project.title} detail ${index + 1}`;
-                    video.autoplay = true;
-                    video.loop = true;
-                    video.muted = true;
-                    video.playsInline = true;
-                    video.setAttribute('playsinline', '');
-                    video.controls = false;
-                    
-                    cell.appendChild(video);
-                  } else {
-                    // Create image element
-                    const img = document.createElement('img');
-                    img.src = fileUrl;
-                    img.alt = media.fields.title || `${project.title} detail ${index + 1}`;
-                    
-                    cell.appendChild(img);
-                  }
-                }
-              });
-            }
-            
-            // Keep existing code for credits, next project, etc.
+            // More code to handle images will go here, but let's keep it simple for now
+            console.log("Project details loaded successfully");
             
           } catch (error) {
             console.error('Error loading project details:', error);
           }
-        }
-        
-        // Helper function to detect if an item is a video
-        function isVideo(contentType) {
-          return contentType && (
-            contentType.includes('video') || 
-            contentType.includes('mp4') || 
-            contentType.includes('mov') ||
-            contentType.includes('webm')
-          );
         }
                 
                 // Set next project if available
