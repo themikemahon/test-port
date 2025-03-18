@@ -617,30 +617,25 @@
                 console.log(`Gallery item ${index} details:`, {
                   contentType: fileType,
                   url: fileUrl,
-                  fileName: fileName
+                  fileName: fileName,
+                  title: media.fields.title
                 });
                 
-                // Enhanced video detection
-                const isVideoContent = fileType && (
-                  fileType.includes('video') || 
-                  fileName.toLowerCase().endsWith('.mp4') || 
-                  fileName.toLowerCase().endsWith('.mov') || 
-                  fileName.toLowerCase().endsWith('.webm')
-                );
+                // Enhanced video detection - check both content type AND file name
+                const isVideoContent = 
+                  (fileType && fileType.includes('video')) || 
+                  (fileName.toLowerCase().endsWith('.mp4')) ||
+                  (fileName.toLowerCase().endsWith('.mov')) || 
+                  (fileName.toLowerCase().endsWith('.webm')) ||
+                  (media.fields.title && media.fields.title.includes('Microreel'));
                 
                 if (isVideoContent) {
-                  console.log(`Creating video element for gallery item ${index}`);
+                  console.log(`Creating video element for gallery item ${index} - detected as video!`);
                   
-                  // Create container to maintain aspect ratio
-                  const videoContainer = document.createElement('div');
-                  videoContainer.style.position = 'relative';
-                  videoContainer.style.width = '100%';
-                  
-                  // Create video with source element
+                  // Create video element
                   const video = document.createElement('video');
-                  video.style.width = '100%';
-                  video.style.height = 'auto';
-                  video.style.display = 'block';
+                  video.width = '100%';
+                  video.height = 'auto';
                   video.autoplay = true;
                   video.loop = true;
                   video.muted = true;
@@ -648,13 +643,13 @@
                   video.setAttribute('playsinline', '');
                   video.controls = false; // Set to true for debugging
                   
-                  // Use source element instead of src attribute
+                  // Use source element
                   const source = document.createElement('source');
                   source.src = fileUrl;
                   source.type = fileType || 'video/mp4'; // Default to mp4 if type is unknown
                   video.appendChild(source);
                   
-                  // Add event listeners for debugging
+                  // Add event listeners
                   video.addEventListener('loadeddata', () => {
                     console.log(`Gallery video ${index} loaded successfully`);
                   });
@@ -663,11 +658,9 @@
                     console.error(`Gallery video ${index} error:`, e.target.error);
                   });
                   
-                  // Add video to container
-                  videoContainer.appendChild(video);
-                  cell.appendChild(videoContainer);
+                  cell.appendChild(video);
                   
-                  // Force video play (some browsers require this)
+                  // Force play attempt
                   setTimeout(() => {
                     video.play().catch(err => {
                       console.warn(`Could not autoplay gallery video ${index}:`, err);
