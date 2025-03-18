@@ -332,8 +332,8 @@
     <script>
         // Initialize Contentful client with your space ID and API key
         const client = contentful.createClient({
-            space: '2ic80tk26lba',
-            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+          space: '2ic80tk26lba',
+          accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
         // Load project details
@@ -384,6 +384,7 @@
               descriptionEl.innerHTML = '';
               
               if (typeof project.description === 'string') {
+                // Simple text
                 const paragraphs = project.description.split('\n\n');
                 paragraphs.forEach(paragraph => {
                   if (paragraph.trim()) {
@@ -393,6 +394,7 @@
                   }
                 });
               } else if (project.description.content) {
+                // Rich text from Contentful
                 project.description.content.forEach(paragraph => {
                   if (paragraph.nodeType === 'paragraph') {
                     const p = document.createElement('p');
@@ -406,37 +408,105 @@
               }
             }
             
-            // More code to handle images will go here, but let's keep it simple for now
+            // Set main image
+            if (project.mainImage) {
+              const mainImgContainer = document.querySelector('.project-image-container:first-child');
+              mainImgContainer.innerHTML = ''; // Clear container
+              
+              // Check if the main media is a video
+              const fileType = project.mainImage.fields.file.contentType;
+              const fileUrl = 'https:' + project.mainImage.fields.file.url;
+              
+              if (fileType && fileType.includes('video')) {
+                // Create video element for MP4
+                const video = document.createElement('video');
+                video.src = fileUrl;
+                video.className = 'project-image-full';
+                video.autoplay = true;
+                video.loop = true;
+                video.muted = true;
+                video.playsInline = true;
+                video.setAttribute('playsinline', '');
+                
+                mainImgContainer.appendChild(video);
+              } else {
+                // Create image element
+                const img = document.createElement('img');
+                img.src = fileUrl;
+                img.alt = project.title || '';
+                img.className = 'project-image-full';
+                
+                mainImgContainer.appendChild(img);
+              }
+            }
+            
+            // Set gallery images and videos
+            if (project.galleryImages && project.galleryImages.length) {
+              const gridImages = document.querySelectorAll('.project-image-grid > div');
+              
+              project.galleryImages.forEach((media, index) => {
+                if (index < gridImages.length) {
+                  const cell = gridImages[index];
+                  cell.innerHTML = ''; // Clear existing content
+                  
+                  if (media && media.fields && media.fields.file) {
+                    const fileType = media.fields.file.contentType;
+                    const fileUrl = 'https:' + media.fields.file.url;
+                    
+                    if (fileType && fileType.includes('video')) {
+                      // Create video element
+                      const video = document.createElement('video');
+                      video.src = fileUrl;
+                      video.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
+                      video.autoplay = true;
+                      video.loop = true;
+                      video.muted = true;
+                      video.playsInline = true;
+                      video.setAttribute('playsinline', '');
+                      
+                      cell.appendChild(video);
+                    } else {
+                      // Create image element
+                      const img = document.createElement('img');
+                      img.src = fileUrl;
+                      img.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
+                      
+                      cell.appendChild(img);
+                    }
+                  }
+                }
+              });
+            }
+            
             console.log("Project details loaded successfully");
             
           } catch (error) {
             console.error('Error loading project details:', error);
           }
         }
-                
-                // Set next project if available
-                if (project.nextProject) {
-                    const nextLink = document.querySelector('.project-next-link');
-                    nextLink.textContent = project.nextProject.fields.title;
-                    nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
-                }
-                
-            } catch (error) {
-                console.error('Error loading project details:', error);
-            }
-        }
         
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            loadProjectDetails();
-            
-            // Setup animations for elements
-            setTimeout(function() {
-                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
-                    el.classList.add('visible');
-                });
-            }, 100);
+          console.log("DOM loaded, initializing project details...");
+          loadProjectDetails();
+          
+          // Setup animations for elements
+          setTimeout(function() {
+            document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
+              el.classList.add('visible');
+            });
+          }, 100);
         });
+        
+        // Helper function to detect if an item is a video
+        function isVideo(contentType) {
+          return contentType && (
+            contentType.includes('video') || 
+            contentType.includes('mp4') || 
+            contentType.includes('mov') ||
+            contentType.includes('webm')
+          );
+        }
     </script>
 </body>
 </html>
