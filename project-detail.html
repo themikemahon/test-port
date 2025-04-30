@@ -480,8 +480,8 @@
                     project.galleryImages.forEach((item, index) => {
                         const file = item.fields.file;
                         const isVideo = file && 
-                                       (file.contentType === 'video/mp4' || 
-                                        file.fileName.toLowerCase().endsWith('.mp4'));
+                                      (file.contentType === 'video/mp4' || 
+                                       file.fileName.toLowerCase().endsWith('.mp4'));
                         
                         // Create container
                         const itemDiv = document.createElement('div');
@@ -515,6 +515,9 @@
                             source.type = 'video/mp4';
                             video.appendChild(source);
                             
+                            // Add fallback text (not visible unless HTML5 video is unsupported)
+                            video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
+                            
                             // Add to the wrapper
                             videoWrapper.appendChild(video);
                             
@@ -530,7 +533,7 @@
                             // Append wrapper to container
                             itemDiv.appendChild(videoWrapper);
                         } else {
-                            // For images, use the standard image element
+                            // For images, create an img element
                             const img = document.createElement('img');
                             img.src = 'https:' + file.url;
                             img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
@@ -545,63 +548,64 @@
                     initializeVideos();
                 }
                 
-                // Then also update your initializeVideos function to handle the new structure:
-                function initializeVideos() {
-                    const videos = document.querySelectorAll('.gallery-video');
-                    
-                    videos.forEach(video => {
-                        // Force load the video
-                        video.load();
-                        
-                        // Handle video errors
-                        video.addEventListener('error', function(e) {
-                            console.error('Video error:', e);
-                            // Show fallback image
-                            const wrapper = video.closest('.video-wrapper');
-                            if (wrapper) {
-                                const fallback = wrapper.querySelector('.video-fallback');
-                                if (fallback) {
-                                    fallback.classList.add('visible');
-                                }
-                            }
-                        });
-                        
-                        // Also check for stalled events
-                        video.addEventListener('stalled', function() {
-                            // Show fallback image
-                            const wrapper = video.closest('.video-wrapper');
-                            if (wrapper) {
-                                const fallback = wrapper.querySelector('.video-fallback');
-                                if (fallback) {
-                                    fallback.classList.add('visible');
-                                }
-                            }
-                        });
-                        
-                        // Try to play video when it has loaded enough
-                        video.addEventListener('canplay', function() {
-                            if (video.paused) {
-                                video.play().catch(e => {
-                                    console.warn('Autoplay failed:', e);
-                                });
-                            }
-                        });
-                        
-                        // Hide fallback if video starts playing
-                        video.addEventListener('playing', function() {
-                            const wrapper = video.closest('.video-wrapper');
-                            if (wrapper) {
-                                const fallback = wrapper.querySelector('.video-fallback');
-                                if (fallback) {
-                                    fallback.classList.remove('visible');
-                                }
-                            }
-                        });
-                        
-                        // Set a timeout to check if video is playing
+                // Set next project if available
+                if (project.nextProject) {
+                    const nextLink = document.querySelector('.project-next-link');
+                    nextLink.textContent = project.nextProject.fields.title;
+                    nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading project details:', error);
+            }
+        }
+        
+        // Initialize video elements for mobile compatibility
+        function initializeVideos() {
+            const videos = document.querySelectorAll('video');
+            const isMobileDevice = isMobile();
+            const isIOSSafariDevice = isIOSorSafari();
+            
+            videos.forEach(video => {
+                // First, make sure the video is muted (required for autoplay)
+                video.muted = true;
+                
+                // Force load the video
+                video.load();
+                
+                // Show fallback image if video fails to load or play
+                video.addEventListener('error', function(e) {
+                    console.error('Video error:', e);
+                    // Show fallback image
+                    const wrapper = video.closest('.video-wrapper');
+                    if (wrapper) {
+                        const fallback = wrapper.querySelector('.video-fallback');
+                        if (fallback) {
+                            fallback.classList.add('visible');
+                        }
+                    }
+                });
+                
+                // Also check for stalled or timeout events
+                video.addEventListener('stalled', function() {
+                    // Show fallback image
+                    const wrapper = video.closest('.video-wrapper');
+                    if (wrapper) {
+                        const fallback = wrapper.querySelector('.video-fallback');
+                        if (fallback) {
+                            fallback.classList.add('visible');
+                        }
+                    }
+                });
+                
+                // For iOS Safari: attempt to play after load
+                if (isIOSSafariDevice) {
+                    // iOS Safari needs manual play attempt after loading
+                    video.addEventListener('loadedmetadata', function() {
                         setTimeout(() => {
-                            if (video.paused || video.ended) {
-                                // Video didn't autoplay, show fallback
+                            video.play().catch(e => {
+                                console.warn('iOS autoplay failed:', e);
+                                // Show fallback
                                 const wrapper = video.closest('.video-wrapper');
                                 if (wrapper) {
                                     const fallback = wrapper.querySelector('.video-fallback');
@@ -609,15 +613,55 @@
                                         fallback.classList.add('visible');
                                     }
                                 }
-                                
-                                // Try one more play attempt
-                                video.play().catch(e => console.warn('Delayed autoplay failed:', e));
-                            }
-                        }, 2000);
+                            });
+                        }, 100);
+                    });
+                    
+                    // For iOS, try playing again when canplaythrough fires
+                    video.addEventListener('canplaythrough', function() {
+                        if (video.paused) {
+                            video.play().catch(e => console.warn('Canplay autoplay failed:', e));
+                        }
                     });
                 }
-
-        // Hi
+                
+                // For all videos
+                video.addEventListener('canplay', function() {
+                    // Try to play as soon as we can
+                    if (video.paused) {
+                        video.play().catch(e => console.warn('Canplay autoplay failed:', e));
+                    }
+                });
+                
+                // If video ends up playing successfully, hide the fallback
+                video.addEventListener('playing', function() {
+                    const wrapper = video.closest('.video-wrapper');
+                    if (wrapper) {
+                        const fallback = wrapper.querySelector('.video-fallback');
+                        if (fallback) {
+                            fallback.classList.remove('visible');
+                        }
+                    }
+                });
+                
+                // Set a timeout to check if video is playing, otherwise show fallback
+                setTimeout(() => {
+                    if (video.paused || video.ended) {
+                        // Video didn't autoplay, show fallback
+                        const wrapper = video.closest('.video-wrapper');
+                        if (wrapper) {
+                            const fallback = wrapper.querySelector('.video-fallback');
+                            if (fallback) {
+                                fallback.classList.add('visible');
+                            }
+                        }
+                        
+                        // Try one more play attempt
+                        video.play().catch(e => console.warn('Delayed autoplay failed:', e));
+                    }
+                }, 2000);
+            });
+        }
         
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
