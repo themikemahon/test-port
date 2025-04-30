@@ -13,7 +13,7 @@
         .project-title {
             font-size: 42px;
             margin-bottom: 40px;
-            margin-top: 80px;
+            margin-top: 80px; /* Added more space above project title */
         }
         
         .project-image-container img {
@@ -114,49 +114,6 @@
             color: var(--secondary-color);
         }
         
-        /* Gallery video styles - Fix for iOS Safari */
-        .gallery-video {
-            width: 100%;
-            height: auto;
-            display: block;
-            background-color: #000;
-            object-fit: cover;
-        }
-        
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            height: auto;
-            overflow: hidden;
-            background-color: #f5f5f5;
-        }
-        
-        .video-play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 107, 53, 0.8);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2;
-        }
-        
-        .video-play-button:before {
-            content: "";
-            width: 0;
-            height: 0;
-            border-top: 12px solid transparent;
-            border-left: 20px solid white;
-            border-bottom: 12px solid transparent;
-            margin-left: 5px;
-        }
-        
         /* Ensure proper spacing in header for this page */
         @media (max-width: 768px) {
             .logo {
@@ -171,6 +128,49 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+        }
+        /* Video container styles */
+        .project-video-container {
+          position: relative;
+          width: 100%;
+          margin-bottom: 40px;
+          background-color: var(--light-gray);
+        }
+        
+        .project-video {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        
+        /* Make sure videos in grid cells have consistent styling */
+        .project-image-grid video {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        
+        /* Apply the same hover styles to video containers as image containers */
+        .project-card:hover .project-video {
+          transform: scale(1.08);
+          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        /* Ensure videos have same aspect ratio as images */
+        .project-image video {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+          .project-video-container {
+            margin-bottom: 30px;
+          }
         }
     </style>
 </head>
@@ -336,6 +336,13 @@
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
         
+        // Check if we're on iOS or Safari
+        function isIOSorSafari() {
+            const ua = navigator.userAgent;
+            return /iPad|iPhone|iPod/.test(ua) || 
+                  (ua.includes('Safari') && !ua.includes('Chrome'));
+        }
+        
         // Load project details
         async function loadProjectDetails() {
             try {
@@ -416,104 +423,67 @@
                     mainImg.alt = project.title;
                 }
                 
-                // Set gallery images and videos with iOS Safari fix
+                // Handle gallery images and videos
                 if (project.galleryImages && project.galleryImages.length) {
-                    const imageGrid = document.querySelector('.project-image-grid');
-                    imageGrid.innerHTML = ''; // Clear existing content
+                    const imageGrids = document.querySelectorAll('.project-image-grid');
                     
-                    // Create and add gallery items
-                    project.galleryImages.forEach((mediaItem, index) => {
-                        // Create container div
+                    // Clear existing content
+                    imageGrids.forEach(grid => grid.innerHTML = '');
+                    
+                    // Use the first grid for all items
+                    const grid = imageGrids[0];
+                    
+                    // Add each gallery item
+                    project.galleryImages.forEach((item, index) => {
+                        const file = item.fields.file;
+                        const isVideo = file && 
+                                      (file.contentType === 'video/mp4' || 
+                                       file.fileName.toLowerCase().endsWith('.mp4'));
+                        
+                        // Create container
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'fade-in';
                         itemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
                         
-                        const file = mediaItem.fields.file;
-                        // Check if this is a video file
-                        const isVideo = file && (
-                            file.contentType === 'video/mp4' || 
-                            file.fileName.toLowerCase().endsWith('.mp4')
-                        );
-                        
                         if (isVideo) {
-                            // Create wrapper for video and play button
-                            const videoWrapper = document.createElement('div');
-                            videoWrapper.className = 'video-wrapper';
-                            
-                            // Create video element - ORDER of attributes matters for iOS Safari
+                            // For videos, create a video element
                             const video = document.createElement('video');
-                            video.muted = true; // Must be first for iOS
-                            video.playsInline = true; // Required for iOS
-                            video.autoplay = true; // Will attempt to autoplay if allowed
-                            video.loop = true;
-                            video.controls = true; // Show controls
-                            video.preload = 'metadata'; // Don't load full video immediately
                             video.className = 'gallery-video';
+                            video.controls = true;
+                            video.playsInline = true; // Essential for iOS
+                            video.muted = true;      // Required for autoplay on some browsers
+                            video.preload = 'metadata';
                             
                             // Add poster if available
-                            if (mediaItem.fields.thumbnail) {
-                                video.poster = 'https:' + mediaItem.fields.thumbnail.fields.file.url;
+                            if (item.fields.thumbnail) {
+                                video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
                             }
                             
-                            // Create source element
+                            // Add source
                             const source = document.createElement('source');
                             source.src = 'https:' + file.url;
                             source.type = 'video/mp4';
+                            video.appendChild(source);
                             
                             // Add fallback text
-                            const fallback = document.createTextNode('Your browser does not support HTML5 video');
+                            video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
                             
-                            // Assemble the video element
-                            video.appendChild(source);
-                            video.appendChild(fallback);
-                            videoWrapper.appendChild(video);
-                            
-                            // Add play button overlay (shown if autoplay fails)
-                            const playButton = document.createElement('div');
-                            playButton.className = 'video-play-button';
-                            videoWrapper.appendChild(playButton);
-                            
-                            // Handle play button click
-                            playButton.addEventListener('click', function() {
-                                video.play().then(() => {
-                                    playButton.style.display = 'none';
-                                }).catch(err => {
-                                    console.warn('Play failed:', err);
-                                });
-                            });
-                            
-                            // Handle video play/pause events
-                            video.addEventListener('play', function() {
-                                playButton.style.display = 'none';
-                            });
-                            
-                            video.addEventListener('pause', function() {
-                                playButton.style.display = 'flex';
-                            });
-                            
-                            // Force play attempt after loading
-                            video.addEventListener('loadedmetadata', function() {
-                                setTimeout(() => {
-                                    video.play().catch(err => {
-                                        console.warn('Autoplay failed:', err);
-                                        playButton.style.display = 'flex';
-                                    });
-                                }, 100);
-                            });
-                            
-                            // Add to container
-                            itemDiv.appendChild(videoWrapper);
+                            // Append to container
+                            itemDiv.appendChild(video);
                         } else {
-                            // Regular image handling
+                            // For images, create an img element
                             const img = document.createElement('img');
                             img.src = 'https:' + file.url;
-                            img.alt = mediaItem.fields.title || `${project.title} detail ${index + 1}`;
+                            img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
                             itemDiv.appendChild(img);
                         }
                         
                         // Add to grid
-                        imageGrid.appendChild(itemDiv);
+                        grid.appendChild(itemDiv);
                     });
+                    
+                    // Initialize videos
+                    initializeVideos();
                 }
                 
                 // Set next project if available
@@ -526,6 +496,42 @@
             } catch (error) {
                 console.error('Error loading project details:', error);
             }
+        }
+        
+        // Initialize video elements for mobile compatibility
+        function initializeVideos() {
+            const videos = document.querySelectorAll('video');
+            
+            videos.forEach(video => {
+                // Force load the video
+                video.load();
+                
+                // Add click-to-play behavior for iOS
+                if (isIOSorSafari()) {
+                    video.addEventListener('click', function() {
+                        if (video.paused) {
+                            video.play().catch(e => {
+                                console.warn('Video play failed:', e);
+                                // If autoplay fails, ensure controls are visible
+                                video.controls = true;
+                            });
+                        } else {
+                            video.pause();
+                        }
+                    });
+                }
+                
+                // Handle errors
+                video.addEventListener('error', function(e) {
+                    console.error('Video error:', e);
+                    // Try to reload the video if there's an error
+                    if (video.querySelector('source')) {
+                        const src = video.querySelector('source').src;
+                        video.querySelector('source').src = src;
+                        video.load();
+                    }
+                });
+            });
         }
         
         // Load project details when DOM is ready
