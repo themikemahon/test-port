@@ -242,6 +242,128 @@
             space: '2ic80tk26lba',
             accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
+
+                /**
+         * Handle gallery media items from Contentful
+         * @param {Array} galleryItems - The gallery items from Contentful
+         * @param {Element} container - The container element to place items into (usually .project-image-grid)
+         */
+        function handleGalleryMedia(galleryItems, container) {
+            // Preserve existing gridContainer content if no items
+            if (!galleryItems || galleryItems.length === 0) return;
+            
+            // Process each gallery item
+            galleryItems.forEach((mediaItem, index) => {
+                // Check file properties
+                const file = mediaItem.fields.file;
+                if (!file) return; // Skip if no file
+                
+                // Determine if this is a video
+                const isVideo = file.contentType === 'video/mp4' || 
+                               (file.fileName && file.fileName.toLowerCase().endsWith('.mp4'));
+                
+                // Keep or create grid item div
+                let gridItemDiv = container.children[index];
+                if (!gridItemDiv) {
+                    gridItemDiv = document.createElement('div');
+                    gridItemDiv.className = 'fade-in';
+                    gridItemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
+                    container.appendChild(gridItemDiv);
+                }
+                
+                // Clear the grid item
+                gridItemDiv.innerHTML = '';
+                
+                if (isVideo) {
+                    // Create video element for MP4 files
+                    const videoElement = document.createElement('video');
+                    videoElement.className = 'project-gallery-video';
+                    videoElement.playsInline = true;  // Essential for iOS
+                    videoElement.muted = true;        // Required for autoplay
+                    videoElement.controls = true;     // Show video controls
+                    videoElement.preload = 'metadata'; // For faster initial loading
+                    
+                    // Add poster image if available
+                    if (mediaItem.fields.thumbnail) {
+                        videoElement.poster = 'https:' + mediaItem.fields.thumbnail.fields.file.url;
+                    }
+                    
+                    // Add source
+                    const sourceElement = document.createElement('source');
+                    sourceElement.src = 'https:' + file.url;
+                    sourceElement.type = 'video/mp4';
+                    videoElement.appendChild(sourceElement);
+                    
+                    // Add fallback text
+                    videoElement.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
+                    
+                    // Append to container
+                    gridItemDiv.appendChild(videoElement);
+                } else {
+                    // Standard image handling (your existing code)
+                    const imgElement = document.createElement('img');
+                    imgElement.src = 'https:' + file.url;
+                    imgElement.alt = mediaItem.fields.title || `Gallery image ${index + 1}`;
+                    gridItemDiv.appendChild(imgElement);
+                }
+            });
+            
+            // Initialize videos
+            initializeGalleryVideos();
+        }
+        
+        /**
+         * Initialize gallery videos with proper mobile handling
+         */
+        function initializeGalleryVideos() {
+            const videos = document.querySelectorAll('.project-gallery-video');
+            
+            videos.forEach(video => {
+                // Force load the video
+                video.load();
+                
+                // iOS requires user interaction to play videos
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                
+                // Add click-to-play behavior (important for mobile)
+                video.addEventListener('click', function(e) {
+                    // Prevent click from immediately triggering pause if controls are shown
+                    if (e.target === video) {
+                        if (video.paused) {
+                            video.play().catch(err => {
+                                console.warn('Video play failed:', err);
+                                // Ensure controls are visible if autoplay fails
+                                video.controls = true;
+                            });
+                        } else {
+                            video.pause();
+                        }
+                    }
+                });
+                
+                // Special handling for iOS
+                if (isIOS) {
+                    // iOS Safari needs special handling
+                    video.addEventListener('loadedmetadata', function() {
+                        // iOS may have issues with initial loading
+                        video.load();
+                    });
+                }
+                
+                // Add error handling
+                video.addEventListener('error', function(e) {
+                    console.error('Video error:', e);
+                    // Try to reload if there's an error
+                    setTimeout(() => {
+                        if (video.error && video.querySelector('source')) {
+                            const src = video.querySelector('source').src;
+                            video.querySelector('source').src = src;
+                            video.load();
+                        }
+                    }, 1000);
+                });
+            });
+        }
         
         // Load project details
         async function loadProjectDetails() {
@@ -313,15 +435,12 @@
                     mainImg.alt = project.title;
                 }
                 
-                // Set gallery images
+                // Set gallery images and videos
                 if (project.galleryImages && project.galleryImages.length) {
-                    const gridImages = document.querySelectorAll('.project-image-grid img');
-                    project.galleryImages.forEach((image, index) => {
-                        if (index < gridImages.length) {
-                            gridImages[index].src = 'https:' + image.fields.file.url;
-                            gridImages[index].alt = image.fields.title || `${project.title} detail ${index + 1}`;
-                        }
-                    });
+                    const imageGrid = document.querySelector('.project-image-grid');
+                    if (imageGrid) {
+                        handleGalleryMedia(project.galleryImages, imageGrid);
+                    }
                 }
                 
                 // Set next project if available
