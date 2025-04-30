@@ -129,6 +129,7 @@
                 gap: 20px;
             }
         }
+        
         /* Video container styles */
         .project-video-container {
           position: relative;
@@ -152,64 +153,6 @@
           object-fit: cover;
         }
         
-        /* Apply the same hover styles to video containers as image containers */
-        .project-card:hover .project-video {
-          transform: scale(1.08);
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Ensure videos have same aspect ratio as images */
-        .project-image video {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Video Wrapper for iOS/Mobile compatibility */
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 75%; /* Maintain aspect ratio */
-            overflow: hidden;
-            background-color: #000;
-        }
-        
-        .video-wrapper video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        /* Fallback image */
-        .video-fallback {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .video-fallback.visible {
-            opacity: 1;
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-          .project-video-container {
-            margin-bottom: 30px;
-          }
-        }
         /* Video container with fixed aspect ratio */
         .video-wrapper {
             position: relative;
@@ -234,6 +177,7 @@
         /* Grid item styling for consistency */
         .project-image-grid > div {
             overflow: hidden;
+            margin-bottom: 30px; /* Add space between items */
         }
         
         /* Image styling to match videos */
@@ -241,6 +185,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block; /* Ensure no extra space */
         }
         
         /* Fallback image styling */
@@ -258,6 +203,21 @@
         
         .video-fallback.visible {
             opacity: 1;
+        }
+        
+        /* Fix grid layout for project images */
+        .project-image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .project-image-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
     </style>
 </head>
@@ -317,22 +277,7 @@
                 
                 <!-- Grid of images -->
                 <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Dashboard UI component">
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
-                    </div>
-                </div>
-                
-                <!-- Another grid of images -->
-                <div class="project-image-grid">
-                    <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Design system components">
-                    </div>
-                    <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="User testing session">
-                    </div>
+                    <!-- Gallery items will be loaded here dynamically -->
                 </div>
             </div>
 
@@ -340,36 +285,7 @@
             <div class="project-credits fade-in">
                 <h2 class="project-credits-title">Credits</h2>
                 <div class="credits-grid">
-                    <div class="credit-item">
-                        <div class="credit-role">Creative Direction</div>
-                        <div class="credit-name">Mike Mahon</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UX Design</div>
-                        <div class="credit-name">Sarah Johnson</div>
-                        <div class="credit-company">Interface Lab</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UI Design</div>
-                        <div class="credit-name">David Chen</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Development</div>
-                        <div class="credit-name">Alex Patel</div>
-                        <div class="credit-company">CodeCraft</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Animation</div>
-                        <div class="credit-name">Maya Rodriguez</div>
-                        <div class="credit-company">Motion Works</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Project Management</div>
-                        <div class="credit-name">James Wilson</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
+                    <!-- Credits will be loaded dynamically -->
                 </div>
             </div>
 
@@ -427,7 +343,7 @@
         function isIOSorSafari() {
             const ua = navigator.userAgent;
             return /iPad|iPhone|iPod/.test(ua) || 
-                    (ua.includes('Safari') && !ua.includes('Chrome'));
+                  (ua.includes('Safari') && !ua.includes('Chrome'));
         }
         
         // Load project details
@@ -447,6 +363,8 @@
                     include: 2  // This will include linked entries up to 2 levels deep
                 });
                 const project = entry.fields;
+                
+                console.log('Project data loaded:', project);
                 
                 // Update page title
                 document.title = `${project.title} | Mike Mahon | Creative Director`;
@@ -504,7 +422,7 @@
                 }
                 
                 // Set main image
-                if (project.mainImage) {
+                if (project.mainImage && project.mainImage.fields && project.mainImage.fields.file) {
                     const mainImg = document.querySelector('.project-image-container:first-child img');
                     mainImg.src = 'https:' + project.mainImage.fields.file.url;
                     mainImg.alt = project.title;
@@ -512,16 +430,20 @@
                 
                 // Handle gallery images and videos with proper cropping
                 if (project.galleryImages && project.galleryImages.length) {
-                    const imageGrids = document.querySelectorAll('.project-image-grid');
+                    const imageGrid = document.querySelector('.project-image-grid');
                     
                     // Clear existing content
-                    imageGrids.forEach(grid => grid.innerHTML = '');
+                    imageGrid.innerHTML = '';
                     
-                    // Use the first grid for all items
-                    const grid = imageGrids[0];
+                    console.log(`Loading ${project.galleryImages.length} gallery items`);
                     
                     // Add each gallery item
                     project.galleryImages.forEach((item, index) => {
+                        if (!item.fields || !item.fields.file) {
+                            console.warn(`Gallery item ${index} has no file`, item);
+                            return;
+                        }
+                        
                         const file = item.fields.file;
                         const isVideo = file && 
                                       (file.contentType === 'video/mp4' || 
@@ -582,11 +504,84 @@
                         }
                         
                         // Add to grid
-                        grid.appendChild(itemDiv);
+                        imageGrid.appendChild(itemDiv);
                     });
                     
                     // Initialize videos
                     initializeVideos();
+                }
+                
+                // Load credits if available
+                if (project.credits && project.credits.length) {
+                    const creditsGrid = document.querySelector('.credits-grid');
+                    creditsGrid.innerHTML = ''; // Clear existing content
+                    
+                    console.log(`Loading ${project.credits.length} credits`);
+                    
+                    project.credits.forEach((credit, index) => {
+                        if (!credit.fields) {
+                            console.warn(`Credit ${index} has no fields`, credit);
+                            return;
+                        }
+                        
+                        const creditItem = document.createElement('div');
+                        creditItem.className = 'credit-item';
+                        
+                        const roleDiv = document.createElement('div');
+                        roleDiv.className = 'credit-role';
+                        roleDiv.textContent = credit.fields.role || '';
+                        
+                        const nameDiv = document.createElement('div');
+                        nameDiv.className = 'credit-name';
+                        nameDiv.textContent = credit.fields.name || '';
+                        
+                        const companyDiv = document.createElement('div');
+                        companyDiv.className = 'credit-company';
+                        companyDiv.textContent = credit.fields.company || '';
+                        
+                        creditItem.appendChild(roleDiv);
+                        creditItem.appendChild(nameDiv);
+                        creditItem.appendChild(companyDiv);
+                        
+                        creditsGrid.appendChild(creditItem);
+                    });
+                } else {
+                    console.log('No credits found, using default credits');
+                    
+                    // Add default credits as a fallback
+                    const creditsGrid = document.querySelector('.credits-grid');
+                    creditsGrid.innerHTML = `
+                        <div class="credit-item">
+                            <div class="credit-role">Creative Direction</div>
+                            <div class="credit-name">Mike Mahon</div>
+                            <div class="credit-company">Studio M</div>
+                        </div>
+                        <div class="credit-item">
+                            <div class="credit-role">UX Design</div>
+                            <div class="credit-name">Sarah Johnson</div>
+                            <div class="credit-company">Interface Lab</div>
+                        </div>
+                        <div class="credit-item">
+                            <div class="credit-role">UI Design</div>
+                            <div class="credit-name">David Chen</div>
+                            <div class="credit-company">Studio M</div>
+                        </div>
+                        <div class="credit-item">
+                            <div class="credit-role">Development</div>
+                            <div class="credit-name">Alex Patel</div>
+                            <div class="credit-company">CodeCraft</div>
+                        </div>
+                        <div class="credit-item">
+                            <div class="credit-role">Animation</div>
+                            <div class="credit-name">Maya Rodriguez</div>
+                            <div class="credit-company">Motion Works</div>
+                        </div>
+                        <div class="credit-item">
+                            <div class="credit-role">Project Management</div>
+                            <div class="credit-name">James Wilson</div>
+                            <div class="credit-company">Studio M</div>
+                        </div>
+                    `;
                 }
                 
                 // Set next project if available
@@ -598,6 +593,22 @@
                 
             } catch (error) {
                 console.error('Error loading project details:', error);
+                
+                // Show some fallback content if there's an error
+                document.querySelector('.project-image-grid').innerHTML = `
+                    <div class="fade-in" style="transition-delay: 0.1s;">
+                        <img src="/api/placeholder/680/500" alt="Dashboard UI component">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.3s;">
+                        <img src="/api/placeholder/680/500" alt="Design system components">
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.4s;">
+                        <img src="/api/placeholder/680/500" alt="User testing session">
+                    </div>
+                `;
             }
         }
         
