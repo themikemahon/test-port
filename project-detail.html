@@ -4,180 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Detail | Mike Mahon | Creative Director</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
     <style>
-        /* Project Detail specific styles */
-        .project-title {
-            font-size: 42px;
-            margin-bottom: 40px;
-            margin-top: 80px; /* Added more space above project title */
+        /* Project Detail Page Specific Styles */
+        .project-header {
+            margin-bottom: 60px;
         }
-        
-        .project-image-container img {
-            position: relative;
+
+        .project-title {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .project-meta {
+            display: flex;
+            margin-bottom: 40px;
+        }
+
+        .project-meta-item {
+            margin-right: 60px;
+        }
+
+        .project-meta-label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .project-meta-value {
+            font-size: 16px;
+        }
+
+        .project-description {
+            max-width: 800px;
+            margin-bottom: 60px;
+        }
+
+        .project-description p {
+            margin-bottom: 20px;
+        }
+
+        .project-images {
+            margin-bottom: 80px;
+        }
+
+        .project-image-container {
+            margin-bottom: 40px;
+        }
+
+        .project-image-full {
+            width: 100%;
+            height: auto;
+        }
+
+        .project-image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .project-image-grid img {
             width: 100%;
             height: auto;
             display: block;
         }
-        
-        /* Next project link hover effect with orange highlight wipe */
-        .project-next-link {
-            position: relative;
-            display: inline-block;
-            color: var(--primary-color);
-            transition: color 0.3s ease;
-            z-index: 1; 
-        }
-        
-        .project-next-link::before {
-            content: "";
-            position: absolute;
-            width: 0;
-            height: 100%;
-            bottom: 0;
-            left: 0;
-            background-color: var(--accent-color);
-            transition: width 0.3s ease;
-            z-index: -1;
-        }
-        
-        .project-next-link:hover {
-            color: white;
-        }
-        
-        .project-next-link:hover::before {
-            width: 100%;
-        }
-        
-        /* Video container styles */
-        .project-video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-            margin-bottom: 40px;
-        }
-        
-        .project-video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        /* Credits section styles */
-        .project-credits {
-            margin-top: 60px;
-            margin-bottom: 40px;
+
+        .project-next {
             padding-top: 40px;
             border-top: 1px solid #eee;
+            margin-bottom: 80px;
         }
-        
-        .project-credits-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
-        
-        .credits-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-        }
-        
-        .credit-item {
-            margin-bottom: 20px;
-        }
-        
-        .credit-role {
+
+        .project-next-title {
             font-size: 14px;
             color: #888;
             margin-bottom: 5px;
-            font-weight: 500;
         }
-        
-        .credit-name {
-            font-size: 16px;
-            font-weight: 600;
+
+        .project-next-link {
+            font-size: 20px;
+            position: relative;
+            display: inline-block;
         }
-        
-        .credit-company {
-            font-size: 14px;
-            margin-top: 2px;
-            color: var(--secondary-color);
+
+        .project-next-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            background: #333;
+            left: 0;
+            bottom: -3px;
+            transition: width 0.3s ease;
         }
-        
-        /* Ensure proper spacing in header for this page */
+
+        .project-next-link:hover:after {
+            width: 100%;
+        }
+
         @media (max-width: 768px) {
-            .logo {
-                margin-left: 10px;
+            .project-meta {
+                flex-direction: column;
             }
-            
-            .project-title {
-                font-size: 32px;
+
+            .project-meta-item {
+                margin-bottom: 20px;
             }
-            
-            .credits-grid {
+
+            .project-image-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
-        }
-        /* Video container styles */
-        .project-video-container {
-          position: relative;
-          width: 100%;
-          margin-bottom: 40px;
-          background-color: var(--light-gray);
-        }
-        
-        .project-video {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        
-        /* Make sure videos in grid cells have consistent styling */
-        .project-image-grid video {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        
-        /* Apply the same hover styles to video containers as image containers */
-        .project-card:hover .project-video {
-          transform: scale(1.08);
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Ensure videos have same aspect ratio as images */
-        .project-image video {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-          .project-video-container {
-            margin-bottom: 30px;
-          }
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
+            <div class="logo">MIKE MAHON</div>
             <button class="nav-toggle">
                 <span></span>
                 <span></span>
@@ -196,15 +141,15 @@
     <main>
         <div class="container">
             <div class="project-header">
-                <h1 class="project-title slide-in-left">Horizon Interface System</h1>
+                <h1 class="project-title slide-in-left">Project Title One</h1>
                 <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
                     <div class="project-meta-item">
                         <div class="project-meta-label">Client</div>
-                        <div class="project-meta-value">Horizon Technologies</div>
+                        <div class="project-meta-value">Client Name</div>
                     </div>
                     <div class="project-meta-item">
                         <div class="project-meta-label">Role</div>
-                        <div class="project-meta-value">Creative Direction, UI/UX Design</div>
+                        <div class="project-meta-value">Creative Direction, Brand Strategy</div>
                     </div>
                     <div class="project-meta-item">
                         <div class="project-meta-label">Year</div>
@@ -212,83 +157,46 @@
                     </div>
                 </div>
                 <div class="project-description slide-in-left" style="transition-delay: 0.2s;">
-                    <p>Horizon Technologies approached us to redesign their enterprise software interface system to improve usability while maintaining their technical capabilities. The challenge was creating a cohesive design system that would scale across multiple products and platforms.</p>
-                    <p>We developed a comprehensive interface system with modular components, clear visual hierarchy, and accessibility features. The new design reduced user errors by 40% and decreased onboarding time by 60%, while receiving a Communication Arts Interactive Award for its innovative approach.</p>
+                    <p>This is a description of the project, outlining the challenge, approach, and solution. It provides context about the creative direction and how it aligned with the client's goals.</p>
+                    <p>The project succeeded in achieving its objectives through strategic thinking, innovative design, and thoughtful execution across multiple touchpoints.</p>
                 </div>
-            </div>
-
-            <!-- Video Hero Section (New) -->
-            <div class="project-video-container fade-in" style="display: none;">
-                <iframe src="https://player.vimeo.com/video/76979871" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </div>
 
             <div class="project-images">
                 <!-- Full width image -->
                 <div class="project-image-container fade-in">
-                    <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
+                    <img src="/api/placeholder/1400/800" alt="Project overview" class="project-image-full">
                 </div>
                 
                 <!-- Grid of images -->
                 <div class="project-image-grid">
                     <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Dashboard UI component">
+                        <img src="/api/placeholder/680/500" alt="Project detail 1">
                     </div>
                     <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="Mobile interface screens">
+                        <img src="/api/placeholder/680/500" alt="Project detail 2">
                     </div>
+                </div>
+                
+                <!-- Another full width image -->
+                <div class="project-image-container fade-in">
+                    <img src="/api/placeholder/1400/800" alt="Project implementation" class="project-image-full">
                 </div>
                 
                 <!-- Another grid of images -->
                 <div class="project-image-grid">
                     <div class="fade-in" style="transition-delay: 0.1s;">
-                        <img src="/api/placeholder/680/500" alt="Design system components">
+                        <img src="/api/placeholder/680/500" alt="Project detail 3">
                     </div>
                     <div class="fade-in" style="transition-delay: 0.2s;">
-                        <img src="/api/placeholder/680/500" alt="User testing session">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Credits Section (New) -->
-            <div class="project-credits fade-in">
-                <h2 class="project-credits-title">Credits</h2>
-                <div class="credits-grid">
-                    <div class="credit-item">
-                        <div class="credit-role">Creative Direction</div>
-                        <div class="credit-name">Mike Mahon</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UX Design</div>
-                        <div class="credit-name">Sarah Johnson</div>
-                        <div class="credit-company">Interface Lab</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UI Design</div>
-                        <div class="credit-name">David Chen</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Development</div>
-                        <div class="credit-name">Alex Patel</div>
-                        <div class="credit-company">CodeCraft</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Animation</div>
-                        <div class="credit-name">Maya Rodriguez</div>
-                        <div class="credit-company">Motion Works</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Project Management</div>
-                        <div class="credit-name">James Wilson</div>
-                        <div class="credit-company">Studio M</div>
+                        <img src="/api/placeholder/680/500" alt="Project detail 4">
                     </div>
                 </div>
             </div>
 
             <div class="project-next">
                 <div class="project-next-title">Next Project</div>
-                <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
+                <a href="project-detail.html?id=project2" class="project-next-link">Project Title Two</a>
             </div>
         </div>
     </main>
@@ -297,8 +205,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
-                    <p>&copy; 2025 Mike Mahon. All rights reserved.</p>
+                    <p></p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
@@ -332,405 +239,221 @@
     <script>
         // Initialize Contentful client with your space ID and API key
         const client = contentful.createClient({
-          space: '2ic80tk26lba',
-          accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+            space: '2ic80tk26lba',
+            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
         });
+        
+        // Check if we're on iOS or Safari
+        function isIOSorSafari() {
+            const ua = navigator.userAgent;
+            return /iPad|iPhone|iPod/.test(ua) || 
+                  (ua.includes('Safari') && !ua.includes('Chrome'));
+        }
         
         // Load project details
         async function loadProjectDetails() {
-          try {
-            console.log("Starting to load project details...");
-            
-            // Get project ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const projectId = urlParams.get('id');
-            console.log("Project ID from URL:", projectId);
-            
-            if (!projectId) {
-              console.warn('No project ID provided. Showing demo content.');
-              return; // Show demo content if no ID
-            }
-            
-            // Fetch project data WITH linked entries
-            console.log("Fetching from Contentful with ID:", projectId);
-            const entry = await client.getEntry(projectId, {
-              include: 2  // This will include linked entries up to 2 levels deep
-            });
-            console.log("Received data from Contentful:", entry);
-            
-            const project = entry.fields;
-            console.log("Project fields:", project);
-            
-            // Update page title
-            document.title = `${project.title} | Mike Mahon | Creative Director`;
-            
-            // Set project details
-            document.querySelector('.project-title').textContent = project.title;
-            
-            // Set meta info
-            const metaItems = document.querySelectorAll('.project-meta-item');
-            if (metaItems[0] && project.client) 
-              metaItems[0].querySelector('.project-meta-value').textContent = project.client;
-            
-            if (metaItems[1] && project.role) 
-              metaItems[1].querySelector('.project-meta-value').textContent = project.role;
-            
-            if (metaItems[2] && project.year) 
-              metaItems[2].querySelector('.project-meta-value').textContent = project.year;
-            
-            // Set description
-            if (project.description) {
-              const descriptionEl = document.querySelector('.project-description');
-              descriptionEl.innerHTML = '';
-              
-              if (typeof project.description === 'string') {
-                // Simple text
-                const paragraphs = project.description.split('\n\n');
-                paragraphs.forEach(paragraph => {
-                  if (paragraph.trim()) {
-                    const p = document.createElement('p');
-                    p.textContent = paragraph;
-                    descriptionEl.appendChild(p);
-                  }
-                });
-              } else if (project.description.content) {
-                // Rich text from Contentful
-                project.description.content.forEach(paragraph => {
-                  if (paragraph.nodeType === 'paragraph') {
-                    const p = document.createElement('p');
-                    p.textContent = paragraph.content
-                      .filter(item => item.nodeType === 'text')
-                      .map(item => item.value)
-                      .join('');
-                    descriptionEl.appendChild(p);
-                  }
-                });
-              }
-            }
-            
-            // Set video if available from vimeo embed
-            if (project.videoUrl) {
-              const videoContainer = document.querySelector('.project-video-container');
-              if (videoContainer) {
-                const videoFrame = videoContainer.querySelector('iframe');
-                if (videoFrame) {
-                  videoFrame.src = project.videoUrl;
-                  videoContainer.style.display = 'block'; // Show container only if video exists
+            try {
+                // Get project ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+                
+                if (!projectId) {
+                    console.warn('No project ID provided. Showing demo content.');
+                    return; // Show demo content if no ID
                 }
-              }
-            }
-            
-            // Set main image or video
-            if (project.mainImage) {
-              const mainImgContainer = document.querySelector('.project-image-container:first-child');
-              if (!mainImgContainer) {
-                console.warn('Main image container not found');
-              } else {
-                mainImgContainer.innerHTML = ''; // Clear container
                 
-                // Check if the main media is a video
-                const fileType = project.mainImage.fields.file.contentType;
-                const fileUrl = 'https:' + project.mainImage.fields.file.url;
+                // Fetch project data WITH linked entries
+                const entry = await client.getEntry(projectId, {
+                    include: 2  // This will include linked entries up to 2 levels deep
+                });
+                const project = entry.fields;
                 
-                console.log("Main media file type:", fileType);
-                console.log("Main media URL:", fileUrl);
+                // Update page title
+                document.title = `${project.title} | Mike Mahon | Creative Director`;
                 
-                if (fileType && fileType.includes('video')) {
-                  console.log("Creating video element for main image");
-                  // Create video element for MP4
-                  const video = document.createElement('video');
-                  video.src = fileUrl;
-                  video.className = 'project-image-full';
-                  video.autoplay = true;
-                  video.loop = true;
-                  video.muted = true;
-                  video.playsInline = true;
-                  video.setAttribute('playsinline', '');
-                  video.controls = false;
-                  
-                  mainImgContainer.appendChild(video);
-                  console.log("Video element created and added:", video);
-                } else {
-                  // Create image element
-                  const img = document.createElement('img');
-                  img.src = fileUrl;
-                  img.alt = project.title || '';
-                  img.className = 'project-image-full';
-                  
-                  mainImgContainer.appendChild(img);
-                }
-              }
-            }
-            
-            // Set gallery images and videos
-            if (project.galleryImages && project.galleryImages.length) {
-              const gridElements = document.querySelectorAll('.project-image-grid > div');
-              console.log("Found gallery grid elements:", gridElements.length);
-              console.log("Gallery images count:", project.galleryImages.length);
-              
-              project.galleryImages.forEach((media, index) => {
-                if (index < gridElements.length) {
-                  const cell = gridElements[index];
-                  cell.innerHTML = ''; // Clear existing content
-                  
-                  if (media && media.fields && media.fields.file) {
-                    const fileType = media.fields.file.contentType;
-                    const fileUrl = 'https:' + media.fields.file.url;
+                // Set project details
+                document.querySelector('.project-title').textContent = project.title;
+                
+                // Set meta info
+                const metaItems = document.querySelectorAll('.project-meta-item');
+                if (metaItems[0] && project.client) 
+                    metaItems[0].querySelector('.project-meta-value').textContent = project.client;
+                if (metaItems[1] && project.role) 
+                    metaItems[1].querySelector('.project-meta-value').textContent = project.role;
+                if (metaItems[2] && project.year) 
+                    metaItems[2].querySelector('.project-meta-value').textContent = project.year;
+                
+                // Set description
+                if (project.description) {
+                    // For rich text content, we'll need more processing
+                    // This is a simplified version for text content
+                    const descriptionEl = document.querySelector('.project-description');
+                    descriptionEl.innerHTML = '';
                     
-                    console.log(`Gallery item ${index} file type:`, fileType);
-                    
-                    if (fileType && fileType.includes('video')) {
-                      console.log(`Creating video for gallery item ${index}`);
-                      // Create video element
-                      const video = document.createElement('video');
-                      video.src = fileUrl;
-                      video.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
-                      video.autoplay = true;
-                      video.loop = true;
-                      video.muted = true;
-                      video.playsInline = true;
-                      video.setAttribute('playsinline', '');
-                      video.controls = false;
-                      
-                      cell.appendChild(video);
-                    } else {
-                      // Create image element
-                      const img = document.createElement('img');
-                      img.src = fileUrl;
-                      img.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
-                      
-                      cell.appendChild(img);
+                    if (typeof project.description === 'string') {
+                        // Simple text
+                        const paragraphs = project.description.split('\n\n');
+                        paragraphs.forEach(paragraph => {
+                            if (paragraph.trim()) {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph;
+                                descriptionEl.appendChild(p);
+                            }
+                        });
+                    } else if (project.description.content) {
+                        // Rich text from Contentful
+                        project.description.content.forEach(paragraph => {
+                            if (paragraph.nodeType === 'paragraph') {
+                                const p = document.createElement('p');
+                                p.textContent = paragraph.content
+                                    .filter(item => item.nodeType === 'text')
+                                    .map(item => item.value)
+                                    .join('');
+                                descriptionEl.appendChild(p);
+                            }
+                        });
                     }
-                  }
                 }
-              });
-            }
-            
-            // Set credits if available
-            if (project.credits && project.credits.length) {
-              const creditsGrid = document.querySelector('.credits-grid');
-              if (creditsGrid) {
-                console.log("Found credits grid, credits length:", project.credits.length);
-                creditsGrid.innerHTML = ''; // Clear existing credits
                 
-                project.credits.forEach(creditRef => {
-                  // For References field type, data is in creditRef.fields
-                  console.log("Credit reference:", creditRef);
-                  
-                  if (creditRef.fields) {
-                    const role = creditRef.fields.role;
-                    const name = creditRef.fields.name;
-                    const company = creditRef.fields.company;
+                // Set video if available
+                if (project.videoUrl) {
+                    const videoContainer = document.querySelector('.project-video-container');
+                    const videoFrame = videoContainer.querySelector('iframe');
+                    videoFrame.src = project.videoUrl;
+                    videoContainer.style.display = 'block'; // Show container only if video exists
+                }
+                
+                // Set main image
+                if (project.mainImage) {
+                    const mainImg = document.querySelector('.project-image-container:first-child img');
+                    mainImg.src = 'https:' + project.mainImage.fields.file.url;
+                    mainImg.alt = project.title;
+                }
+                
+                // Handle gallery images and videos
+                if (project.galleryImages && project.galleryImages.length) {
+                    const imageGrids = document.querySelectorAll('.project-image-grid');
                     
-                    console.log(`Credit: ${role}, ${name}, ${company}`);
+                    // Clear existing content
+                    imageGrids.forEach(grid => grid.innerHTML = '');
                     
-                    if (role && name) {
-                      const creditItem = document.createElement('div');
-                      creditItem.className = 'credit-item';
-                      
-                      const roleDiv = document.createElement('div');
-                      roleDiv.className = 'credit-role';
-                      roleDiv.textContent = role;
-                      
-                      const nameDiv = document.createElement('div');
-                      nameDiv.className = 'credit-name';
-                      nameDiv.textContent = name;
-                      
-                      creditItem.appendChild(roleDiv);
-                      creditItem.appendChild(nameDiv);
-                      
-                      if (company) {
-                        const companyDiv = document.createElement('div');
-                        companyDiv.className = 'credit-company';
-                        companyDiv.textContent = company;
-                        creditItem.appendChild(companyDiv);
-                      }
-                      
-                      creditsGrid.appendChild(creditItem);
-                    }
-                  }
-                });
-              } else {
-                console.warn("Credits grid element not found");
-              }
+                    // Use the first grid for all items
+                    const grid = imageGrids[0];
+                    
+                    // Add each gallery item
+                    project.galleryImages.forEach((item, index) => {
+                        const file = item.fields.file;
+                        const isVideo = file && 
+                                      (file.contentType === 'video/mp4' || 
+                                       file.fileName.toLowerCase().endsWith('.mp4'));
+                        
+                        // Create container
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'fade-in';
+                        itemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
+                        
+                        if (isVideo) {
+                            // For videos, create a video element
+                            const video = document.createElement('video');
+                            video.className = 'gallery-video';
+                            video.controls = true;
+                            video.playsInline = true; // Essential for iOS
+                            video.muted = true;      // Required for autoplay on some browsers
+                            video.preload = 'metadata';
+                            
+                            // Add poster if available
+                            if (item.fields.thumbnail) {
+                                video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
+                            }
+                            
+                            // Add source
+                            const source = document.createElement('source');
+                            source.src = 'https:' + file.url;
+                            source.type = 'video/mp4';
+                            video.appendChild(source);
+                            
+                            // Add fallback text
+                            video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
+                            
+                            // Append to container
+                            itemDiv.appendChild(video);
+                        } else {
+                            // For images, create an img element
+                            const img = document.createElement('img');
+                            img.src = 'https:' + file.url;
+                            img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
+                            itemDiv.appendChild(img);
+                        }
+                        
+                        // Add to grid
+                        grid.appendChild(itemDiv);
+                    });
+                    
+                    // Initialize videos
+                    initializeVideos();
+                }
+                
+                // Set next project if available
+                if (project.nextProject) {
+                    const nextLink = document.querySelector('.project-next-link');
+                    nextLink.textContent = project.nextProject.fields.title;
+                    nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading project details:', error);
             }
-            
-            // Set next project if available
-            if (project.nextProject) {
-              const nextLink = document.querySelector('.project-next-link');
-              if (nextLink) {
-                console.log("Found next project link, next project:", project.nextProject);
-                nextLink.textContent = project.nextProject.fields.title;
-                nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
-              } else {
-                console.warn("Next project link element not found");
-              }
-            }
-            
-            console.log("Project details loaded successfully");
-            
-          } catch (error) {
-            console.error('Error loading project details:', error);
-          }
         }
+        
+        // Initialize video elements for mobile compatibility
+        function initializeVideos() {
+            const videos = document.querySelectorAll('video');
+            
+            videos.forEach(video => {
+                // Force load the video
+                video.load();
+                
+                // Add click-to-play behavior for iOS
+                if (isIOSorSafari()) {
+                    video.addEventListener('click', function() {
+                        if (video.paused) {
+                            video.play().catch(e => {
+                                console.warn('Video play failed:', e);
+                                // If autoplay fails, ensure controls are visible
+                                video.controls = true;
+                            });
+                        } else {
+                            video.pause();
+                        }
+                    });
+                }
+                
+                // Handle errors
+                video.addEventListener('error', function(e) {
+                    console.error('Video error:', e);
+                    // Try to reload the video if there's an error
+                    if (video.querySelector('source')) {
+                        const src = video.querySelector('source').src;
+                        video.querySelector('source').src = src;
+                        video.load();
+                    }
+                });
+            });
+        }
+
+        // Testing something here 
         
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-          console.log("DOM loaded, initializing project details...");
-          loadProjectDetails();
-          
-          // Setup animations for elements
-          setTimeout(function() {
-            document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
-              el.classList.add('visible');
-            });
-          }, 100);
-        });
-        
-        // Helper function to detect if an item is a video
-        function isVideo(contentType) {
-          return contentType && (
-            contentType.includes('video') || 
-            contentType.includes('mp4') || 
-            contentType.includes('mov') ||
-            contentType.includes('webm')
-          );
-        }
-
-        // Set gallery images and videos
-        if (project.galleryImages && project.galleryImages.length) {
-          const gridElements = document.querySelectorAll('.project-image-grid > div');
-          console.log("Found gallery grid elements:", gridElements.length);
-          console.log("Gallery images count:", project.galleryImages.length);
-          
-          project.galleryImages.forEach((media, index) => {
-            if (index < gridElements.length) {
-              const cell = gridElements[index];
-              cell.innerHTML = ''; // Clear existing content
-              
-              if (media && media.fields && media.fields.file) {
-                const fileDetails = media.fields.file;
-                const fileType = fileDetails.contentType;
-                const fileUrl = 'https:' + fileDetails.url;
-                const fileName = fileDetails.fileName || '';
-                
-                console.log(`Gallery item ${index} details:`, {
-                  contentType: fileType,
-                  url: fileUrl,
-                  fileName: fileName,
-                  title: media.fields.title
+            loadProjectDetails();
+            
+            // Setup animations for elements
+            setTimeout(function() {
+                document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
+                    el.classList.add('visible');
                 });
-                
-                // Enhanced video detection - check both content type AND file name
-                const isVideoContent = 
-                  (fileType && fileType.includes('video')) || 
-                  (fileName.toLowerCase().endsWith('.mp4')) ||
-                  (fileName.toLowerCase().endsWith('.mov')) || 
-                  (fileName.toLowerCase().endsWith('.webm')) ||
-                  (media.fields.title && media.fields.title.includes('Microreel'));
-                
-                if (isVideoContent) {
-                  console.log(`Creating video element for gallery item ${index} - detected as video!`);
-                  
-                  // Create video element
-                  const video = document.createElement('video');
-                  video.width = '100%';
-                  video.height = 'auto';
-                  video.autoplay = true;
-                  video.loop = true;
-                  video.muted = true;
-                  video.playsInline = true;
-                  video.setAttribute('playsinline', '');
-                  video.controls = false; // Set to true for debugging
-                  
-                  // Use source element
-                  const source = document.createElement('source');
-                  source.src = fileUrl;
-                  source.type = fileType || 'video/mp4'; // Default to mp4 if type is unknown
-                  video.appendChild(source);
-                  
-                  // Add event listeners
-                  video.addEventListener('loadeddata', () => {
-                    console.log(`Gallery video ${index} loaded successfully`);
-                  });
-                  
-                  video.addEventListener('error', (e) => {
-                    console.error(`Gallery video ${index} error:`, e.target.error);
-                  });
-                  
-                  cell.appendChild(video);
-                  
-                  // Force play attempt
-                  setTimeout(() => {
-                    video.play().catch(err => {
-                      console.warn(`Could not autoplay gallery video ${index}:`, err);
-                    });
-                  }, 100);
-                } else {
-                  // Create image element
-                  const img = document.createElement('img');
-                  img.src = fileUrl;
-                  img.alt = (media.fields.title || `${project.title} detail ${index + 1}`);
-                  
-                  cell.appendChild(img);
-                }
-              }
-            }
-          });
-        }
-        // When creating the video element in the gallery
-        if (isVideoContent) {
-          console.log(`Creating video element for gallery item ${index} - detected as video!`);
-          
-          // Create a container div to maintain consistent aspect ratio
-          const videoContainer = document.createElement('div');
-          videoContainer.style.position = 'relative';
-          videoContainer.style.width = '100%';
-          videoContainer.style.height = '0';
-          videoContainer.style.paddingBottom = '75%'; // Match the aspect ratio of your images
-          videoContainer.style.overflow = 'hidden';
-          
-          // Create video element with proper styling to fill container
-          const video = document.createElement('video');
-          video.style.position = 'absolute';
-          video.style.top = '0';
-          video.style.left = '0';
-          video.style.width = '100%';
-          video.style.height = '100%';
-          video.style.objectFit = 'cover'; // This is the key property
-          video.autoplay = true;
-          video.loop = true;
-          video.muted = true;
-          video.playsInline = true;
-          video.setAttribute('playsinline', '');
-          video.controls = false;
-          
-          // Add source
-          const source = document.createElement('source');
-          source.src = fileUrl;
-          source.type = fileType || 'video/mp4';
-          video.appendChild(source);
-          
-          // Add event listeners
-          video.addEventListener('loadeddata', () => {
-            console.log(`Gallery video ${index} loaded successfully`);
-          });
-          
-          video.addEventListener('error', (e) => {
-            console.error(`Gallery video ${index} error:`, e.target.error);
-          });
-          
-          // Append video to container, then container to cell
-          videoContainer.appendChild(video);
-          cell.appendChild(videoContainer);
-          
-          // Force play attempt
-          setTimeout(() => {
-            video.play().catch(err => {
-              console.warn(`Could not autoplay gallery video ${index}:`, err);
-            });
-          }, 100);
-        }
+            }, 100);
+        });
     </script>
 </body>
 </html>
