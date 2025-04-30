@@ -210,6 +210,55 @@
             margin-bottom: 30px;
           }
         }
+        /* Video container with fixed aspect ratio */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 75%; /* 4:3 aspect ratio - match this to your design */
+            overflow: hidden;
+            background-color: #000;
+        }
+        
+        /* Video element properly positioned and cropped */
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* This is the key property for cropping */
+            object-position: center;
+        }
+        
+        /* Grid item styling for consistency */
+        .project-image-grid > div {
+            overflow: hidden;
+        }
+        
+        /* Image styling to match videos */
+        .project-image-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Fallback image styling */
+        .video-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-fallback.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
