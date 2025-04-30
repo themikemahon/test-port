@@ -210,55 +210,6 @@
             margin-bottom: 30px;
           }
         }
-        /* Video container with fixed aspect ratio */
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 75%; /* 4:3 aspect ratio - match this to your design */
-            overflow: hidden;
-            background-color: #000;
-        }
-        
-        /* Video element properly positioned and cropped */
-        .video-wrapper video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* This is the key property for cropping */
-            object-position: center;
-        }
-        
-        /* Grid item styling for consistency */
-        .project-image-grid > div {
-            overflow: hidden;
-        }
-        
-        /* Image styling to match videos */
-        .project-image-grid img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        /* Fallback image styling */
-        .video-fallback {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .video-fallback.visible {
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
@@ -427,7 +378,12 @@
         function isIOSorSafari() {
             const ua = navigator.userAgent;
             return /iPad|iPhone|iPod/.test(ua) || 
-                    (ua.includes('Safari') && !ua.includes('Chrome'));
+                  (ua.includes('Safari') && !ua.includes('Chrome'));
+        }
+        
+        // Check if we're on mobile
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
         
         // Load project details
@@ -510,7 +466,7 @@
                     mainImg.alt = project.title;
                 }
                 
-                // Handle gallery images and videos with proper cropping
+                // Handle gallery images and videos
                 if (project.galleryImages && project.galleryImages.length) {
                     const imageGrids = document.querySelectorAll('.project-image-grid');
                     
@@ -524,8 +480,8 @@
                     project.galleryImages.forEach((item, index) => {
                         const file = item.fields.file;
                         const isVideo = file && 
-                                      (file.contentType === 'video/mp4' || 
-                                       file.fileName.toLowerCase().endsWith('.mp4'));
+                                       (file.contentType === 'video/mp4' || 
+                                        file.fileName.toLowerCase().endsWith('.mp4'));
                         
                         // Create container
                         const itemDiv = document.createElement('div');
@@ -533,7 +489,7 @@
                         itemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
                         
                         if (isVideo) {
-                            // Create a wrapper for the video with proper aspect ratio
+                            // Create a wrapper for the video
                             const videoWrapper = document.createElement('div');
                             videoWrapper.className = 'video-wrapper';
                             
@@ -574,7 +530,7 @@
                             // Append wrapper to container
                             itemDiv.appendChild(videoWrapper);
                         } else {
-                            // For images, create an img element
+                            // For images, use the standard image element
                             const img = document.createElement('img');
                             img.src = 'https:' + file.url;
                             img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
@@ -589,111 +545,79 @@
                     initializeVideos();
                 }
                 
-                // Set next project if available
-                if (project.nextProject) {
-                    const nextLink = document.querySelector('.project-next-link');
-                    nextLink.textContent = project.nextProject.fields.title;
-                    nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
-                }
-                
-            } catch (error) {
-                console.error('Error loading project details:', error);
-            }
-        }
-        
-        // Initialize video elements for mobile compatibility
-        function initializeVideos() {
-            const videos = document.querySelectorAll('video');
-            
-            videos.forEach(video => {
-                // Force load the video
-                video.load();
-                
-                // Handle video errors - show fallback image
-                video.addEventListener('error', function(e) {
-                    console.error('Video error:', e);
-                    // Show fallback image
-                    const wrapper = video.closest('.video-wrapper');
-                    if (wrapper) {
-                        const fallback = wrapper.querySelector('.video-fallback');
-                        if (fallback) {
-                            fallback.classList.add('visible');
-                        }
-                    }
-                });
-                
-                // Handle video stalled events
-                video.addEventListener('stalled', function() {
-                    // Show fallback image
-                    const wrapper = video.closest('.video-wrapper');
-                    if (wrapper) {
-                        const fallback = wrapper.querySelector('.video-fallback');
-                        if (fallback) {
-                            fallback.classList.add('visible');
-                        }
-                    }
-                });
-                
-                // Add click-to-play behavior for iOS
-                if (isIOSorSafari()) {
-                    video.addEventListener('click', function() {
-                        if (video.paused) {
-                            video.play().catch(e => {
-                                console.warn('Video play failed:', e);
-                            });
-                        } else {
-                            video.pause();
-                        }
-                    });
+                // Then also update your initializeVideos function to handle the new structure:
+                function initializeVideos() {
+                    const videos = document.querySelectorAll('.gallery-video');
                     
-                    // iOS Safari needs manual play attempt after loading
-                    video.addEventListener('loadedmetadata', function() {
+                    videos.forEach(video => {
+                        // Force load the video
+                        video.load();
+                        
+                        // Handle video errors
+                        video.addEventListener('error', function(e) {
+                            console.error('Video error:', e);
+                            // Show fallback image
+                            const wrapper = video.closest('.video-wrapper');
+                            if (wrapper) {
+                                const fallback = wrapper.querySelector('.video-fallback');
+                                if (fallback) {
+                                    fallback.classList.add('visible');
+                                }
+                            }
+                        });
+                        
+                        // Also check for stalled events
+                        video.addEventListener('stalled', function() {
+                            // Show fallback image
+                            const wrapper = video.closest('.video-wrapper');
+                            if (wrapper) {
+                                const fallback = wrapper.querySelector('.video-fallback');
+                                if (fallback) {
+                                    fallback.classList.add('visible');
+                                }
+                            }
+                        });
+                        
+                        // Try to play video when it has loaded enough
+                        video.addEventListener('canplay', function() {
+                            if (video.paused) {
+                                video.play().catch(e => {
+                                    console.warn('Autoplay failed:', e);
+                                });
+                            }
+                        });
+                        
+                        // Hide fallback if video starts playing
+                        video.addEventListener('playing', function() {
+                            const wrapper = video.closest('.video-wrapper');
+                            if (wrapper) {
+                                const fallback = wrapper.querySelector('.video-fallback');
+                                if (fallback) {
+                                    fallback.classList.remove('visible');
+                                }
+                            }
+                        });
+                        
+                        // Set a timeout to check if video is playing
                         setTimeout(() => {
-                            video.play().catch(e => {
-                                console.warn('iOS autoplay failed:', e);
-                            });
-                        }, 100);
+                            if (video.paused || video.ended) {
+                                // Video didn't autoplay, show fallback
+                                const wrapper = video.closest('.video-wrapper');
+                                if (wrapper) {
+                                    const fallback = wrapper.querySelector('.video-fallback');
+                                    if (fallback) {
+                                        fallback.classList.add('visible');
+                                    }
+                                }
+                                
+                                // Try one more play attempt
+                                video.play().catch(e => console.warn('Delayed autoplay failed:', e));
+                            }
+                        }, 2000);
                     });
                 }
-                
-                // For all videos, try playing when canplay event fires
-                video.addEventListener('canplay', function() {
-                    if (video.paused) {
-                        video.play().catch(e => {
-                            console.warn('Canplay autoplay failed:', e);
-                        });
-                    }
-                });
-                
-                // Hide fallback image if video starts playing
-                video.addEventListener('playing', function() {
-                    const wrapper = video.closest('.video-wrapper');
-                    if (wrapper) {
-                        const fallback = wrapper.querySelector('.video-fallback');
-                        if (fallback) {
-                            fallback.classList.remove('visible');
-                        }
-                    }
-                });
-                
-                // Set a timeout to check if video is playing after 2 seconds
-                setTimeout(() => {
-                    if (video.paused || video.ended) {
-                        // Video didn't autoplay, show fallback
-                        const wrapper = video.closest('.video-wrapper');
-                        if (wrapper) {
-                            const fallback = wrapper.querySelector('.video-fallback');
-                            if (fallback) {
-                                fallback.classList.add('visible');
-                            }
-                        }
-                        
-                        // Try one more play attempt
-                        video.play().catch(e => console.warn('Delayed autoplay failed:', e));
-                    }
-                }, 2000);
-            });
-        }
+
+        // Hi
         
         // Load project details when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
