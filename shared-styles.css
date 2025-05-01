@@ -848,6 +848,66 @@ footer {
     color: rgba(255, 255, 255, 0.9);
 }
 
+/* Biography & Content Link Styles */
+.about-text a,
+.project-description a,
+.contact-text a {
+    position: relative;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+/* Underline effect that animates on hover */
+.about-text a::after,
+.project-description a::after,
+.contact-text a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+/* Hover state changes text color and animates underline */
+.about-text a:hover,
+.project-description a:hover,
+.contact-text a:hover {
+    color: var(--accent-color);
+}
+
+.about-text a:hover::after,
+.project-description a:hover::after,
+.contact-text a:hover::after {
+    width: 100%;
+}
+
+/* Focus state for accessibility */
+.about-text a:focus,
+.project-description a:focus,
+.contact-text a:focus {
+    outline: 2px dotted var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Visited state - slightly different color but preserves the hover effects */
+.about-text a:visited,
+.project-description a:visited,
+.contact-text a:visited {
+    color: #555;
+}
+
+.about-text a:visited:hover,
+.project-description a:visited:hover,
+.contact-text a:visited:hover {
+    color: var(--accent-color);
+}
+
+
 /* Responsive */
 @media (max-width: 992px) {
     .brief-statement p,
@@ -1198,63 +1258,4 @@ footer {
 .project-image-grid > div {
   position: relative;
   overflow: hidden;
-}
-
-/* Biography & Content Link Styles */
-.about-text a,
-.project-description a,
-.contact-text a {
-    position: relative;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-/* Underline effect that animates on hover */
-.about-text a::after,
-.project-description a::after,
-.contact-text a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background-color: var(--accent-color);
-    transition: width 0.3s ease;
-}
-
-/* Hover state changes text color and animates underline */
-.about-text a:hover,
-.project-description a:hover,
-.contact-text a:hover {
-    color: var(--accent-color);
-}
-
-.about-text a:hover::after,
-.project-description a:hover::after,
-.contact-text a:hover::after {
-    width: 100%;
-}
-
-/* Focus state for accessibility */
-.about-text a:focus,
-.project-description a:focus,
-.contact-text a:focus {
-    outline: 2px dotted var(--accent-color);
-    outline-offset: 2px;
-}
-
-/* Visited state - slightly different color but preserves the hover effects */
-.about-text a:visited,
-.project-description a:visited,
-.contact-text a:visited {
-    color: #555;
-}
-
-.about-text a:visited:hover,
-.project-description a:visited:hover,
-.contact-text a:visited:hover {
-    color: var(--accent-color);
 }
