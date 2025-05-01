@@ -233,7 +233,7 @@
                 });
         }
         
-        // Function to load the main about page content
+        // Updated function to load the main about page content with proper link handling
         function loadMainAboutContent() {
             client.getEntries({
                 content_type: 'aboutPage',
@@ -245,17 +245,28 @@
                     const aboutContent = response.items[0].fields;
                     console.log('About page fields:', aboutContent);
                     
-                    // Update biography text
+                    // Update biography text - MODIFIED to handle HTML links properly
                     if (aboutContent.biography) {
                         const bioContainer = document.querySelector('.about-text');
                         if (bioContainer) {
                             bioContainer.innerHTML = '';
                             
+                            // Split by paragraphs
                             const paragraphs = aboutContent.biography.split('\n\n');
                             paragraphs.forEach(paragraph => {
                                 if (paragraph.trim()) {
                                     const p = document.createElement('p');
-                                    p.textContent = paragraph;
+                                    
+                                    // First, parse and convert any markdown-style links:
+                                    // [text](url) format to HTML <a> tags
+                                    let processedText = paragraph.replace(
+                                        /\[([^\]]+)\]\(([^)]+)\)/g, 
+                                        '<a href="$2" target="_blank">$1</a>'
+                                    );
+                                    
+                                    // Use innerHTML instead of textContent to render HTML elements
+                                    p.innerHTML = processedText;
+                                    
                                     bioContainer.appendChild(p);
                                 }
                             });
@@ -264,6 +275,7 @@
                         }
                     }
                     
+                    // Rest of the function remains the same
                     // Update services
                     if (aboutContent.services && aboutContent.services.length) {
                         const servicesList = document.querySelector('.services-list');
