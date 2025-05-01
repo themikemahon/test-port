@@ -119,6 +119,7 @@
             position: relative;
             width: 100%;
             overflow: hidden;
+            background-color: #f5f5f5;
         }
         
         .gallery-video {
@@ -387,10 +388,24 @@
                     return; // Show demo content if no ID
                 }
                 
+                // First, log all content types to see what's available
+                client.getContentTypes()
+                    .then(response => {
+                        console.log('Available content types:');
+                        response.items.forEach(type => {
+                            console.log(`- ${type.name} (ID: ${type.sys.id})`);
+                        });
+                    })
+                    .catch(err => console.error('Error fetching content types:', err));
+                
                 // Fetch project data WITH linked entries
                 const entry = await client.getEntry(projectId, {
                     include: 2  // This will include linked entries up to 2 levels deep
                 });
+                
+                // Log the raw response
+                console.log('Raw entry data:', entry);
+                
                 const project = entry.fields;
                 
                 // Log the entire project object to debug
@@ -460,20 +475,35 @@
                 
                 // Handle gallery images and videos
                 if (project.galleryImages && project.galleryImages.length) {
+                    console.log('Gallery images found:', project.galleryImages);
                     const imageGrids = document.querySelectorAll('.project-image-grid');
                     
                     // Clear existing content
                     imageGrids.forEach(grid => grid.innerHTML = '');
                     
-                    // Use the first grid for all items
-                    const grid = imageGrids[0];
+                    // Distribute items across both grids
+                    const firstGrid = imageGrids[0];
+                    const secondGrid = imageGrids.length > 1 ? imageGrids[1] : null;
                     
                     // Add each gallery item
                     project.galleryImages.forEach((item, index) => {
+                        console.log(`Processing gallery item ${index}:`, item);
+                        
+                        // Check if item has the expected structure
+                        if (!item || !item.fields || !item.fields.file) {
+                            console.error(`Invalid gallery item at index ${index}:`, item);
+                            return; // Skip this item
+                        }
+                        
                         const file = item.fields.file;
+                        console.log(`File info for item ${index}:`, file);
+                        
+                        // Check if this is a video
                         const isVideo = file && 
                                       (file.contentType === 'video/mp4' || 
                                        file.fileName.toLowerCase().endsWith('.mp4'));
+                        
+                        console.log(`Item ${index} is video: ${isVideo}`);
                         
                         // Create container
                         const itemDiv = document.createElement('div');
@@ -481,6 +511,8 @@
                         itemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
                         
                         if (isVideo) {
+                            console.log(`Creating video element for item ${index}`);
+                            
                             // For videos, create a custom container and video element
                             const videoContainer = document.createElement('div');
                             videoContainer.className = 'gallery-video-container';
@@ -489,14 +521,24 @@
                             video.className = 'gallery-video';
                             video.playsInline = true;
                             video.muted = true;
-                            video.autoplay = true;
                             video.loop = true;
                             video.preload = 'auto';
                             
+                            // Make sure video src URL is properly formatted with https:
+                            const videoUrl = file.url.startsWith('//') ? 
+                                `https:${file.url}` : 
+                                file.url.startsWith('http') ? file.url : `https:${file.url}`;
+                                
+                            console.log(`Video URL for item ${index}: ${videoUrl}`);
+                            
+                            // Add source
+                            const source = document.createElement('source');
+                            source.src = videoUrl;
+                            source.type = 'video/mp4';
+                            video.appendChild(source);
+                            
                             // On mobile, don't autoplay initially and show play button
                             if (isMobile()) {
-                                video.autoplay = false;
-                                
                                 // Create play button overlay
                                 const playButton = document.createElement('div');
                                 playButton.className = 'video-play-button';
@@ -533,18 +575,16 @@
                                         playButton.style.display = 'flex';
                                     }
                                 });
+                            } else {
+                                // On desktop, set autoplay
+                                video.autoplay = true;
                             }
                             
-                            // Add poster if available
-                            if (item.fields.thumbnail) {
+                            // Add poster if available (fallback while video loads)
+                            if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
                                 video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
+                                console.log(`Poster set for video ${index}: ${video.poster}`);
                             }
-                            
-                            // Add source
-                            const source = document.createElement('source');
-                            source.src = 'https:' + file.url;
-                            source.type = 'video/mp4';
-                            video.appendChild(source);
                             
                             // Add fallback text
                             video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
@@ -554,57 +594,128 @@
                             itemDiv.appendChild(videoContainer);
                         } else {
                             // For images, create an img element
+                            console.log(`Creating image element for item ${index}`);
                             const img = document.createElement('img');
-                            img.src = 'https:' + file.url;
+                            
+                            // Make sure image URL is properly formatted with https:
+                            const imageUrl = file.url.startsWith('//') ? 
+                                `https:${file.url}` : 
+                                file.url.startsWith('http') ? file.url : `https:${file.url}`;
+                                
+                            console.log(`Image URL for item ${index}: ${imageUrl}`);
+                            
+                            img.src = imageUrl;
                             img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
+                            img.onerror = () => {
+                                console.error(`Failed to load image at ${img.src}`);
+                                img.src = '/api/placeholder/680/500'; // Fallback placeholder
+                            };
+                            
                             itemDiv.appendChild(img);
                         }
                         
-                        // Add to grid
-                        grid.appendChild(itemDiv);
+                        // Add to appropriate grid
+                        // First two items go to first grid, rest to second grid
+                        if (index < 2) {
+                            firstGrid.appendChild(itemDiv);
+                        } else if (secondGrid) {
+                            secondGrid.appendChild(itemDiv);
+                        } else {
+                            // If there's no second grid, add all to first grid
+                            firstGrid.appendChild(itemDiv);
+                        }
                     });
                     
-                    // Initialize videos
-                    setTimeout(initializeVideos, 500); // Delay to ensure DOM is ready
+                    // Initialize videos with a delay to ensure DOM is ready
+                    setTimeout(initializeVideos, 500);
+                    
+                    // Make a second attempt at video initialization after a longer delay
+                    // This ensures videos load even on slower connections
+                    setTimeout(initializeVideos, 2000);
                 }
                 
-                // Set credits if available
-                if (project.projectCredits && project.projectCredits.length) {
-                    console.log('Project credits found:', project.projectCredits);
+                // Look for credits in different possible field names
+                const creditsContainer = document.querySelector('.credits-grid');
+                if (creditsContainer) {
+                    console.log('Looking for credits in project data...');
                     
-                    const creditsContainer = document.querySelector('.credits-grid');
-                    if (creditsContainer) {
-                        // Clear existing credits
-                        creditsContainer.innerHTML = '';
+                    // Clear existing credits first
+                    creditsContainer.innerHTML = '';
+                    
+                    // Check all possible field names for credits
+                    const possibleCreditFields = ['projectCredits', 'credits', 'team', 'collaborators'];
+                    let creditsFound = false;
+                    
+                    for (const fieldName of possibleCreditFields) {
+                        if (project[fieldName] && project[fieldName].length) {
+                            console.log(`Credits found in field "${fieldName}":`, project[fieldName]);
+                            creditsFound = true;
+                            
+                            // Add each credit item
+                            project[fieldName].forEach(creditItem => {
+                                console.log('Raw credit item:', creditItem);
+                                
+                                // Check if this is a reference or a direct object
+                                // For reference fields we need to access the fields
+                                let credit;
+                                
+                                if (creditItem.sys && creditItem.sys.type === 'Entry' && creditItem.fields) {
+                                    // This is a reference with fields
+                                    credit = creditItem.fields;
+                                    console.log('Reference credit fields:', credit);
+                                } else if (typeof creditItem === 'object') {
+                                    // This might be a direct object
+                                    credit = creditItem;
+                                    console.log('Direct credit object:', credit);
+                                }
+                                
+                                // Only proceed if we have a valid credit object
+                                if (credit) {
+                                    const creditDiv = document.createElement('div');
+                                    creditDiv.className = 'credit-item';
+                                    
+                                    let creditHtml = '';
+                                    
+                                    // Check for role in various possible field names
+                                    const role = credit.role || credit.title || credit.position;
+                                    if (role) {
+                                        creditHtml += `<div class="credit-role">${role}</div>`;
+                                    }
+                                    
+                                    // Check for name in various possible field names
+                                    const name = credit.name || credit.person || credit.contributor;
+                                    if (name) {
+                                        creditHtml += `<div class="credit-name">${name}</div>`;
+                                    }
+                                    
+                                    // Check for company in various possible field names
+                                    const company = credit.company || credit.organization || credit.studio;
+                                    if (company) {
+                                        creditHtml += `<div class="credit-company">${company}</div>`;
+                                    }
+                                    
+                                    creditDiv.innerHTML = creditHtml;
+                                    
+                                    // Only add if we have at least one field
+                                    if (creditHtml) {
+                                        creditsContainer.appendChild(creditDiv);
+                                    }
+                                }
+                            });
+                            
+                            // Break after finding credits in one field
+                            break;
+                        }
+                    }
+                    
+                    // If no credits were found, show static content as fallback
+                    if (!creditsFound) {
+                        console.warn('No credits found in project data. Using static fallback content.');
                         
-                        // Add each credit item
-                        project.projectCredits.forEach(creditItem => {
-                            // For reference fields we need to access the fields
-                            const credit = creditItem.fields ? creditItem.fields : creditItem;
-                            
-                            console.log('Credit item:', credit);
-                            
-                            if (credit) {
-                                const creditDiv = document.createElement('div');
-                                creditDiv.className = 'credit-item';
-                                
-                                let creditHtml = '';
-                                
-                                if (credit.role) {
-                                    creditHtml += `<div class="credit-role">${credit.role}</div>`;
-                                }
-                                
-                                if (credit.name) {
-                                    creditHtml += `<div class="credit-name">${credit.name}</div>`;
-                                }
-                                
-                                if (credit.company) {
-                                    creditHtml += `<div class="credit-company">${credit.company}</div>`;
-                                }
-                                
-                                creditDiv.innerHTML = creditHtml;
-                                creditsContainer.appendChild(creditDiv);
-                            }
+                        // Don't clear the container in this case, as it already has fallback content
+                        // Instead, ensure all static credit items are visible
+                        document.querySelectorAll('.credit-item').forEach(item => {
+                            item.style.opacity = '1';
                         });
                     }
                 }
@@ -624,56 +735,162 @@
         // Initialize video elements for mobile compatibility
         function initializeVideos() {
             const videos = document.querySelectorAll('.gallery-video');
+            console.log(`Initializing ${videos.length} videos`);
             
-            videos.forEach(video => {
-                // Force load the video
-                video.load();
+            if (videos.length === 0) {
+                console.warn('No videos found to initialize');
+                return;
+            }
+            
+            videos.forEach((video, index) => {
+                console.log(`Setting up video ${index}`);
                 
-                // On non-mobile devices, attempt autoplay
-                if (!isMobile()) {
-                    video.play().catch(e => {
-                        console.warn('Autoplay failed:', e);
-                    });
+                // Force reload the video
+                try {
+                    video.load();
+                    console.log(`Video ${index} loaded`);
+                } catch (e) {
+                    console.error(`Error loading video ${index}:`, e);
+                }
+                
+                // For iOS devices, apply specific fixes
+                if (isIOSorSafari()) {
+                    console.log(`Applying iOS fixes for video ${index}`);
+                    video.playsInline = true;
+                    video.setAttribute('playsinline', '');
+                    video.muted = true;
+                    video.setAttribute('muted', '');
+                }
+                
+                // Add a click handler to toggle play/pause
+                video.addEventListener('click', function() {
+                    console.log(`Video ${index} clicked`);
+                    const videoContainer = this.closest('.gallery-video-container');
+                    const playButton = videoContainer ? videoContainer.querySelector('.video-play-button') : null;
                     
-                    // Add event listener for when video enters viewport
+                    if (this.paused) {
+                        console.log(`Attempting to play video ${index}`);
+                        // Try to play the video
+                        const playPromise = this.play();
+                        
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                console.log(`Video ${index} playing successfully`);
+                                // Hide play button if it exists
+                                if (playButton) {
+                                    playButton.style.display = 'none';
+                                }
+                            }).catch(error => {
+                                console.error(`Error playing video ${index}:`, error);
+                                // If autoplay fails, show native controls as fallback
+                                this.controls = true;
+                            });
+                        }
+                    } else {
+                        console.log(`Pausing video ${index}`);
+                        this.pause();
+                        // Show play button again if it exists
+                        if (playButton) {
+                            playButton.style.display = 'flex';
+                        }
+                    }
+                });
+                
+                // On non-mobile devices, attempt autoplay and use IntersectionObserver
+                if (!isMobile()) {
+                    console.log(`Setting up autoplay for video ${index}`);
+                    
+                    // Only play videos when they're visible in the viewport
                     const observer = new IntersectionObserver((entries) => {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                video.play().catch(e => console.warn('Autoplay failed:', e));
+                                console.log(`Video ${index} is visible in viewport, attempting to play`);
+                                const playPromise = video.play();
+                                if (playPromise !== undefined) {
+                                    playPromise.catch(e => {
+                                        console.warn(`Autoplay failed for video ${index}:`, e);
+                                        // Don't show controls on desktop unless needed
+                                        if (e.name !== 'NotAllowedError') {
+                                            video.controls = true;
+                                        }
+                                    });
+                                }
                             } else {
+                                console.log(`Video ${index} is outside viewport, pausing`);
                                 video.pause();
                             }
                         });
-                    }, { threshold: 0.5 });
+                    }, { threshold: 0.3 }); // Trigger when 30% visible
                     
                     observer.observe(video);
+                    
+                    // Initial play attempt
+                    console.log(`Initial play attempt for video ${index}`);
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {
+                            console.warn(`Initial autoplay failed for video ${index}:`, e);
+                            // We'll let the intersection observer handle it
+                        });
+                    }
+                } else {
+                    console.log(`Mobile device detected for video ${index}, not autoplaying`);
                 }
                 
-                // Handle playback errors
+                // Handle errors during playback
                 video.addEventListener('error', function(e) {
-                    console.error('Video error:', e);
-                    const videoContainer = video.closest('.gallery-video-container');
+                    console.error(`Error with video ${index}:`, e);
+                    const videoContainer = this.closest('.gallery-video-container');
+                    
+                    // Try to reload the source
+                    if (this.querySelector('source')) {
+                        const src = this.querySelector('source').src;
+                        console.log(`Attempting to reload video ${index} from ${src}`);
+                        this.querySelector('source').src = src;
+                        this.load();
+                    }
+                    
+                    // If still failing, show native controls
+                    this.controls = true;
+                    
+                    // Hide custom play button if it exists
                     if (videoContainer) {
-                        // If video fails, show controls as fallback
-                        video.controls = true;
-                        
-                        // Remove play button if it exists
                         const playButton = videoContainer.querySelector('.video-play-button');
                         if (playButton) {
                             playButton.style.display = 'none';
                         }
                     }
                 });
-                
-                // Make videos responsive to window visibility changes
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        video.pause();
-                    } else if (!isMobile() && video.closest('.gallery-video-container')) {
-                        video.play().catch(e => console.warn('Autoplay failed on visibility change:', e));
-                    }
-                });
             });
+            
+            // Make all videos pause when page is not visible
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('Page hidden, pausing all videos');
+                    videos.forEach(video => video.pause());
+                } else if (!isMobile()) {
+                    console.log('Page visible again, checking which videos to play');
+                    // When page becomes visible again, play videos in viewport
+                    videos.forEach((video, index) => {
+                        const rect = video.getBoundingClientRect();
+                        const isInViewport = (
+                            rect.top >= 0 &&
+                            rect.left >= 0 &&
+                            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                        );
+                        
+                        if (isInViewport) {
+                            console.log(`Video ${index} is in viewport, attempting to play`);
+                            video.play().catch(e => {
+                                console.warn(`Autoplay on visibility change failed for video ${index}:`, e);
+                            });
+                        }
+                    });
+                }
+            });
+            
+            console.log('Video initialization complete');
         }
         
         // Load project details when DOM is ready
