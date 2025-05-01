@@ -114,20 +114,24 @@
             color: var(--secondary-color);
         }
         
-        /* Video styles - updated for mobile compatibility */
+        /* Video styles - updated for GitHub Pages compatibility */
         .gallery-video-container {
             position: relative;
             width: 100%;
             overflow: hidden;
             background-color: #f5f5f5;
+            cursor: pointer;
         }
         
-        .gallery-video {
+        .video-poster {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: cover;
             transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        .gallery-video-container:hover .video-poster {
+            transform: scale(1.08);
         }
         
         /* Style for play button overlay */
@@ -164,14 +168,15 @@
             margin-left: 5px;
         }
         
-        /* Hide native video controls but display them on hover */
-        .gallery-video::-webkit-media-controls {
+        /* Video modal styles */
+        .video-modal {
             opacity: 0;
-            transition: opacity 0.3s ease;
+            animation: fade-in 0.3s forwards;
         }
         
-        .gallery-video-container:hover .gallery-video::-webkit-media-controls {
-            opacity: 1;
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         /* Ensure proper spacing in header for this page */
@@ -513,23 +518,35 @@
                         if (isVideo) {
                             console.log(`Creating video element for item ${index}`);
                             
-                            // For videos, create a custom container and video element
+                            // For videos, use an iframe approach to bypass GitHub CORS issues
                             const videoContainer = document.createElement('div');
                             videoContainer.className = 'gallery-video-container';
                             
-                            const video = document.createElement('video');
-                            video.className = 'gallery-video';
-                            video.playsInline = true;
-                            video.setAttribute('playsinline', ''); // Double ensure playsinline works on iOS
-                            video.muted = true;
-                            video.setAttribute('muted', ''); // Double ensure muted works on iOS
-                            video.loop = true;
-                            video.preload = 'metadata'; // Changed from 'auto' to 'metadata' for faster loading
+                            // Add poster thumbnail if available
+                            if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
+                                const poster = document.createElement('img');
+                                poster.className = 'video-poster';
+                                poster.src = 'https:' + item.fields.thumbnail.fields.file.url;
+                                poster.alt = item.fields.title || `${project.title} video thumbnail ${index + 1}`;
+                                videoContainer.appendChild(poster);
+                            } else {
+                                // Create fallback placeholder
+                                const placeholder = document.createElement('div');
+                                placeholder.className = 'video-poster placeholder';
+                                placeholder.style.backgroundColor = '#f5f5f5';
+                                placeholder.style.width = '100%';
+                                placeholder.style.paddingBottom = '75%'; // Maintain aspect ratio
+                                videoContainer.appendChild(placeholder);
+                            }
                             
-                            // Make sure video src URL is properly formatted with https:
+                            // Create play button overlay
+                            const playButton = document.createElement('div');
+                            playButton.className = 'video-play-button';
+                            videoContainer.appendChild(playButton);
+                            
+                            // Store video URL to be used when play is clicked
                             let videoUrl = '';
                             try {
-                                // Handle different URL formats
                                 if (file.url) {
                                     if (file.url.startsWith('//')) {
                                         videoUrl = `https:${file.url}`;
@@ -538,72 +555,86 @@
                                     } else {
                                         videoUrl = `https:${file.url}`;
                                     }
+                                    
+                                    // Store the URL as a data attribute
+                                    videoContainer.dataset.videoUrl = videoUrl;
+                                    console.log(`Video URL for item ${index}: ${videoUrl}`);
                                 } else {
                                     console.error(`No URL found for video at index ${index}`);
                                     return; // Skip this item
                                 }
-                                
-                                console.log(`Video URL for item ${index}: ${videoUrl}`);
                             } catch (e) {
                                 console.error(`Error processing video URL at index ${index}:`, e);
                                 return; // Skip this item
                             }
                             
-                            // Instead of using a source element, set the src attribute directly
-                            // This works better on some mobile browsers
-                            video.src = videoUrl;
-                            video.type = 'video/mp4';
-                            
-                            // Also set poster if available (fallback while video loads)
-                            if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
-                                video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
-                                console.log(`Poster set for video ${index}: ${video.poster}`);
-                            }
-                            
-                            // Always set autoplay false first, we'll enable it later with JS
-                            video.autoplay = false;
-                            
-                            // Create play button overlay
-                            const playButton = document.createElement('div');
-                            playButton.className = 'video-play-button';
-                            videoContainer.appendChild(playButton);
-                            
-                            // Add play functionality for all devices
-                            playButton.addEventListener('click', (e) => {
+                            // Add click event to container
+                            videoContainer.addEventListener('click', function(e) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                console.log(`Play button clicked for video ${index}`);
+                                console.log(`Video container clicked for ${index}`);
                                 
-                                if (video.paused) {
-                                    // Try to play
-                                    video.play().then(() => {
-                                        playButton.style.display = 'none';
-                                        console.log(`Video ${index} playing`);
-                                    }).catch(error => {
-                                        console.error(`Error playing video ${index}:`, error);
-                                        // If play fails, show controls as fallback
-                                        video.controls = true;
+                                // Create a dialog/modal element
+                                const modal = document.createElement('div');
+                                modal.className = 'video-modal';
+                                modal.style.position = 'fixed';
+                                modal.style.top = '0';
+                                modal.style.left = '0';
+                                modal.style.width = '100%';
+                                modal.style.height = '100%';
+                                modal.style.backgroundColor = 'rgba(0,0,0,0.9)';
+                                modal.style.display = 'flex';
+                                modal.style.alignItems = 'center';
+                                modal.style.justifyContent = 'center';
+                                modal.style.zIndex = '10000';
+                                
+                                // Create close button
+                                const closeBtn = document.createElement('div');
+                                closeBtn.innerHTML = '×';
+                                closeBtn.style.position = 'absolute';
+                                closeBtn.style.top = '20px';
+                                closeBtn.style.right = '30px';
+                                closeBtn.style.color = 'white';
+                                closeBtn.style.fontSize = '40px';
+                                closeBtn.style.fontWeight = 'bold';
+                                closeBtn.style.cursor = 'pointer';
+                                closeBtn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    document.body.removeChild(modal);
+                                });
+                                modal.appendChild(closeBtn);
+                                
+                                // Create video element
+                                const video = document.createElement('video');
+                                video.className = 'gallery-video';
+                                video.style.maxWidth = '90%';
+                                video.style.maxHeight = '80%';
+                                video.controls = true;
+                                video.src = this.dataset.videoUrl;
+                                video.type = 'video/mp4';
+                                video.preload = 'auto';
+                                
+                                // Add video to modal
+                                modal.appendChild(video);
+                                
+                                // Add modal to body
+                                document.body.appendChild(modal);
+                                
+                                // Play video
+                                setTimeout(() => {
+                                    video.play().catch(error => {
+                                        console.error(`Error playing video in modal:`, error);
+                                        
+                                        // If direct play fails, create a link to open in new tab
+                                        const fallbackLink = document.createElement('a');
+                                        fallbackLink.href = this.dataset.videoUrl;
+                                        fallbackLink.target = '_blank';
+                                        fallbackLink.innerHTML = '<div style="color: white; padding: 20px; background: rgba(0,0,0,0.7); border-radius: 10px; text-align: center;">Click here to open video in new tab</div>';
+                                        modal.appendChild(fallbackLink);
                                     });
-                                }
+                                }, 200);
                             });
                             
-                            // Also make video itself clickable
-                            video.addEventListener('click', () => {
-                                if (video.paused) {
-                                    video.play().then(() => {
-                                        playButton.style.display = 'none';
-                                    }).catch(error => {
-                                        console.error(`Video click play failed:`, error);
-                                        video.controls = true;
-                                    });
-                                } else {
-                                    video.pause();
-                                    playButton.style.display = 'flex';
-                                }
-                            });
-                            
-                            // Append to container
-                            videoContainer.appendChild(video);
                             itemDiv.appendChild(videoContainer);
                         } else {
                             // For images, create an img element
