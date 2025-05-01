@@ -114,6 +114,65 @@
             color: var(--secondary-color);
         }
         
+        /* Video styles - updated for mobile compatibility */
+        .gallery-video-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .gallery-video {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        /* Style for play button overlay */
+        .video-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-play-button:hover {
+            opacity: 1;
+        }
+        
+        .video-play-button:after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10px 0 10px 20px;
+            border-color: transparent transparent transparent white;
+            margin-left: 5px;
+        }
+        
+        /* Hide native video controls but display them on hover */
+        .gallery-video::-webkit-media-controls {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-video-container:hover .gallery-video::-webkit-media-controls {
+            opacity: 1;
+        }
+        
         /* Ensure proper spacing in header for this page */
         @media (max-width: 768px) {
             .logo {
@@ -128,49 +187,16 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-        }
-        /* Video container styles */
-        .project-video-container {
-          position: relative;
-          width: 100%;
-          margin-bottom: 40px;
-          background-color: var(--light-gray);
-        }
-        
-        .project-video {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        
-        /* Make sure videos in grid cells have consistent styling */
-        .project-image-grid video {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        
-        /* Apply the same hover styles to video containers as image containers */
-        .project-card:hover .project-video {
-          transform: scale(1.08);
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Ensure videos have same aspect ratio as images */
-        .project-image video {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-          transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-          .project-video-container {
-            margin-bottom: 30px;
-          }
+            
+            /* Improved mobile video handling */
+            .video-play-button {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .video-play-button:after {
+                border-width: 8px 0 8px 16px;
+            }
         }
     </style>
 </head>
@@ -343,6 +369,12 @@
                   (ua.includes('Safari') && !ua.includes('Chrome'));
         }
         
+        // Check if we're on a mobile device
+        function isMobile() {
+            return window.innerWidth <= 768 || 
+                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
         // Load project details
         async function loadProjectDetails() {
             try {
@@ -360,6 +392,9 @@
                     include: 2  // This will include linked entries up to 2 levels deep
                 });
                 const project = entry.fields;
+                
+                // Log the entire project object to debug
+                console.log('Project data:', project);
                 
                 // Update page title
                 document.title = `${project.title} | Mike Mahon | Creative Director`;
@@ -446,13 +481,59 @@
                         itemDiv.style.transitionDelay = `${0.1 * (index + 1)}s`;
                         
                         if (isVideo) {
-                            // For videos, create a video element
+                            // For videos, create a custom container and video element
+                            const videoContainer = document.createElement('div');
+                            videoContainer.className = 'gallery-video-container';
+                            
                             const video = document.createElement('video');
                             video.className = 'gallery-video';
-                            video.controls = true;
-                            video.playsInline = true; // Essential for iOS
-                            video.muted = true;      // Required for autoplay on some browsers
-                            video.preload = 'metadata';
+                            video.playsInline = true;
+                            video.muted = true;
+                            video.autoplay = true;
+                            video.loop = true;
+                            video.preload = 'auto';
+                            
+                            // On mobile, don't autoplay initially and show play button
+                            if (isMobile()) {
+                                video.autoplay = false;
+                                
+                                // Create play button overlay
+                                const playButton = document.createElement('div');
+                                playButton.className = 'video-play-button';
+                                videoContainer.appendChild(playButton);
+                                
+                                // Add play functionality
+                                playButton.addEventListener('click', () => {
+                                    if (video.paused) {
+                                        video.play()
+                                            .then(() => {
+                                                playButton.style.display = 'none';
+                                            })
+                                            .catch(error => {
+                                                console.error('Video play failed:', error);
+                                                // If autoplay fails on mobile, show controls as fallback
+                                                video.controls = true;
+                                            });
+                                    }
+                                });
+                                
+                                // Also make video itself clickable
+                                video.addEventListener('click', () => {
+                                    if (video.paused) {
+                                        video.play()
+                                            .then(() => {
+                                                playButton.style.display = 'none';
+                                            })
+                                            .catch(error => {
+                                                console.error('Video play failed:', error);
+                                                video.controls = true;
+                                            });
+                                    } else {
+                                        video.pause();
+                                        playButton.style.display = 'flex';
+                                    }
+                                });
+                            }
                             
                             // Add poster if available
                             if (item.fields.thumbnail) {
@@ -469,7 +550,8 @@
                             video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
                             
                             // Append to container
-                            itemDiv.appendChild(video);
+                            videoContainer.appendChild(video);
+                            itemDiv.appendChild(videoContainer);
                         } else {
                             // For images, create an img element
                             const img = document.createElement('img');
@@ -483,7 +565,48 @@
                     });
                     
                     // Initialize videos
-                    initializeVideos();
+                    setTimeout(initializeVideos, 500); // Delay to ensure DOM is ready
+                }
+                
+                // Set credits if available
+                if (project.projectCredits && project.projectCredits.length) {
+                    console.log('Project credits found:', project.projectCredits);
+                    
+                    const creditsContainer = document.querySelector('.credits-grid');
+                    if (creditsContainer) {
+                        // Clear existing credits
+                        creditsContainer.innerHTML = '';
+                        
+                        // Add each credit item
+                        project.projectCredits.forEach(creditItem => {
+                            // For reference fields we need to access the fields
+                            const credit = creditItem.fields ? creditItem.fields : creditItem;
+                            
+                            console.log('Credit item:', credit);
+                            
+                            if (credit) {
+                                const creditDiv = document.createElement('div');
+                                creditDiv.className = 'credit-item';
+                                
+                                let creditHtml = '';
+                                
+                                if (credit.role) {
+                                    creditHtml += `<div class="credit-role">${credit.role}</div>`;
+                                }
+                                
+                                if (credit.name) {
+                                    creditHtml += `<div class="credit-name">${credit.name}</div>`;
+                                }
+                                
+                                if (credit.company) {
+                                    creditHtml += `<div class="credit-company">${credit.company}</div>`;
+                                }
+                                
+                                creditDiv.innerHTML = creditHtml;
+                                creditsContainer.appendChild(creditDiv);
+                            }
+                        });
+                    }
                 }
                 
                 // Set next project if available
@@ -500,35 +623,54 @@
         
         // Initialize video elements for mobile compatibility
         function initializeVideos() {
-            const videos = document.querySelectorAll('video');
+            const videos = document.querySelectorAll('.gallery-video');
             
             videos.forEach(video => {
                 // Force load the video
                 video.load();
                 
-                // Add click-to-play behavior for iOS
-                if (isIOSorSafari()) {
-                    video.addEventListener('click', function() {
-                        if (video.paused) {
-                            video.play().catch(e => {
-                                console.warn('Video play failed:', e);
-                                // If autoplay fails, ensure controls are visible
-                                video.controls = true;
-                            });
-                        } else {
-                            video.pause();
-                        }
+                // On non-mobile devices, attempt autoplay
+                if (!isMobile()) {
+                    video.play().catch(e => {
+                        console.warn('Autoplay failed:', e);
                     });
+                    
+                    // Add event listener for when video enters viewport
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                video.play().catch(e => console.warn('Autoplay failed:', e));
+                            } else {
+                                video.pause();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    
+                    observer.observe(video);
                 }
                 
-                // Handle errors
+                // Handle playback errors
                 video.addEventListener('error', function(e) {
                     console.error('Video error:', e);
-                    // Try to reload the video if there's an error
-                    if (video.querySelector('source')) {
-                        const src = video.querySelector('source').src;
-                        video.querySelector('source').src = src;
-                        video.load();
+                    const videoContainer = video.closest('.gallery-video-container');
+                    if (videoContainer) {
+                        // If video fails, show controls as fallback
+                        video.controls = true;
+                        
+                        // Remove play button if it exists
+                        const playButton = videoContainer.querySelector('.video-play-button');
+                        if (playButton) {
+                            playButton.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Make videos responsive to window visibility changes
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        video.pause();
+                    } else if (!isMobile() && video.closest('.gallery-video-container')) {
+                        video.play().catch(e => console.warn('Autoplay failed on visibility change:', e));
                     }
                 });
             });
