@@ -520,74 +520,87 @@
                             const video = document.createElement('video');
                             video.className = 'gallery-video';
                             video.playsInline = true;
+                            video.setAttribute('playsinline', ''); // Double ensure playsinline works on iOS
                             video.muted = true;
+                            video.setAttribute('muted', ''); // Double ensure muted works on iOS
                             video.loop = true;
-                            video.preload = 'auto';
+                            video.preload = 'metadata'; // Changed from 'auto' to 'metadata' for faster loading
                             
                             // Make sure video src URL is properly formatted with https:
-                            const videoUrl = file.url.startsWith('//') ? 
-                                `https:${file.url}` : 
-                                file.url.startsWith('http') ? file.url : `https:${file.url}`;
-                                
-                            console.log(`Video URL for item ${index}: ${videoUrl}`);
-                            
-                            // Add source
-                            const source = document.createElement('source');
-                            source.src = videoUrl;
-                            source.type = 'video/mp4';
-                            video.appendChild(source);
-                            
-                            // On mobile, don't autoplay initially and show play button
-                            if (isMobile()) {
-                                // Create play button overlay
-                                const playButton = document.createElement('div');
-                                playButton.className = 'video-play-button';
-                                videoContainer.appendChild(playButton);
-                                
-                                // Add play functionality
-                                playButton.addEventListener('click', () => {
-                                    if (video.paused) {
-                                        video.play()
-                                            .then(() => {
-                                                playButton.style.display = 'none';
-                                            })
-                                            .catch(error => {
-                                                console.error('Video play failed:', error);
-                                                // If autoplay fails on mobile, show controls as fallback
-                                                video.controls = true;
-                                            });
-                                    }
-                                });
-                                
-                                // Also make video itself clickable
-                                video.addEventListener('click', () => {
-                                    if (video.paused) {
-                                        video.play()
-                                            .then(() => {
-                                                playButton.style.display = 'none';
-                                            })
-                                            .catch(error => {
-                                                console.error('Video play failed:', error);
-                                                video.controls = true;
-                                            });
+                            let videoUrl = '';
+                            try {
+                                // Handle different URL formats
+                                if (file.url) {
+                                    if (file.url.startsWith('//')) {
+                                        videoUrl = `https:${file.url}`;
+                                    } else if (file.url.startsWith('http')) {
+                                        videoUrl = file.url;
                                     } else {
-                                        video.pause();
-                                        playButton.style.display = 'flex';
+                                        videoUrl = `https:${file.url}`;
                                     }
-                                });
-                            } else {
-                                // On desktop, set autoplay
-                                video.autoplay = true;
+                                } else {
+                                    console.error(`No URL found for video at index ${index}`);
+                                    return; // Skip this item
+                                }
+                                
+                                console.log(`Video URL for item ${index}: ${videoUrl}`);
+                            } catch (e) {
+                                console.error(`Error processing video URL at index ${index}:`, e);
+                                return; // Skip this item
                             }
                             
-                            // Add poster if available (fallback while video loads)
+                            // Instead of using a source element, set the src attribute directly
+                            // This works better on some mobile browsers
+                            video.src = videoUrl;
+                            video.type = 'video/mp4';
+                            
+                            // Also set poster if available (fallback while video loads)
                             if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
                                 video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
                                 console.log(`Poster set for video ${index}: ${video.poster}`);
                             }
                             
-                            // Add fallback text
-                            video.appendChild(document.createTextNode('Your browser does not support HTML5 video.'));
+                            // Always set autoplay false first, we'll enable it later with JS
+                            video.autoplay = false;
+                            
+                            // Create play button overlay
+                            const playButton = document.createElement('div');
+                            playButton.className = 'video-play-button';
+                            videoContainer.appendChild(playButton);
+                            
+                            // Add play functionality for all devices
+                            playButton.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log(`Play button clicked for video ${index}`);
+                                
+                                if (video.paused) {
+                                    // Try to play
+                                    video.play().then(() => {
+                                        playButton.style.display = 'none';
+                                        console.log(`Video ${index} playing`);
+                                    }).catch(error => {
+                                        console.error(`Error playing video ${index}:`, error);
+                                        // If play fails, show controls as fallback
+                                        video.controls = true;
+                                    });
+                                }
+                            });
+                            
+                            // Also make video itself clickable
+                            video.addEventListener('click', () => {
+                                if (video.paused) {
+                                    video.play().then(() => {
+                                        playButton.style.display = 'none';
+                                    }).catch(error => {
+                                        console.error(`Video click play failed:`, error);
+                                        video.controls = true;
+                                    });
+                                } else {
+                                    video.pause();
+                                    playButton.style.display = 'flex';
+                                }
+                            });
                             
                             // Append to container
                             videoContainer.appendChild(video);
@@ -598,11 +611,21 @@
                             const img = document.createElement('img');
                             
                             // Make sure image URL is properly formatted with https:
-                            const imageUrl = file.url.startsWith('//') ? 
-                                `https:${file.url}` : 
-                                file.url.startsWith('http') ? file.url : `https:${file.url}`;
+                            let imageUrl = '';
+                            try {
+                                if (file.url.startsWith('//')) {
+                                    imageUrl = `https:${file.url}`;
+                                } else if (file.url.startsWith('http')) {
+                                    imageUrl = file.url;
+                                } else {
+                                    imageUrl = `https:${file.url}`;
+                                }
                                 
-                            console.log(`Image URL for item ${index}: ${imageUrl}`);
+                                console.log(`Image URL for item ${index}: ${imageUrl}`);
+                            } catch (e) {
+                                console.error(`Error processing image URL at index ${index}:`, e);
+                                imageUrl = '/api/placeholder/680/500'; // Use placeholder as fallback
+                            }
                             
                             img.src = imageUrl;
                             img.alt = item.fields.title || `${project.title} detail ${index + 1}`;
@@ -760,10 +783,33 @@
                     video.setAttribute('playsinline', '');
                     video.muted = true;
                     video.setAttribute('muted', '');
+                    
+                    // iOS requires direct interaction - show play button more prominently
+                    const videoContainer = video.closest('.gallery-video-container');
+                    if (videoContainer) {
+                        const playButton = videoContainer.querySelector('.video-play-button');
+                        if (playButton) {
+                            playButton.style.opacity = '1';
+                        }
+                    }
                 }
                 
+                // Check if video can actually play
+                video.addEventListener('canplay', function() {
+                    console.log(`Video ${index} can play`);
+                    
+                    // On desktop, try autoplay
+                    if (!isMobile()) {
+                        this.play().catch(e => {
+                            console.warn(`Autoplay failed on canplay event:`, e);
+                        });
+                    }
+                });
+                
                 // Add a click handler to toggle play/pause
-                video.addEventListener('click', function() {
+                video.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     console.log(`Video ${index} clicked`);
                     const videoContainer = this.closest('.gallery-video-container');
                     const playButton = videoContainer ? videoContainer.querySelector('.video-play-button') : null;
@@ -796,61 +842,27 @@
                     }
                 });
                 
-                // On non-mobile devices, attempt autoplay and use IntersectionObserver
-                if (!isMobile()) {
-                    console.log(`Setting up autoplay for video ${index}`);
-                    
-                    // Only play videos when they're visible in the viewport
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                console.log(`Video ${index} is visible in viewport, attempting to play`);
-                                const playPromise = video.play();
-                                if (playPromise !== undefined) {
-                                    playPromise.catch(e => {
-                                        console.warn(`Autoplay failed for video ${index}:`, e);
-                                        // Don't show controls on desktop unless needed
-                                        if (e.name !== 'NotAllowedError') {
-                                            video.controls = true;
-                                        }
-                                    });
-                                }
-                            } else {
-                                console.log(`Video ${index} is outside viewport, pausing`);
-                                video.pause();
-                            }
-                        });
-                    }, { threshold: 0.3 }); // Trigger when 30% visible
-                    
-                    observer.observe(video);
-                    
-                    // Initial play attempt
-                    console.log(`Initial play attempt for video ${index}`);
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => {
-                            console.warn(`Initial autoplay failed for video ${index}:`, e);
-                            // We'll let the intersection observer handle it
-                        });
-                    }
-                } else {
-                    console.log(`Mobile device detected for video ${index}, not autoplaying`);
-                }
-                
                 // Handle errors during playback
                 video.addEventListener('error', function(e) {
                     console.error(`Error with video ${index}:`, e);
                     const videoContainer = this.closest('.gallery-video-container');
                     
-                    // Try to reload the source
-                    if (this.querySelector('source')) {
-                        const src = this.querySelector('source').src;
-                        console.log(`Attempting to reload video ${index} from ${src}`);
-                        this.querySelector('source').src = src;
-                        this.load();
+                    // Try reloading with crossorigin attribute added
+                    if (!this.hasAttribute('crossorigin')) {
+                        console.log(`Adding crossorigin attribute to video ${index}`);
+                        this.setAttribute('crossorigin', 'anonymous');
+                        
+                        // Reload the video
+                        const currentSrc = this.src;
+                        this.src = '';
+                        setTimeout(() => {
+                            this.src = currentSrc;
+                            this.load();
+                        }, 100);
+                        return;
                     }
                     
-                    // If still failing, show native controls
+                    // If crossorigin didn't help, show controls as fallback
                     this.controls = true;
                     
                     // Hide custom play button if it exists
@@ -861,36 +873,59 @@
                         }
                     }
                 });
+                
+                // On non-mobile devices, attempt autoplay with IntersectionObserver
+                if (!isMobile()) {
+                    console.log(`Setting up IntersectionObserver for video ${index}`);
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                console.log(`Video ${index} entered viewport`);
+                                // Only play if not already playing
+                                if (video.paused) {
+                                    video.play().catch(e => {
+                                        console.warn(`Autoplay in viewport failed:`, e);
+                                    });
+                                }
+                            } else {
+                                // Pause when out of view to save resources
+                                if (!video.paused) {
+                                    video.pause();
+                                }
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    
+                    observer.observe(video);
+                    
+                    // Initial play attempt for videos in viewport
+                    const rect = video.getBoundingClientRect();
+                    const isInViewport = (
+                        rect.top >= 0 &&
+                        rect.left >= 0 &&
+                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                    );
+                    
+                    if (isInViewport) {
+                        console.log(`Video ${index} initially in viewport, attempting to play`);
+                        video.play().catch(e => {
+                            console.warn(`Initial viewport play failed:`, e);
+                        });
+                    }
+                }
             });
             
-            // Make all videos pause when page is not visible
+            // Pause all videos when page visibility changes
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
-                    console.log('Page hidden, pausing all videos');
-                    videos.forEach(video => video.pause());
-                } else if (!isMobile()) {
-                    console.log('Page visible again, checking which videos to play');
-                    // When page becomes visible again, play videos in viewport
-                    videos.forEach((video, index) => {
-                        const rect = video.getBoundingClientRect();
-                        const isInViewport = (
-                            rect.top >= 0 &&
-                            rect.left >= 0 &&
-                            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                        );
-                        
-                        if (isInViewport) {
-                            console.log(`Video ${index} is in viewport, attempting to play`);
-                            video.play().catch(e => {
-                                console.warn(`Autoplay on visibility change failed for video ${index}:`, e);
-                            });
+                    videos.forEach(video => {
+                        if (!video.paused) {
+                            video.pause();
                         }
                     });
                 }
             });
-            
-            console.log('Video initialization complete');
         }
         
         // Load project details when DOM is ready
