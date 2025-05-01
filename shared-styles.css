@@ -848,63 +848,36 @@ footer {
     color: rgba(255, 255, 255, 0.9);
 }
 
-/* Biography & Content Link Styles */
-.about-text a,
-.project-description a,
-.contact-text a {
-    position: relative;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
 
-/* Underline effect that animates on hover */
-.about-text a::after,
-.project-description a::after,
-.contact-text a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background-color: var(--accent-color);
-    transition: width 0.3s ease;
-}
+You're right - let's simplify this! Here's a much more straightforward approach:
 
-/* Hover state changes text color and animates underline */
-.about-text a:hover,
-.project-description a:hover,
-.contact-text a:hover {
+
+Simple Link Styles for shared-styles.css
+Code 
+This is a very simple solution that:
+
+Makes all links in the about-text area orange (using your accent color)
+Adds a basic underline
+Simply reduces opacity on hover for a subtle effect
+Just add these few lines to your shared-styles.css file and they should work immediately after you've implemented the JavaScript fix to properly render links.
+
+The reason the previous styles might not work could be:
+
+The links aren't actually being rendered as HTML yet (you still need to implement the JavaScript fix)
+CSS specificity issues with your existing styles
+Too many complex sel
+
+
+
+/* Simple link styles */
+.about-text a {
     color: var(--accent-color);
+    text-decoration: underline;
+    transition: opacity 0.3s ease;
 }
 
-.about-text a:hover::after,
-.project-description a:hover::after,
-.contact-text a:hover::after {
-    width: 100%;
-}
-
-/* Focus state for accessibility */
-.about-text a:focus,
-.project-description a:focus,
-.contact-text a:focus {
-    outline: 2px dotted var(--accent-color);
-    outline-offset: 2px;
-}
-
-/* Visited state - slightly different color but preserves the hover effects */
-.about-text a:visited,
-.project-description a:visited,
-.contact-text a:visited {
-    color: #555;
-}
-
-.about-text a:visited:hover,
-.project-description a:visited:hover,
-.contact-text a:visited:hover {
-    color: var(--accent-color);
+.about-text a:hover {
+    opacity: 0.7;
 }
 
 
