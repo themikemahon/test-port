@@ -90,6 +90,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
+            /* Remove any max number of rows by not using grid-template-rows */
         }
         
         .credit-item {
@@ -248,36 +249,8 @@
             <div class="project-credits fade-in">
                 <h2 class="project-credits-title">Credits</h2>
                 <div class="credits-grid">
-                    <div class="credit-item">
-                        <div class="credit-role">Creative Direction</div>
-                        <div class="credit-name">Mike Mahon</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UX Design</div>
-                        <div class="credit-name">Sarah Johnson</div>
-                        <div class="credit-company">Interface Lab</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">UI Design</div>
-                        <div class="credit-name">David Chen</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Development</div>
-                        <div class="credit-name">Alex Patel</div>
-                        <div class="credit-company">CodeCraft</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Animation</div>
-                        <div class="credit-name">Maya Rodriguez</div>
-                        <div class="credit-company">Motion Works</div>
-                    </div>
-                    <div class="credit-item">
-                        <div class="credit-role">Project Management</div>
-                        <div class="credit-name">James Wilson</div>
-                        <div class="credit-company">Studio M</div>
-                    </div>
+                    <!-- Credits will be loaded dynamically from Contentful -->
+                    <!-- If none are found, these static defaults will be used -->
                 </div>
             </div>
 
@@ -667,12 +640,34 @@
                     if (!creditsFound) {
                         console.warn('No credits found in project data. Using static fallback content.');
                         
-                        // Don't clear the container in this case, as it already has fallback content
-                        // Instead, ensure all static credit items are visible
-                        document.querySelectorAll('.credit-item').forEach(item => {
-                            item.style.opacity = '1';
+                        // Create default credits when none found in Contentful
+                        const defaultCredits = [
+                            { role: 'Creative Direction', name: 'Mike Mahon', company: 'Studio M' },
+                            { role: 'UX Design', name: 'Sarah Johnson', company: 'Interface Lab' },
+                            { role: 'UI Design', name: 'David Chen', company: 'Studio M' },
+                            { role: 'Development', name: 'Alex Patel', company: 'CodeCraft' },
+                            { role: 'Animation', name: 'Maya Rodriguez', company: 'Motion Works' },
+                            { role: 'Project Management', name: 'James Wilson', company: 'Studio M' }
+                        ];
+                        
+                        defaultCredits.forEach(credit => {
+                            const creditDiv = document.createElement('div');
+                            creditDiv.className = 'credit-item';
+                            
+                            let creditHtml = '';
+                            if (credit.role) creditHtml += `<div class="credit-role">${credit.role}</div>`;
+                            if (credit.name) creditHtml += `<div class="credit-name">${credit.name}</div>`;
+                            if (credit.company) creditHtml += `<div class="credit-company">${credit.company}</div>`;
+                            
+                            creditDiv.innerHTML = creditHtml;
+                            creditsContainer.appendChild(creditDiv);
                         });
                     }
+                    
+                    // We now have all credit items populated - ensure they're all visible
+                    document.querySelectorAll('.credit-item').forEach(item => {
+                        item.style.opacity = '1';
+                    });
                 }
                 
                 // Set next project if available
