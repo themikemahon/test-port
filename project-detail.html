@@ -114,69 +114,37 @@
             color: var(--secondary-color);
         }
         
-        /* Video styles - updated for GitHub Pages compatibility */
+        /* Video styles - updated for mobile compatibility */
         .gallery-video-container {
             position: relative;
             width: 100%;
             overflow: hidden;
             background-color: #f5f5f5;
-            cursor: pointer;
+            height: 0;
+            padding-bottom: 75%; /* Maintain aspect ratio */
         }
         
-        .video-poster {
+        .gallery-video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: auto;
-            display: block;
+            height: 100%;
+            object-fit: cover;
             transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         
-        .gallery-video-container:hover .video-poster {
+        /* Hide native video controls */
+        .gallery-video::-webkit-media-controls-panel,
+        .gallery-video::-webkit-media-controls-play-button,
+        .gallery-video::-webkit-media-controls-start-playback-button {
+            display: none !important;
+            -webkit-appearance: none !important;
+        }
+        
+        /* Hover effect for videos (matches image hover effect) */
+        .gallery-video-container:hover .gallery-video {
             transform: scale(1.08);
-        }
-        
-        /* Style for play button overlay */
-        .video-play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2;
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-        
-        .video-play-button:hover {
-            opacity: 1;
-        }
-        
-        .video-play-button:after {
-            content: "";
-            display: block;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 10px 0 10px 20px;
-            border-color: transparent transparent transparent white;
-            margin-left: 5px;
-        }
-        
-        /* Video modal styles */
-        .video-modal {
-            opacity: 0;
-            animation: fade-in 0.3s forwards;
-        }
-        
-        @keyframes fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
         
         /* Ensure proper spacing in header for this page */
@@ -192,16 +160,6 @@
             .credits-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
-            }
-            
-            /* Improved mobile video handling */
-            .video-play-button {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .video-play-button:after {
-                border-width: 8px 0 8px 16px;
             }
         }
     </style>
@@ -393,7 +351,7 @@
                     return; // Show demo content if no ID
                 }
                 
-                // First, log all content types to see what's available
+                // Log content types for debugging
                 client.getContentTypes()
                     .then(response => {
                         console.log('Available content types:');
@@ -408,12 +366,9 @@
                     include: 2  // This will include linked entries up to 2 levels deep
                 });
                 
-                // Log the raw response
                 console.log('Raw entry data:', entry);
                 
                 const project = entry.fields;
-                
-                // Log the entire project object to debug
                 console.log('Project data:', project);
                 
                 // Update page title
@@ -518,35 +473,14 @@
                         if (isVideo) {
                             console.log(`Creating video element for item ${index}`);
                             
-                            // For videos, use an iframe approach to bypass GitHub CORS issues
+                            // For videos, create an iframe solution that works with GitHub Pages
                             const videoContainer = document.createElement('div');
                             videoContainer.className = 'gallery-video-container';
                             
-                            // Add poster thumbnail if available
-                            if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
-                                const poster = document.createElement('img');
-                                poster.className = 'video-poster';
-                                poster.src = 'https:' + item.fields.thumbnail.fields.file.url;
-                                poster.alt = item.fields.title || `${project.title} video thumbnail ${index + 1}`;
-                                videoContainer.appendChild(poster);
-                            } else {
-                                // Create fallback placeholder
-                                const placeholder = document.createElement('div');
-                                placeholder.className = 'video-poster placeholder';
-                                placeholder.style.backgroundColor = '#f5f5f5';
-                                placeholder.style.width = '100%';
-                                placeholder.style.paddingBottom = '75%'; // Maintain aspect ratio
-                                videoContainer.appendChild(placeholder);
-                            }
-                            
-                            // Create play button overlay
-                            const playButton = document.createElement('div');
-                            playButton.className = 'video-play-button';
-                            videoContainer.appendChild(playButton);
-                            
-                            // Store video URL to be used when play is clicked
+                            // Format the video URL
                             let videoUrl = '';
                             try {
+                                // Handle different URL formats
                                 if (file.url) {
                                     if (file.url.startsWith('//')) {
                                         videoUrl = `https:${file.url}`;
@@ -555,85 +489,88 @@
                                     } else {
                                         videoUrl = `https:${file.url}`;
                                     }
-                                    
-                                    // Store the URL as a data attribute
-                                    videoContainer.dataset.videoUrl = videoUrl;
-                                    console.log(`Video URL for item ${index}: ${videoUrl}`);
                                 } else {
                                     console.error(`No URL found for video at index ${index}`);
                                     return; // Skip this item
                                 }
+                                
+                                console.log(`Video URL for item ${index}: ${videoUrl}`);
+                                
+                                // Create a blob URL to avoid CORS issues
+                                fetch(videoUrl, {
+                                    method: 'GET',
+                                    mode: 'cors',
+                                    cache: 'no-cache',
+                                    credentials: 'same-origin',
+                                    redirect: 'follow',
+                                    referrerPolicy: 'no-referrer'
+                                })
+                                .then(response => response.blob())
+                                .then(blob => {
+                                    const blobUrl = URL.createObjectURL(blob);
+                                    
+                                    // Create video element
+                                    const video = document.createElement('video');
+                                    video.className = 'gallery-video';
+                                    video.playsInline = true;
+                                    video.setAttribute('playsinline', '');
+                                    video.loop = true;
+                                    video.muted = true;
+                                    video.setAttribute('muted', '');
+                                    video.autoplay = true;
+                                    video.setAttribute('autoplay', '');
+                                    
+                                    // Set source to blob URL to avoid CORS
+                                    video.src = blobUrl;
+                                    
+                                    // Fallback poster image if video doesn't load
+                                    if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
+                                        video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
+                                    }
+                                    
+                                    // Append to container
+                                    videoContainer.appendChild(video);
+                                    
+                                    // Start playing after appending
+                                    setTimeout(() => {
+                                        video.play()
+                                            .then(() => console.log(`Video ${index} playing via blob URL`))
+                                            .catch(e => console.error(`Error playing video ${index}:`, e));
+                                    }, 100);
+                                })
+                                .catch(error => {
+                                    console.error(`Error fetching video ${index}:`, error);
+                                    
+                                    // Fallback to direct video embedding if fetch fails
+                                    const video = document.createElement('video');
+                                    video.className = 'gallery-video';
+                                    video.playsInline = true;
+                                    video.setAttribute('playsinline', '');
+                                    video.loop = true;
+                                    video.muted = true;
+                                    video.setAttribute('muted', '');
+                                    video.autoplay = true;
+                                    video.setAttribute('autoplay', '');
+                                    video.src = videoUrl;
+                                    
+                                    // Fallback poster image if video doesn't load
+                                    if (item.fields.thumbnail && item.fields.thumbnail.fields && item.fields.thumbnail.fields.file) {
+                                        video.poster = 'https:' + item.fields.thumbnail.fields.file.url;
+                                    }
+                                    
+                                    // Append to container
+                                    videoContainer.appendChild(video);
+                                    
+                                    // Start playing after appending
+                                    setTimeout(() => {
+                                        video.play()
+                                            .then(() => console.log(`Video ${index} playing via direct URL`))
+                                            .catch(e => console.error(`Error playing video ${index}:`, e));
+                                    }, 100);
+                                });
                             } catch (e) {
                                 console.error(`Error processing video URL at index ${index}:`, e);
-                                return; // Skip this item
                             }
-                            
-                            // Add click event to container
-                            videoContainer.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                console.log(`Video container clicked for ${index}`);
-                                
-                                // Create a dialog/modal element
-                                const modal = document.createElement('div');
-                                modal.className = 'video-modal';
-                                modal.style.position = 'fixed';
-                                modal.style.top = '0';
-                                modal.style.left = '0';
-                                modal.style.width = '100%';
-                                modal.style.height = '100%';
-                                modal.style.backgroundColor = 'rgba(0,0,0,0.9)';
-                                modal.style.display = 'flex';
-                                modal.style.alignItems = 'center';
-                                modal.style.justifyContent = 'center';
-                                modal.style.zIndex = '10000';
-                                
-                                // Create close button
-                                const closeBtn = document.createElement('div');
-                                closeBtn.innerHTML = '×';
-                                closeBtn.style.position = 'absolute';
-                                closeBtn.style.top = '20px';
-                                closeBtn.style.right = '30px';
-                                closeBtn.style.color = 'white';
-                                closeBtn.style.fontSize = '40px';
-                                closeBtn.style.fontWeight = 'bold';
-                                closeBtn.style.cursor = 'pointer';
-                                closeBtn.addEventListener('click', function(e) {
-                                    e.stopPropagation();
-                                    document.body.removeChild(modal);
-                                });
-                                modal.appendChild(closeBtn);
-                                
-                                // Create video element
-                                const video = document.createElement('video');
-                                video.className = 'gallery-video';
-                                video.style.maxWidth = '90%';
-                                video.style.maxHeight = '80%';
-                                video.controls = true;
-                                video.src = this.dataset.videoUrl;
-                                video.type = 'video/mp4';
-                                video.preload = 'auto';
-                                
-                                // Add video to modal
-                                modal.appendChild(video);
-                                
-                                // Add modal to body
-                                document.body.appendChild(modal);
-                                
-                                // Play video
-                                setTimeout(() => {
-                                    video.play().catch(error => {
-                                        console.error(`Error playing video in modal:`, error);
-                                        
-                                        // If direct play fails, create a link to open in new tab
-                                        const fallbackLink = document.createElement('a');
-                                        fallbackLink.href = this.dataset.videoUrl;
-                                        fallbackLink.target = '_blank';
-                                        fallbackLink.innerHTML = '<div style="color: white; padding: 20px; background: rgba(0,0,0,0.7); border-radius: 10px; text-align: center;">Click here to open video in new tab</div>';
-                                        modal.appendChild(fallbackLink);
-                                    });
-                                }, 200);
-                            });
                             
                             itemDiv.appendChild(videoContainer);
                         } else {
@@ -679,13 +616,6 @@
                             firstGrid.appendChild(itemDiv);
                         }
                     });
-                    
-                    // Initialize videos with a delay to ensure DOM is ready
-                    setTimeout(initializeVideos, 500);
-                    
-                    // Make a second attempt at video initialization after a longer delay
-                    // This ensures videos load even on slower connections
-                    setTimeout(initializeVideos, 2000);
                 }
                 
                 // Look for credits in different possible field names
@@ -784,179 +714,6 @@
             } catch (error) {
                 console.error('Error loading project details:', error);
             }
-        }
-        
-        // Initialize video elements for mobile compatibility
-        function initializeVideos() {
-            const videos = document.querySelectorAll('.gallery-video');
-            console.log(`Initializing ${videos.length} videos`);
-            
-            if (videos.length === 0) {
-                console.warn('No videos found to initialize');
-                return;
-            }
-            
-            videos.forEach((video, index) => {
-                console.log(`Setting up video ${index}`);
-                
-                // Force reload the video
-                try {
-                    video.load();
-                    console.log(`Video ${index} loaded`);
-                } catch (e) {
-                    console.error(`Error loading video ${index}:`, e);
-                }
-                
-                // For iOS devices, apply specific fixes
-                if (isIOSorSafari()) {
-                    console.log(`Applying iOS fixes for video ${index}`);
-                    video.playsInline = true;
-                    video.setAttribute('playsinline', '');
-                    video.muted = true;
-                    video.setAttribute('muted', '');
-                    
-                    // iOS requires direct interaction - show play button more prominently
-                    const videoContainer = video.closest('.gallery-video-container');
-                    if (videoContainer) {
-                        const playButton = videoContainer.querySelector('.video-play-button');
-                        if (playButton) {
-                            playButton.style.opacity = '1';
-                        }
-                    }
-                }
-                
-                // Check if video can actually play
-                video.addEventListener('canplay', function() {
-                    console.log(`Video ${index} can play`);
-                    
-                    // On desktop, try autoplay
-                    if (!isMobile()) {
-                        this.play().catch(e => {
-                            console.warn(`Autoplay failed on canplay event:`, e);
-                        });
-                    }
-                });
-                
-                // Add a click handler to toggle play/pause
-                video.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log(`Video ${index} clicked`);
-                    const videoContainer = this.closest('.gallery-video-container');
-                    const playButton = videoContainer ? videoContainer.querySelector('.video-play-button') : null;
-                    
-                    if (this.paused) {
-                        console.log(`Attempting to play video ${index}`);
-                        // Try to play the video
-                        const playPromise = this.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise.then(() => {
-                                console.log(`Video ${index} playing successfully`);
-                                // Hide play button if it exists
-                                if (playButton) {
-                                    playButton.style.display = 'none';
-                                }
-                            }).catch(error => {
-                                console.error(`Error playing video ${index}:`, error);
-                                // If autoplay fails, show native controls as fallback
-                                this.controls = true;
-                            });
-                        }
-                    } else {
-                        console.log(`Pausing video ${index}`);
-                        this.pause();
-                        // Show play button again if it exists
-                        if (playButton) {
-                            playButton.style.display = 'flex';
-                        }
-                    }
-                });
-                
-                // Handle errors during playback
-                video.addEventListener('error', function(e) {
-                    console.error(`Error with video ${index}:`, e);
-                    const videoContainer = this.closest('.gallery-video-container');
-                    
-                    // Try reloading with crossorigin attribute added
-                    if (!this.hasAttribute('crossorigin')) {
-                        console.log(`Adding crossorigin attribute to video ${index}`);
-                        this.setAttribute('crossorigin', 'anonymous');
-                        
-                        // Reload the video
-                        const currentSrc = this.src;
-                        this.src = '';
-                        setTimeout(() => {
-                            this.src = currentSrc;
-                            this.load();
-                        }, 100);
-                        return;
-                    }
-                    
-                    // If crossorigin didn't help, show controls as fallback
-                    this.controls = true;
-                    
-                    // Hide custom play button if it exists
-                    if (videoContainer) {
-                        const playButton = videoContainer.querySelector('.video-play-button');
-                        if (playButton) {
-                            playButton.style.display = 'none';
-                        }
-                    }
-                });
-                
-                // On non-mobile devices, attempt autoplay with IntersectionObserver
-                if (!isMobile()) {
-                    console.log(`Setting up IntersectionObserver for video ${index}`);
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                console.log(`Video ${index} entered viewport`);
-                                // Only play if not already playing
-                                if (video.paused) {
-                                    video.play().catch(e => {
-                                        console.warn(`Autoplay in viewport failed:`, e);
-                                    });
-                                }
-                            } else {
-                                // Pause when out of view to save resources
-                                if (!video.paused) {
-                                    video.pause();
-                                }
-                            }
-                        });
-                    }, { threshold: 0.5 });
-                    
-                    observer.observe(video);
-                    
-                    // Initial play attempt for videos in viewport
-                    const rect = video.getBoundingClientRect();
-                    const isInViewport = (
-                        rect.top >= 0 &&
-                        rect.left >= 0 &&
-                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                    );
-                    
-                    if (isInViewport) {
-                        console.log(`Video ${index} initially in viewport, attempting to play`);
-                        video.play().catch(e => {
-                            console.warn(`Initial viewport play failed:`, e);
-                        });
-                    }
-                }
-            });
-            
-            // Pause all videos when page visibility changes
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    videos.forEach(video => {
-                        if (!video.paused) {
-                            video.pause();
-                        }
-                    });
-                }
-            });
         }
         
         // Load project details when DOM is ready
