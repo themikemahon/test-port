@@ -164,6 +164,16 @@ function loadSiteSettings() {
                 }
             }
             
+            // Update accent color if provided
+            if (settings.accentColor) {
+                // Add the # prefix to the hex code
+                const accentColor = '#' + settings.accentColor;
+                
+                // Set the CSS custom property
+                document.documentElement.style.setProperty('--accent-color', accentColor);
+                console.log('Updated accent color to:', accentColor);
+            }
+            
             // Update footer text
             if (settings.footerText) {
                 const footerInfo = document.querySelector('.footer-info p:last-child');
