@@ -268,26 +268,51 @@
                 message: document.getElementById('message')
             };
             
-            // Create a notification message area
+            // Create a notification message area dynamically
             const notificationArea = document.createElement('div');
             notificationArea.className = 'form-notification';
             notificationArea.style.display = 'none';
             notificationArea.style.padding = '15px';
             notificationArea.style.marginTop = '20px';
             notificationArea.style.borderRadius = '4px';
+            notificationArea.style.transition = 'opacity 0.3s ease';
             form.appendChild(notificationArea);
             
             // Function to show notification messages
             function showNotification(message, isError = false) {
                 notificationArea.textContent = message;
                 notificationArea.style.display = 'block';
+                notificationArea.style.opacity = '0';
                 notificationArea.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
                 notificationArea.style.color = isError ? '#c62828' : '#2e7d32';
                 notificationArea.style.borderLeft = `4px solid ${isError ? '#c62828' : '#2e7d32'}`;
                 
+                // Ensure the element is in the DOM
+                if (!document.body.contains(notificationArea)) {
+                    form.appendChild(notificationArea);
+                }
+                
+                // Fade in animation
+                setTimeout(() => {
+                    notificationArea.style.opacity = '1';
+                }, 10);
+                
+                // Scroll to make notification visible if needed
+                setTimeout(() => {
+                    const rect = notificationArea.getBoundingClientRect();
+                    const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+                    
+                    if (!isVisible) {
+                        notificationArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 100);
+                
                 // Automatically hide the notification after 5 seconds
                 setTimeout(() => {
-                    notificationArea.style.display = 'none';
+                    notificationArea.style.opacity = '0';
+                    setTimeout(() => {
+                        notificationArea.style.display = 'none';
+                    }, 300);
                 }, 5000);
             }
             
@@ -347,16 +372,14 @@
                 submitButton.textContent = 'Sending...';
                 submitButton.style.opacity = '0.7';
                 
-                // Prepare template parameters for EmailJS
+                // Prepare template parameters for EmailJS - make sure these match your template variables
                 const templateParams = {
-                    to_email: 'mjmahon@gmail.com', // Your email address
-                    from_name: formFields.name.value.trim(),
-                    from_email: formFields.email.value.trim(),
+                    name: formFields.name.value.trim(),
+                    email: formFields.email.value.trim(),
                     subject: formFields.subject.value.trim() || 'New message from portfolio website',
                     message: formFields.message.value.trim(),
-                    // Add these fields to help bypass spam filters
-                    website: 'Portfolio Website',
-                    ip_address: '', // This will be auto-filled by EmailJS
+                    // Additional fields to help bypass spam filters
+                    website: 'Mike Mahon Portfolio',
                     timestamp: new Date().toISOString()
                 };
                 
