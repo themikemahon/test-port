@@ -696,59 +696,53 @@
     
     // New function: Ensure all grid images are visible
     function ensureGridImagesAreVisible() {
-        // For image containers in grids
-        document.querySelectorAll('.project-image-grid > div').forEach(container => {
-            container.classList.add('visible');
-            
-            // Also add visible class to any nested containers
-            container.querySelectorAll('.gallery-media-container').forEach(mediaContainer => {
-                mediaContainer.classList.add('visible');
-            });
-        });
-        
-        // For main project image
-        document.querySelectorAll('.project-image-container').forEach(container => {
-            container.classList.add('visible');
-        });
-        
-        // Preload all images to ensure they display
-        document.querySelectorAll('img').forEach(img => {
+        // Instead of directly adding visible class, preload images first
+        document.querySelectorAll('.project-image-grid img, .project-image-container img').forEach(img => {
             // Create a preloader image
             const preloader = new Image();
-            preloader.src = img.src;
             
-            // Once preloaded, ensure the container is visible
             preloader.onload = () => {
+                // Once image is preloaded, let the normal animation system handle it
+                // Don't add visible class directly to container
                 const container = img.closest('.fade-in');
-                if (container) {
-                    container.classList.add('visible');
+                if (container && !container.classList.contains('visible')) {
+                    // Mark as ready for animation instead of visible
+                    container.setAttribute('data-loaded', 'true');
                 }
             };
+            
+            // Force preloading
+            preloader.src = img.src;
+            img.setAttribute('loading', 'eager');
         });
     }
     
     // New function: Refresh animations for all elements
     function refreshAnimations() {
-        // First, ensure all elements in viewport are visible
+        // First ensure images are preloaded but not yet visible
         ensureGridImagesAreVisible();
         
-        // Then create a new observer for elements that might not be visible yet
-        const pendingAnimations = document.querySelectorAll('.fade-in:not(.visible), .slide-in-left:not(.visible), .slide-in-right:not(.visible)');
+        // Find elements that need animation
+        const pendingAnimations = document.querySelectorAll('.fade-in:not(.visible)');
         
         if (pendingAnimations.length > 0) {
-            console.log(`Found ${pendingAnimations.length} elements that need animation refreshing`);
+            console.log(`Found ${pendingAnimations.length} elements that need animation`);
             
-            // Create a new observer with more sensitive thresholds
+            // Create a new observer with normal thresholds
             const dynamicObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        console.log('Made element visible:', entry.target);
+                        // Apply staggered animation timing for more pleasing effect
+                        const index = Array.from(pendingAnimations).indexOf(entry.target);
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                            console.log('Animated element into view:', entry.target);
+                        }, 50 * index); // Staggered timing
                     }
                 });
             }, {
-                threshold: 0.05, // Very low threshold to make items appear sooner
-                rootMargin: '0px 0px -5px 0px'
+                threshold: 0.1,
+                rootMargin: '0px 0px -10px 0px'
             });
             
             // Observe all pending elements
@@ -763,11 +757,15 @@
         loadProjectDetails();
         
         // Setup animations for elements
-        setTimeout(function() {
-            document.querySelectorAll('.slide-in-left, .fade-in').forEach(el => {
-                el.classList.add('visible');
-            });
-        }, 100);
+        setTimeout(() => {
+            // Preload images first
+            ensureGridImagesAreVisible();
+            
+            // Then setup animations (with a slight delay)
+            setTimeout(() => {
+                refreshAnimations();
+            }, 100);
+        }, 200);
     });
 </script>
 </body>
