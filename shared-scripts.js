@@ -13,6 +13,129 @@ function showLoadingOverlay() {
     }
 }
 
+// Contentful Open Graph Integration Script
+// Make sure to include the Contentful SDK in your project:
+// <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Contentful client
+  const client = contentful.createClient({
+    space: 'YOUR_SPACE_ID', // Replace with your Contentful space ID
+    accessToken: 'YOUR_ACCESS_TOKEN', // Replace with your Contentful access token
+    environment: 'master' // Or your specific environment
+  });
+
+  // Fetch site settings from Contentful
+  fetchSiteSettings(client);
+});
+
+async function fetchSiteSettings(client) {
+  try {
+    // Fetch the site settings entry
+    // Adjust the content type ID and query to match your Contentful structure
+    const response = await client.getEntries({
+      content_type: 'siteSettings', // Replace with your actual content type ID
+      limit: 1
+    });
+
+    if (response.items.length > 0) {
+      const siteSettings = response.items[0].fields;
+      
+      // Update Open Graph tags based on Contentful data
+      updateOpenGraphTags(siteSettings);
+    } else {
+      console.error('No site settings found in Contentful');
+      // Fall back to basic Open Graph tags
+      setupBasicOpenGraphTags();
+    }
+  } catch (error) {
+    console.error('Error fetching data from Contentful:', error);
+    // Fall back to basic Open Graph tags
+    setupBasicOpenGraphTags();
+  }
+}
+
+function updateOpenGraphTags(siteSettings) {
+  // Extract values from site settings
+  const title = siteSettings.siteTitle || 'Mike Mahon | Creative Leader';
+  const description = siteSettings.siteDescription || 'Portfolio of Mike Mahon, a hands-on creative leader, bridging strategy to purposeful execution.';
+  
+  // Get the Open Graph image URL from Contentful
+  // Adjust the property path based on your content structure
+  let imageUrl = '';
+  if (siteSettings.openGraphImage && siteSettings.openGraphImage.fields) {
+    // Format: https://images.ctfassets.net/[space_id]/[asset_id]/[asset_version]/[filename]
+    imageUrl = siteSettings.openGraphImage.fields.file.url;
+    
+    // Ensure the URL is HTTPS
+    if (imageUrl && imageUrl.startsWith('//')) {
+      imageUrl = 'https:' + imageUrl;
+    }
+  } else {
+    // Fallback image URL
+    imageUrl = 'https://themikemahon.github.io/test-port/assets/images/og-image.jpg';
+  }
+  
+  // Set the meta tags
+  createMetaTag('og:title', title);
+  createMetaTag('og:description', description);
+  createMetaTag('og:type', 'website');
+  createMetaTag('og:url', window.location.href);
+  createMetaTag('og:image', imageUrl);
+  createMetaTag('og:image:width', '1200');
+  createMetaTag('og:image:height', '630');
+  
+  // Twitter Card tags
+  createMetaTag('twitter:card', 'summary_large_image', 'name');
+  createMetaTag('twitter:title', title, 'name');
+  createMetaTag('twitter:description', description, 'name');
+  createMetaTag('twitter:image', imageUrl, 'name');
+}
+
+function setupBasicOpenGraphTags() {
+  // Default values if Contentful fetch fails
+  const title = document.title || 'Mike Mahon | Creative Leader';
+  const description = getMetaContent('description') || 'Portfolio of Mike Mahon, a hands-on creative leader, bridging strategy to purposeful execution.';
+  const imageUrl = 'https://themikemahon.github.io/test-port/assets/images/og-image.jpg';
+  
+  // Set basic Open Graph meta tags
+  createMetaTag('og:title', title);
+  createMetaTag('og:description', description);
+  createMetaTag('og:type', 'website');
+  createMetaTag('og:url', window.location.href);
+  createMetaTag('og:image', imageUrl);
+  createMetaTag('og:image:width', '1200');
+  createMetaTag('og:image:height', '630');
+  
+  // Twitter Card tags
+  createMetaTag('twitter:card', 'summary_large_image', 'name');
+  createMetaTag('twitter:title', title, 'name');
+  createMetaTag('twitter:description', description, 'name');
+  createMetaTag('twitter:image', imageUrl, 'name');
+}
+
+// Helper function to create meta tags
+function createMetaTag(property, content, attributeName = 'property') {
+  // Check if the meta tag already exists
+  let meta = document.querySelector(`meta[${attributeName}="${property}"]`);
+  
+  // If it doesn't exist, create it
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute(attributeName, property);
+    document.head.appendChild(meta);
+  }
+  
+  // Set the content
+  meta.setAttribute('content', content);
+}
+
+// Helper function to get content from existing meta tags
+function getMetaContent(name) {
+  const meta = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
+  return meta ? meta.getAttribute('content') : null;
+}
+
 // Mobile navigation toggle
 function setupMobileNav() {
     const navToggle = document.querySelector('.nav-toggle');
