@@ -756,9 +756,14 @@
         }
     }
     
-    // Load project details when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-        loadProjectDetails();
+        // Load project details and hide overlay when done
+        loadProjectDetails().finally(() => {
+            // Give a bit more time for images to load
+            setTimeout(() => {
+                hideLoadingOverlay();
+            }, 500);
+        });
         
         // Setup animations for elements
         setTimeout(() => {
