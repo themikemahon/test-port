@@ -13,129 +13,6 @@ function showLoadingOverlay() {
     }
 }
 
-// Contentful Open Graph Integration Script
-// Make sure to include the Contentful SDK in your project:
-// <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize Contentful client
-  const client = contentful.createClient({
-    space: '2ic80tk26lba', // Replace with your Contentful space ID
-    accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c', // Replace with your Contentful access token
-    environment: 'master' // Or your specific environment
-  });
-
-  // Fetch site settings from Contentful
-  fetchSiteSettings(client);
-});
-
-async function fetchSiteSettings(client) {
-  try {
-    // Fetch the site settings entry
-    // Adjust the content type ID and query to match your Contentful structure
-    const response = await client.getEntries({
-      content_type: 'siteSettings', // Replace with your actual content type ID
-      limit: 1
-    });
-
-    if (response.items.length > 0) {
-      const siteSettings = response.items[0].fields;
-      
-      // Update Open Graph tags based on Contentful data
-      updateOpenGraphTags(siteSettings);
-    } else {
-      console.error('No site settings found in Contentful');
-      // Fall back to basic Open Graph tags
-      setupBasicOpenGraphTags();
-    }
-  } catch (error) {
-    console.error('Error fetching data from Contentful:', error);
-    // Fall back to basic Open Graph tags
-    setupBasicOpenGraphTags();
-  }
-}
-
-function updateOpenGraphTags(siteSettings) {
-  // Extract values from site settings
-  const title = siteSettings.siteTitle || 'Mike Mahon | Creative Leader';
-  const description = siteSettings.siteDescription || 'Portfolio of Mike Mahon, a hands-on creative leader, bridging strategy to purposeful execution.';
-  
-  // Get the Open Graph image URL from Contentful
-  // Adjust the property path based on your content structure
-  let imageUrl = '';
-  if (siteSettings.openGraphImage && siteSettings.openGraphImage.fields) {
-    // Format: https://images.ctfassets.net/[space_id]/[asset_id]/[asset_version]/[filename]
-    imageUrl = siteSettings.openGraphImage.fields.file.url;
-    
-    // Ensure the URL is HTTPS
-    if (imageUrl && imageUrl.startsWith('//')) {
-      imageUrl = 'https:' + imageUrl;
-    }
-  } else {
-    // Fallback image URL
-    imageUrl = 'https://themikemahon.github.io/test-port/assets/images/og-image.jpg';
-  }
-  
-  // Set the meta tags
-  createMetaTag('og:title', title);
-  createMetaTag('og:description', description);
-  createMetaTag('og:type', 'website');
-  createMetaTag('og:url', window.location.href);
-  createMetaTag('og:image', imageUrl);
-  createMetaTag('og:image:width', '1200');
-  createMetaTag('og:image:height', '630');
-  
-  // Twitter Card tags
-  createMetaTag('twitter:card', 'summary_large_image', 'name');
-  createMetaTag('twitter:title', title, 'name');
-  createMetaTag('twitter:description', description, 'name');
-  createMetaTag('twitter:image', imageUrl, 'name');
-}
-
-function setupBasicOpenGraphTags() {
-  // Default values if Contentful fetch fails
-  const title = document.title || 'Mike Mahon | Creative Leader';
-  const description = getMetaContent('description') || 'Portfolio of Mike Mahon, a hands-on creative leader, bridging strategy to purposeful execution.';
-  const imageUrl = 'https://themikemahon.github.io/test-port/assets/images/og-image.jpg';
-  
-  // Set basic Open Graph meta tags
-  createMetaTag('og:title', title);
-  createMetaTag('og:description', description);
-  createMetaTag('og:type', 'website');
-  createMetaTag('og:url', window.location.href);
-  createMetaTag('og:image', imageUrl);
-  createMetaTag('og:image:width', '1200');
-  createMetaTag('og:image:height', '630');
-  
-  // Twitter Card tags
-  createMetaTag('twitter:card', 'summary_large_image', 'name');
-  createMetaTag('twitter:title', title, 'name');
-  createMetaTag('twitter:description', description, 'name');
-  createMetaTag('twitter:image', imageUrl, 'name');
-}
-
-// Helper function to create meta tags
-function createMetaTag(property, content, attributeName = 'property') {
-  // Check if the meta tag already exists
-  let meta = document.querySelector(`meta[${attributeName}="${property}"]`);
-  
-  // If it doesn't exist, create it
-  if (!meta) {
-    meta = document.createElement('meta');
-    meta.setAttribute(attributeName, property);
-    document.head.appendChild(meta);
-  }
-  
-  // Set the content
-  meta.setAttribute('content', content);
-}
-
-// Helper function to get content from existing meta tags
-function getMetaContent(name) {
-  const meta = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
-  return meta ? meta.getAttribute('content') : null;
-}
-
 // Mobile navigation toggle
 function setupMobileNav() {
     const navToggle = document.querySelector('.nav-toggle');
@@ -176,7 +53,6 @@ function setupAnimations() {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    // observer.unobserve(entry.target); - REMOVE THIS LINE
                 }
             });
         }, {
@@ -258,256 +134,208 @@ async function loadSocialLinks() {
     }
 }
 
-// Load site settings from Contentful
-    function loadSiteSettings() {
-        // Check if Contentful client is available
-        if (typeof contentful === 'undefined') {
-            console.warn('Contentful SDK not loaded, skipping site settings');
-            return;
-        }
-        
-        const client = contentful.createClient({
-            space: '2ic80tk26lba',
-            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
-        });
-        
-        client.getEntries({
-            content_type: 'siteSettings',
-            limit: 1
-        }).then(response => {
-            if (response.items.length > 0) {
-                const settings = response.items[0].fields;
-                
-                // Update metadata and favicons
-                updateMetaAndFavicons(settings);
-                
-                // Update accent color if provided
-                if (settings.accentColor) {
-                    // Add the # prefix to the hex code
-                    const accentColor = '#' + settings.accentColor;
-                    
-                    // Set the CSS custom property
-                    document.documentElement.style.setProperty('--accent-color', accentColor);
-                    console.log('Updated accent color to:', accentColor);
-                }
-                
-                // Update homepage brief statement if we're on the homepage
-                if (settings.briefStatement) {
-                    const briefStatement = document.querySelector('.brief-statement p');
-                    if (briefStatement) {
-                        // Replace [word] with <span class="highlight">word</span>
-                        const formattedText = settings.briefStatement.replace(
-                            /\[([^\]]+)\]/g, 
-                            '<span class="highlight">$1</span>'
-                        );
-                        briefStatement.innerHTML = formattedText;
-                    }
-                    
-                    // For new design with statement-text class
-                    const statementText = document.querySelector('.statement-text');
-                    if (statementText) {
-                        // Replace [word] with <span class="highlight">word</span>
-                        const formattedText = settings.briefStatement.replace(
-                            /\[([^\]]+)\]/g, 
-                            '<span class="highlight">$1</span>'
-                        );
-                        statementText.innerHTML = formattedText;
-                    }
-                }
-                
-                // Update footer text
-                if (settings.footerText) {
-                    const footerInfo = document.querySelector('.footer-info p:last-child');
-                    if (footerInfo) {
-                        footerInfo.textContent = settings.footerText;
-                    }
-                }
-                
-                // Update footer tagline - MODIFIED TO HANDLE LINE BREAKS
-                if (settings.footerTagline) {
-                    const footerTagline = document.querySelector('.footer-tagline');
-                    if (footerTagline) {
-                        footerTagline.innerHTML = settings.footerTagline.replace(/\n/g, '<br>');
-                    }
-                }
-    
-                // Update footer copyright (Inter font text)
-                if (settings.footerCopyright) {
-                    const footerCopyright = document.querySelector('.footer-copyright');
-                    if (footerCopyright) {
-                        footerCopyright.textContent = settings.footerCopyright;
-                    }
-                }
-            }
-        }).catch(error => {
-            console.error('Error loading site settings:', error);
-        });
+// Simplified site settings loader with better error handling
+function loadSiteSettings() {
+    // Check if Contentful client is available
+    if (typeof contentful === 'undefined') {
+        console.warn('Contentful SDK not loaded, using static metadata');
+        return Promise.resolve();
     }
     
-    // Function to update metadata and favicons
-    function updateMetaAndFavicons(settings) {
-        if (!settings) return;
+    const client = contentful.createClient({
+        space: '2ic80tk26lba',
+        accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+    });
+    
+    return client.getEntries({
+        content_type: 'siteSettings',
+        limit: 1
+    }).then(response => {
+        console.log('Site settings response:', response);
         
-        // Update title if available
-        if (settings.siteTitle) {
-            // Get current page title (e.g., "About | Mike Mahon")
-            const currentTitle = document.title;
-            // If the title contains " | ", preserve the first part (page name)
-            if (currentTitle.includes(" | ")) {
-                const pageName = currentTitle.split(" | ")[0];
-                document.title = `${pageName} | ${settings.siteTitle}`;
-            } else {
-                document.title = settings.siteTitle;
-            }
-        }
-        
-        // Update meta description
-        if (settings.siteDescription) {
-            // Look for existing description meta tag
-            let metaDesc = document.querySelector('meta[name="description"]');
+        if (response.items.length > 0) {
+            const settings = response.items[0].fields;
+            console.log('Found site settings:', settings);
             
-            // If it doesn't exist, create it
-            if (!metaDesc) {
-                metaDesc = document.createElement('meta');
-                metaDesc.setAttribute('name', 'description');
-                document.head.appendChild(metaDesc);
-            }
+            // Update metadata and favicons
+            updateMetaAndFavicons(settings);
             
-            // Set the content
-            metaDesc.setAttribute('content', settings.siteDescription);
-        }
-        
-        // Add meta keywords if available
-        if (settings.siteKeywords) {
-            // Look for existing keywords meta tag
-            let metaKeywords = document.querySelector('meta[name="keywords"]');
-            
-            // If it doesn't exist, create it
-            if (!metaKeywords) {
-                metaKeywords = document.createElement('meta');
-                metaKeywords.setAttribute('name', 'keywords');
-                document.head.appendChild(metaKeywords);
-            }
-            
-            // Set the content
-            metaKeywords.setAttribute('content', settings.siteKeywords);
-        }
-        
-        // Add favicon links
-        const head = document.head;
-        
-        // Helper function to add favicon link
-        function addFavicon(size, field) {
-            if (settings[field] && settings[field].fields && settings[field].fields.file) {
-                // Remove existing favicon of this size if it exists
-                const existing = document.querySelector(`link[rel="icon"][sizes="${size}x${size}"]`);
-                if (existing) {
-                    existing.remove();
+            // Update accent color if provided (FIXED - now works correctly)
+            if (settings.accentColor) {
+                let accentColor = settings.accentColor;
+                
+                // Add # prefix if not present
+                if (!accentColor.startsWith('#')) {
+                    accentColor = '#' + accentColor;
                 }
                 
-                // Create new favicon link
-                const link = document.createElement('link');
-                link.rel = 'icon';
-                link.type = 'image/png';
-                link.sizes = `${size}x${size}`;
-                link.href = 'https:' + settings[field].fields.file.url;
-                head.appendChild(link);
-            }
-        }
-        
-        // Add different favicon sizes
-        addFavicon(16, 'favicon16');
-        addFavicon(32, 'favicon32');
-        addFavicon(96, 'favicon96');
-        
-        // Add Apple Touch Icon
-        if (settings.appleTouchIcon && settings.appleTouchIcon.fields && settings.appleTouchIcon.fields.file) {
-            // Remove existing apple touch icon if it exists
-            const existing = document.querySelector('link[rel="apple-touch-icon"]');
-            if (existing) {
-                existing.remove();
+                // Set the CSS custom property
+                document.documentElement.style.setProperty('--accent-color', accentColor);
+                console.log('✅ Updated accent color to:', accentColor);
             }
             
-            const link = document.createElement('link');
-            link.rel = 'apple-touch-icon';
-            link.href = 'https:' + settings.appleTouchIcon.fields.file.url;
-            head.appendChild(link);
-        }
-        
-        // Add Open Graph meta tags
-        if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-            // OG Image
-            let ogImage = document.querySelector('meta[property="og:image"]');
-            if (!ogImage) {
-                ogImage = document.createElement('meta');
-                ogImage.setAttribute('property', 'og:image');
-                head.appendChild(ogImage);
+            // Update homepage brief statement if we're on the homepage
+            if (settings.briefStatement) {
+                const briefStatement = document.querySelector('.brief-statement p');
+                if (briefStatement) {
+                    // Replace [word] with <span class="highlight">word</span>
+                    const formattedText = settings.briefStatement.replace(
+                        /\[([^\]]+)\]/g, 
+                        '<span class="highlight">$1</span>'
+                    );
+                    briefStatement.innerHTML = formattedText;
+                }
+                
+                // For new design with statement-text class
+                const statementText = document.querySelector('.statement-text');
+                if (statementText) {
+                    // Replace [word] with <span class="highlight">word</span>
+                    const formattedText = settings.briefStatement.replace(
+                        /\[([^\]]+)\]/g, 
+                        '<span class="highlight">$1</span>'
+                    );
+                    statementText.innerHTML = formattedText;
+                }
             }
-            ogImage.setAttribute('content', 'https:' + settings.ogImage.fields.file.url);
             
-            // OG Image dimensions if available
-            if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
-                const width = settings.ogImage.fields.file.details.image.width;
-                const height = settings.ogImage.fields.file.details.image.height;
-                
-                let ogWidth = document.querySelector('meta[property="og:image:width"]');
-                if (!ogWidth) {
-                    ogWidth = document.createElement('meta');
-                    ogWidth.setAttribute('property', 'og:image:width');
-                    head.appendChild(ogWidth);
+            // Update footer text
+            if (settings.footerText) {
+                const footerInfo = document.querySelector('.footer-info p:last-child');
+                if (footerInfo) {
+                    footerInfo.textContent = settings.footerText;
                 }
-                ogWidth.setAttribute('content', width.toString());
-                
-                let ogHeight = document.querySelector('meta[property="og:image:height"]');
-                if (!ogHeight) {
-                    ogHeight = document.createElement('meta');
-                    ogHeight.setAttribute('property', 'og:image:height');
-                    head.appendChild(ogHeight);
+            }
+            
+            // Update footer tagline - handle line breaks
+            if (settings.footerTagline) {
+                const footerTagline = document.querySelector('.footer-tagline');
+                if (footerTagline) {
+                    footerTagline.innerHTML = settings.footerTagline.replace(/\n/g, '<br>');
                 }
-                ogHeight.setAttribute('content', height.toString());
             }
-        }
-        
-        // OG Title
-        if (settings.siteTitle) {
-            let ogTitle = document.querySelector('meta[property="og:title"]');
-            if (!ogTitle) {
-                ogTitle = document.createElement('meta');
-                ogTitle.setAttribute('property', 'og:title');
-                head.appendChild(ogTitle);
+
+            // Update footer copyright (Inter font text)
+            if (settings.footerCopyright) {
+                const footerCopyright = document.querySelector('.footer-copyright');
+                if (footerCopyright) {
+                    footerCopyright.textContent = settings.footerCopyright;
+                }
             }
-            ogTitle.setAttribute('content', document.title); // Use the page-specific title
+            
+            console.log('✅ Site settings loaded successfully');
+        } else {
+            console.warn('No site settings found in Contentful - using static content');
         }
+    }).catch(error => {
+        console.error('❌ Error loading site settings:', error);
+        console.log('Falling back to static metadata...');
         
-        // OG Description
-        if (settings.siteDescription) {
-            let ogDesc = document.querySelector('meta[property="og:description"]');
-            if (!ogDesc) {
-                ogDesc = document.createElement('meta');
-                ogDesc.setAttribute('property', 'og:description');
-                head.appendChild(ogDesc);
-            }
-            ogDesc.setAttribute('content', settings.siteDescription);
+        // Set a default accent color if nothing is loaded
+        document.documentElement.style.setProperty('--accent-color', '#FF6B35');
+    });
+}
+
+// Function to update metadata and favicons
+function updateMetaAndFavicons(settings) {
+    if (!settings) return;
+    
+    console.log('Updating metadata and favicons...');
+    
+    // Update title if available
+    if (settings.siteTitle) {
+        // Get current page title (e.g., "About | Mike Mahon")
+        const currentTitle = document.title;
+        // If the title contains " | ", preserve the first part (page name)
+        if (currentTitle.includes(" | ")) {
+            const pageName = currentTitle.split(" | ")[0];
+            document.title = `${pageName} | ${settings.siteTitle}`;
+        } else {
+            document.title = settings.siteTitle;
         }
-        
-        // OG URL (current page)
-        let ogUrl = document.querySelector('meta[property="og:url"]');
-        if (!ogUrl) {
-            ogUrl = document.createElement('meta');
-            ogUrl.setAttribute('property', 'og:url');
-            head.appendChild(ogUrl);
-        }
-        ogUrl.setAttribute('content', window.location.href);
-        
-        // OG Type (default to website)
-        let ogType = document.querySelector('meta[property="og:type"]');
-        if (!ogType) {
-            ogType = document.createElement('meta');
-            ogType.setAttribute('property', 'og:type');
-            head.appendChild(ogType);
-        }
-        ogType.setAttribute('content', 'website');
+        console.log('✅ Updated title to:', document.title);
     }
+    
+    // Update meta description
+    if (settings.siteDescription) {
+        updateOrCreateMetaTag('name', 'description', settings.siteDescription);
+        updateOrCreateMetaTag('property', 'og:description', settings.siteDescription);
+        updateOrCreateMetaTag('name', 'twitter:description', settings.siteDescription);
+        console.log('✅ Updated meta descriptions');
+    }
+    
+    // Add meta keywords if available
+    if (settings.siteKeywords) {
+        updateOrCreateMetaTag('name', 'keywords', settings.siteKeywords);
+        console.log('✅ Updated meta keywords');
+    }
+    
+    // Update Open Graph and Twitter meta tags
+    updateOrCreateMetaTag('property', 'og:title', document.title);
+    updateOrCreateMetaTag('property', 'og:type', 'website');
+    updateOrCreateMetaTag('property', 'og:url', window.location.href);
+    updateOrCreateMetaTag('name', 'twitter:card', 'summary_large_image');
+    updateOrCreateMetaTag('name', 'twitter:title', document.title);
+    
+    // Add Open Graph image if available
+    if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
+        const imageUrl = 'https:' + settings.ogImage.fields.file.url;
+        updateOrCreateMetaTag('property', 'og:image', imageUrl);
+        updateOrCreateMetaTag('name', 'twitter:image', imageUrl);
+        
+        // Add image dimensions if available
+        if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
+            updateOrCreateMetaTag('property', 'og:image:width', settings.ogImage.fields.file.details.image.width.toString());
+            updateOrCreateMetaTag('property', 'og:image:height', settings.ogImage.fields.file.details.image.height.toString());
+        }
+        console.log('✅ Updated Open Graph image');
+    }
+    
+    // Add favicons
+    addFavicon(16, settings.favicon16);
+    addFavicon(32, settings.favicon32);
+    addFavicon(96, settings.favicon96);
+    
+    // Add Apple Touch Icon
+    if (settings.appleTouchIcon && settings.appleTouchIcon.fields && settings.appleTouchIcon.fields.file) {
+        const existing = document.querySelector('link[rel="apple-touch-icon"]');
+        if (existing) existing.remove();
+        
+        const link = document.createElement('link');
+        link.rel = 'apple-touch-icon';
+        link.href = 'https:' + settings.appleTouchIcon.fields.file.url;
+        document.head.appendChild(link);
+        console.log('✅ Added Apple Touch Icon');
+    }
+}
+
+// Helper function to update or create meta tags
+function updateOrCreateMetaTag(attribute, property, content) {
+    let meta = document.querySelector(`meta[${attribute}="${property}"]`);
+    
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attribute, property);
+        document.head.appendChild(meta);
+    }
+    
+    meta.setAttribute('content', content);
+}
+
+// Helper function to add favicon
+function addFavicon(size, field) {
+    if (field && field.fields && field.fields.file) {
+        const existing = document.querySelector(`link[rel="icon"][sizes="${size}x${size}"]`);
+        if (existing) existing.remove();
+        
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/png';
+        link.sizes = `${size}x${size}`;
+        link.href = 'https:' + field.fields.file.url;
+        document.head.appendChild(link);
+        console.log(`✅ Added ${size}x${size} favicon`);
+    }
+}
 
 // Enhance touch device detection
 function enhancedTouchDetection() {
@@ -524,17 +352,14 @@ function enhancedTouchDetection() {
             
             // Add touch-specific event handling
             newLink.addEventListener('touchstart', function(e) {
-                // Only change appearance on touch, don't navigate yet
                 this.classList.add('touch-active');
             });
             
             newLink.addEventListener('touchend', function(e) {
-                // Remove the active state
                 this.classList.remove('touch-active');
             });
             
             newLink.addEventListener('touchcancel', function(e) {
-                // Remove the active state
                 this.classList.remove('touch-active');
             });
         });
@@ -558,12 +383,14 @@ function fixBriefStatement() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing shared scripts...');
+    
     setupMobileNav();
     setupAnimations();
     enhancedTouchDetection();
     fixBriefStatement();
     
-    // Load social links and site settings
+    // Load all shared content
     const promises = [];
     
     // Add loading promises
@@ -572,174 +399,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Wait for all shared content to load, then hide overlay
     Promise.all(promises).finally(() => {
+        console.log('✅ All shared content loaded');
         // Give a small delay to ensure page-specific content has also loaded
         setTimeout(() => {
             hideLoadingOverlay();
         }, 500);
     });
 });
-
-// Function to update metadata and favicons
-    function updateMetaAndFavicons(settings) {
-        if (!settings) return;
-        
-        // Update title if available
-        if (settings.siteTitle) {
-            // Get current page title (e.g., "About | Mike Mahon")
-            const currentTitle = document.title;
-            // If the title contains " | ", preserve the first part (page name)
-            if (currentTitle.includes(" | ")) {
-                const pageName = currentTitle.split(" | ")[0];
-                document.title = `${pageName} | ${settings.siteTitle}`;
-            } else {
-                document.title = settings.siteTitle;
-            }
-        }
-        
-        // Update meta description
-        if (settings.siteDescription) {
-            // Look for existing description meta tag
-            let metaDesc = document.querySelector('meta[name="description"]');
-            
-            // If it doesn't exist, create it
-            if (!metaDesc) {
-                metaDesc = document.createElement('meta');
-                metaDesc.setAttribute('name', 'description');
-                document.head.appendChild(metaDesc);
-            }
-            
-            // Set the content
-            metaDesc.setAttribute('content', settings.siteDescription);
-        }
-        
-        // Add meta keywords if available
-        if (settings.siteKeywords) {
-            // Look for existing keywords meta tag
-            let metaKeywords = document.querySelector('meta[name="keywords"]');
-            
-            // If it doesn't exist, create it
-            if (!metaKeywords) {
-                metaKeywords = document.createElement('meta');
-                metaKeywords.setAttribute('name', 'keywords');
-                document.head.appendChild(metaKeywords);
-            }
-            
-            // Set the content
-            metaKeywords.setAttribute('content', settings.siteKeywords);
-        }
-        
-        // Add favicon links
-        const head = document.head;
-        
-        // Helper function to add favicon link
-        function addFavicon(size, field) {
-            if (settings[field] && settings[field].fields && settings[field].fields.file) {
-                // Remove existing favicon of this size if it exists
-                const existing = document.querySelector(`link[rel="icon"][sizes="${size}x${size}"]`);
-                if (existing) {
-                    existing.remove();
-                }
-                
-                // Create new favicon link
-                const link = document.createElement('link');
-                link.rel = 'icon';
-                link.type = 'image/png';
-                link.sizes = `${size}x${size}`;
-                link.href = 'https:' + settings[field].fields.file.url;
-                head.appendChild(link);
-            }
-        }
-        
-        // Add different favicon sizes
-        addFavicon(16, 'favicon16');
-        addFavicon(32, 'favicon32');
-        addFavicon(96, 'favicon96');
-        
-        // Add Apple Touch Icon
-        if (settings.appleTouchIcon && settings.appleTouchIcon.fields && settings.appleTouchIcon.fields.file) {
-            // Remove existing apple touch icon if it exists
-            const existing = document.querySelector('link[rel="apple-touch-icon"]');
-            if (existing) {
-                existing.remove();
-            }
-            
-            const link = document.createElement('link');
-            link.rel = 'apple-touch-icon';
-            link.href = 'https:' + settings.appleTouchIcon.fields.file.url;
-            head.appendChild(link);
-        }
-        
-        // Add Open Graph meta tags
-        if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-            // OG Image
-            let ogImage = document.querySelector('meta[property="og:image"]');
-            if (!ogImage) {
-                ogImage = document.createElement('meta');
-                ogImage.setAttribute('property', 'og:image');
-                head.appendChild(ogImage);
-            }
-            ogImage.setAttribute('content', 'https:' + settings.ogImage.fields.file.url);
-            
-            // OG Image dimensions if available
-            if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
-                const width = settings.ogImage.fields.file.details.image.width;
-                const height = settings.ogImage.fields.file.details.image.height;
-                
-                let ogWidth = document.querySelector('meta[property="og:image:width"]');
-                if (!ogWidth) {
-                    ogWidth = document.createElement('meta');
-                    ogWidth.setAttribute('property', 'og:image:width');
-                    head.appendChild(ogWidth);
-                }
-                ogWidth.setAttribute('content', width.toString());
-                
-                let ogHeight = document.querySelector('meta[property="og:image:height"]');
-                if (!ogHeight) {
-                    ogHeight = document.createElement('meta');
-                    ogHeight.setAttribute('property', 'og:image:height');
-                    head.appendChild(ogHeight);
-                }
-                ogHeight.setAttribute('content', height.toString());
-            }
-        }
-        
-        // OG Title
-        if (settings.siteTitle) {
-            let ogTitle = document.querySelector('meta[property="og:title"]');
-            if (!ogTitle) {
-                ogTitle = document.createElement('meta');
-                ogTitle.setAttribute('property', 'og:title');
-                head.appendChild(ogTitle);
-            }
-            ogTitle.setAttribute('content', document.title); // Use the page-specific title
-        }
-        
-        // OG Description
-        if (settings.siteDescription) {
-            let ogDesc = document.querySelector('meta[property="og:description"]');
-            if (!ogDesc) {
-                ogDesc = document.createElement('meta');
-                ogDesc.setAttribute('property', 'og:description');
-                head.appendChild(ogDesc);
-            }
-            ogDesc.setAttribute('content', settings.siteDescription);
-        }
-        
-        // OG URL (current page)
-        let ogUrl = document.querySelector('meta[property="og:url"]');
-        if (!ogUrl) {
-            ogUrl = document.createElement('meta');
-            ogUrl.setAttribute('property', 'og:url');
-            head.appendChild(ogUrl);
-        }
-        ogUrl.setAttribute('content', window.location.href);
-        
-        // OG Type (default to website)
-        let ogType = document.querySelector('meta[property="og:type"]');
-        if (!ogType) {
-            ogType = document.createElement('meta');
-            ogType.setAttribute('property', 'og:type');
-            head.appendChild(ogType);
-        }
-        ogType.setAttribute('content', 'website');
-    }
