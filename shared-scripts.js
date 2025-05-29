@@ -235,7 +235,6 @@ function loadSiteSettings() {
     });
 }
 
-// Function to update metadata and favicons
 function updateMetaAndFavicons(settings) {
     if (!settings) {
         console.log('No settings provided, using defaults');
