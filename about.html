@@ -183,14 +183,24 @@
             // First, verify our content types and space
             verifyContentfulSetup();
             
+            // Create promises for all loading operations
+            const loadingPromises = [];
+            
             // Load biography, services, and profile image
-            loadMainAboutContent();
+            loadingPromises.push(loadMainAboutContent());
             
             // Load experience items separately
-            loadExperienceItems();
+            loadingPromises.push(loadExperienceItems());
             
             // Load awards separately
-            loadAwards();
+            loadingPromises.push(loadAwards());
+            
+            // Wait for all content to load, then hide overlay
+            Promise.all(loadingPromises).finally(() => {
+                setTimeout(() => {
+                    hideLoadingOverlay();
+                }, 300);
+            });
         });
         
         // Function to verify Contentful setup
