@@ -418,10 +418,15 @@
             });
         }
         
-        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             setupContactForm();
-            loadContactContent();
+            
+            // Load contact content and hide overlay when done
+            loadContactContent().finally(() => {
+                setTimeout(() => {
+                    hideLoadingOverlay();
+                }, 300);
+            });
         });
     </script>
 </body>
