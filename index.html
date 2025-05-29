@@ -28,6 +28,46 @@
     <link rel="icon" type="image/png" sizes="32x32" href="">
     <link rel="icon" type="image/png" sizes="96x96" href="">
     <link rel="apple-touch-icon" href="">
+
+    <script>
+    // Immediate meta tag update - runs before page body loads
+    (function() {
+        // Only run if Contentful is available
+        if (typeof contentful !== 'undefined') {
+            const client = contentful.createClient({
+                space: '2ic80tk26lba',
+                accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+            });
+            
+            // Quick update of critical meta tags
+            client.getEntries({
+                content_type: 'siteSettings',
+                limit: 1
+            }).then(response => {
+                if (response.items.length > 0) {
+                    const settings = response.items[0].fields;
+                    
+                    // Update critical meta tags immediately
+                    if (settings.siteDescription) {
+                        document.querySelector('meta[name="description"]').setAttribute('content', settings.siteDescription);
+                        document.querySelector('meta[property="og:description"]').setAttribute('content', settings.siteDescription);
+                        document.querySelector('meta[name="twitter:description"]').setAttribute('content', settings.siteDescription);
+                    }
+                    
+                    // Update OG image
+                    if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
+                        const imageUrl = 'https:' + settings.ogImage.fields.file.url;
+                        document.querySelector('meta[property="og:image"]').setAttribute('content', imageUrl);
+                        document.querySelector('meta[name="twitter:image"]').setAttribute('content', imageUrl);
+                    }
+                    
+                    // Update URL
+                    document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+                }
+            }).catch(err => console.log('Meta update error:', err));
+        }
+    })();
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
