@@ -1,3 +1,18 @@
+// Loading state management
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+
+function showLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
+}
+
 // Mobile navigation toggle
 function setupMobileNav() {
     const navToggle = document.querySelector('.nav-toggle');
@@ -419,22 +434,25 @@ function fixBriefStatement() {
     }
 }
 
-// Single DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function() {
     setupMobileNav();
     setupAnimations();
-    enhancedTouchDetection(); // Use the enhanced version instead of the simple check
+    enhancedTouchDetection();
     fixBriefStatement();
     
-    // Load social links for footer
-    loadSocialLinks();
+    // Load social links and site settings
+    const promises = [];
     
-    // Load site settings
-    loadSiteSettings();
+    // Add loading promises
+    promises.push(loadSocialLinks());
+    promises.push(loadSiteSettings());
     
-    // Ensure they run again if the window is resized
-    window.addEventListener('resize', function() {
-        fixBriefStatement();
+    // Wait for all shared content to load, then hide overlay
+    Promise.all(promises).finally(() => {
+        // Give a small delay to ensure page-specific content has also loaded
+        setTimeout(() => {
+            hideLoadingOverlay();
+        }, 500);
     });
 });
 
