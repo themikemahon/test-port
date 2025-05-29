@@ -398,8 +398,10 @@
         
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Load projects
-            loadProjects();
+            // Load projects and hide overlay when done
+            loadProjects().finally(() => {
+                hideLoadingOverlay();
+            });
             
             // Make statement text visible
             setTimeout(() => {
