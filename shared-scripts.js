@@ -237,9 +237,12 @@ function loadSiteSettings() {
 
 // Function to update metadata and favicons
 function updateMetaAndFavicons(settings) {
-    if (!settings) return;
+    if (!settings) {
+        console.log('No settings provided, using defaults');
+        return;
+    }
     
-    console.log('Updating metadata and favicons...');
+    console.log('Updating metadata and favicons with settings:', settings);
     
     // Update title if available
     if (settings.siteTitle) {
@@ -255,6 +258,10 @@ function updateMetaAndFavicons(settings) {
         console.log('✅ Updated title to:', document.title);
     }
     
+    // Get the current page URL
+    const currentUrl = window.location.href;
+    console.log('Current URL:', currentUrl);
+    
     // Update meta description
     if (settings.siteDescription) {
         updateOrCreateMetaTag('name', 'description', settings.siteDescription);
@@ -269,28 +276,50 @@ function updateMetaAndFavicons(settings) {
         console.log('✅ Updated meta keywords');
     }
     
-    // Update Open Graph and Twitter meta tags
+    // Update Open Graph and Twitter meta tags with current page info
     updateOrCreateMetaTag('property', 'og:title', document.title);
     updateOrCreateMetaTag('property', 'og:type', 'website');
-    updateOrCreateMetaTag('property', 'og:url', window.location.href);
+    updateOrCreateMetaTag('property', 'og:url', currentUrl);
     updateOrCreateMetaTag('name', 'twitter:card', 'summary_large_image');
     updateOrCreateMetaTag('name', 'twitter:title', document.title);
     
-    // Add Open Graph image if available
+    console.log('✅ Updated basic Open Graph and Twitter tags');
+    
+    // Handle Open Graph image - this is the key fix
     if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-        const imageUrl = 'https:' + settings.ogImage.fields.file.url;
+        let imageUrl = settings.ogImage.fields.file.url;
+        
+        // Ensure the URL is properly formatted with https:
+        if (imageUrl.startsWith('//')) {
+            imageUrl = 'https:' + imageUrl;
+        } else if (!imageUrl.startsWith('http')) {
+            imageUrl = 'https:' + imageUrl;
+        }
+        
+        console.log('Image URL to use:', imageUrl);
+        
+        // Update both Open Graph and Twitter image tags
         updateOrCreateMetaTag('property', 'og:image', imageUrl);
         updateOrCreateMetaTag('name', 'twitter:image', imageUrl);
         
         // Add image dimensions if available
         if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
-            updateOrCreateMetaTag('property', 'og:image:width', settings.ogImage.fields.file.details.image.width.toString());
-            updateOrCreateMetaTag('property', 'og:image:height', settings.ogImage.fields.file.details.image.height.toString());
+            const width = settings.ogImage.fields.file.details.image.width;
+            const height = settings.ogImage.fields.file.details.image.height;
+            
+            updateOrCreateMetaTag('property', 'og:image:width', width.toString());
+            updateOrCreateMetaTag('property', 'og:image:height', height.toString());
+            
+            console.log(`✅ Updated Open Graph image: ${imageUrl} (${width}x${height})`);
+        } else {
+            console.log('✅ Updated Open Graph image:', imageUrl);
         }
-        console.log('✅ Updated Open Graph image');
+    } else {
+        console.warn('❌ No ogImage found in settings or invalid format');
+        console.log('ogImage field content:', settings.ogImage);
     }
     
-    // Add favicons
+    // Add favicons with better error handling
     addFavicon(16, settings.favicon16);
     addFavicon(32, settings.favicon32);
     addFavicon(96, settings.favicon96);
@@ -300,40 +329,69 @@ function updateMetaAndFavicons(settings) {
         const existing = document.querySelector('link[rel="apple-touch-icon"]');
         if (existing) existing.remove();
         
+        let iconUrl = settings.appleTouchIcon.fields.file.url;
+        if (iconUrl.startsWith('//')) {
+            iconUrl = 'https:' + iconUrl;
+        }
+        
         const link = document.createElement('link');
         link.rel = 'apple-touch-icon';
-        link.href = 'https:' + settings.appleTouchIcon.fields.file.url;
+        link.href = iconUrl;
         document.head.appendChild(link);
-        console.log('✅ Added Apple Touch Icon');
+        console.log('✅ Added Apple Touch Icon:', iconUrl);
     }
+    
+    // Log final meta tag values for debugging
+    setTimeout(() => {
+        console.log('=== FINAL META TAG VALUES ===');
+        console.log('og:url:', document.querySelector('meta[property="og:url"]')?.getAttribute('content'));
+        console.log('og:image:', document.querySelector('meta[property="og:image"]')?.getAttribute('content'));
+        console.log('twitter:image:', document.querySelector('meta[name="twitter:image"]')?.getAttribute('content'));
+        console.log('og:title:', document.querySelector('meta[property="og:title"]')?.getAttribute('content'));
+        console.log('og:description:', document.querySelector('meta[property="og:description"]')?.getAttribute('content'));
+    }, 100);
 }
 
-// Helper function to update or create meta tags
+// Helper function to update or create meta tags (same as before)
 function updateOrCreateMetaTag(attribute, property, content) {
+    if (!content) {
+        console.warn(`Empty content for ${property}, skipping`);
+        return;
+    }
+    
     let meta = document.querySelector(`meta[${attribute}="${property}"]`);
     
     if (!meta) {
         meta = document.createElement('meta');
         meta.setAttribute(attribute, property);
         document.head.appendChild(meta);
+        console.log(`Created new meta tag: ${property}`);
     }
     
     meta.setAttribute('content', content);
+    console.log(`Updated ${property}: ${content}`);
 }
 
-// Helper function to add favicon
+// Helper function to add favicon (improved)
 function addFavicon(size, field) {
     if (field && field.fields && field.fields.file) {
         const existing = document.querySelector(`link[rel="icon"][sizes="${size}x${size}"]`);
         if (existing) existing.remove();
         
+        let iconUrl = field.fields.file.url;
+        if (iconUrl.startsWith('//')) {
+            iconUrl = 'https:' + iconUrl;
+        }
+        
         const link = document.createElement('link');
         link.rel = 'icon';
         link.type = 'image/png';
         link.sizes = `${size}x${size}`;
-        link.href = 'https:' + field.fields.file.url;
+        link.href = iconUrl;
         document.head.appendChild(link);
-        console.log(`✅ Added ${size}x${size} favicon`);
+        console.log(`✅ Added ${size}x${size} favicon:`, iconUrl);
+    } else {
+        console.log(`No ${size}x${size} favicon provided`);
     }
 }
 
