@@ -424,17 +424,25 @@
             });
         }
         
-        // Function to load awards directly
+        // Function to load awards in descending order (most recent first)
         function loadAwards() {
-            console.log('Loading awards with correct content type "awards"...');
+            console.log('Loading awards with correct content type "awards" in descending order...');
             
+            // Use descending order to show highest numbers first
             client.getEntries({
-                content_type: 'awards'  // Changed from 'award' to 'awards' to match your content model
+                content_type: 'awards',  // Using 'awards' to match your content model
+                order: '-fields.order'   // Minus sign = descending order
             }).then(response => {
                 console.log('Awards response:', response);
                 console.log('Awards found:', response.items ? response.items.length : 0);
                 
                 if (response.items && response.items.length > 0) {
+                    // Log the order we received from Contentful
+                    console.log('Awards in descending order:');
+                    response.items.forEach((item, index) => {
+                        console.log(`${index + 1}. ${item.fields.name} (Order: ${item.fields.order})`);
+                    });
+                    
                     const awardsGrid = document.querySelector('.awards-grid');
                     if (!awardsGrid) {
                         console.error('Awards grid not found in DOM');
@@ -444,7 +452,7 @@
                     // Clear existing awards
                     awardsGrid.innerHTML = '';
                     
-                    // Add each award
+                    // Add each award in the order received from Contentful
                     response.items.forEach((item, index) => {
                         const fields = item.fields;
                         
@@ -459,6 +467,8 @@
                         `;
                         
                         awardsGrid.appendChild(awardItem);
+                        
+                        console.log(`✓ Added award ${index + 1}: ${fields.name} (Order: ${fields.order})`);
                     });
                     
                     // Activate animations
@@ -473,7 +483,7 @@
                 } else {
                     console.warn('No awards found or empty response');
                     
-                    // Make the static HTML items visible
+                    // Make the static HTML items visible as fallback
                     const awardsGrid = document.querySelector('.awards-grid');
                     if (awardsGrid) {
                         awardsGrid.querySelectorAll('.fade-in').forEach(el => {
@@ -482,15 +492,56 @@
                     }
                 }
             }).catch(error => {
-                console.error('Error loading awards:', error);
+                console.error('Error loading awards with order field:', error);
                 
-                // On error, make static items visible
-                const awardsGrid = document.querySelector('.awards-grid');
-                if (awardsGrid) {
-                    awardsGrid.querySelectorAll('.fade-in').forEach(el => {
-                        el.classList.add('visible');
-                    });
-                }
+                // Fallback: try loading without order field
+                console.log('Falling back to loading awards without custom order...');
+                client.getEntries({
+                    content_type: 'awards'
+                }).then(fallbackResponse => {
+                    if (fallbackResponse.items && fallbackResponse.items.length > 0) {
+                        console.log('Loaded fallback awards without specific order');
+                        
+                        const awardsGrid = document.querySelector('.awards-grid');
+                        if (awardsGrid) {
+                            awardsGrid.innerHTML = '';
+                            
+                            fallbackResponse.items.forEach((item, index) => {
+                                const fields = item.fields;
+                                
+                                const awardItem = document.createElement('div');
+                                awardItem.className = 'award-item fade-in';
+                                awardItem.style.transitionDelay = `${0.1 * (index + 1)}s`;
+                                
+                                awardItem.innerHTML = `
+                                    <div class="award-year">${fields.year || ''}</div>
+                                    <div class="award-name">${fields.name || ''}</div>
+                                    <div class="award-project">${fields.project || ''}</div>
+                                `;
+                                
+                                awardsGrid.appendChild(awardItem);
+                            });
+                            
+                            // Activate animations
+                            setTimeout(() => {
+                                const fadeItems = awardsGrid.querySelectorAll('.fade-in');
+                                fadeItems.forEach(el => {
+                                    el.classList.add('visible');
+                                });
+                            }, 300);
+                        }
+                    }
+                }).catch(fallbackError => {
+                    console.error('Fallback awards loading also failed:', fallbackError);
+                    
+                    // On error, make static items visible
+                    const awardsGrid = document.querySelector('.awards-grid');
+                    if (awardsGrid) {
+                        awardsGrid.querySelectorAll('.fade-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }
+                });
             });
         }
     </script>
