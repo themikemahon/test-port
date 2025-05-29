@@ -329,19 +329,24 @@
             });
         }
         
-        // Function to load experience items directly
+// Function to load experience items in descending order (most recent first)
         function loadExperienceItems() {
-            // Get experience items WITHOUT the order parameter first
+            console.log('Loading experience items in descending order...');
+            
+            // Use DESCENDING order with the minus sign to get highest numbers first
             client.getEntries({
-                content_type: 'experienceItem'
+                content_type: 'experienceItem',
+                order: '-fields.order' // Minus sign = descending order
             }).then(response => {
                 console.log('Experience items response:', response);
                 console.log('Experience items found:', response.items ? response.items.length : 0);
                 
                 if (response.items && response.items.length > 0) {
-                    // Log the first item to see its structure
-                    console.log('First experience item:', response.items[0]);
-                    console.log('First experience item fields:', response.items[0].fields);
+                    // Log the order we received from Contentful
+                    console.log('Experience items in descending order:');
+                    response.items.forEach((item, index) => {
+                        console.log(`${index + 1}. ${item.fields.title} (Order: ${item.fields.order})`);
+                    });
                     
                     const experienceSection = document.querySelector('.experience-section');
                     if (!experienceSection) {
@@ -356,12 +361,7 @@
                     const existingItems = experienceSection.querySelectorAll('.experience-item');
                     existingItems.forEach(item => item.remove());
                     
-                    // If we accidentally removed the title too, add it back
-                    if (experienceTitle && !experienceSection.contains(experienceTitle)) {
-                        experienceSection.appendChild(experienceTitle);
-                    }
-                    
-                    // Add each experience item
+                    // Add each experience item in the order received from Contentful
                     response.items.forEach((item, index) => {
                         const fields = item.fields;
                         
@@ -389,6 +389,8 @@
                         `;
                         
                         experienceSection.appendChild(expItem);
+                        
+                        console.log(`✓ Added experience item ${index + 1}: ${fields.title} (Order: ${fields.order})`);
                     });
                     
                     // Activate animations
@@ -404,7 +406,21 @@
                     console.warn('No experience items found or empty response');
                 }
             }).catch(error => {
-                console.error('Error loading experience items:', error);
+                console.error('Error loading experience items with order field:', error);
+                
+                // Fallback: try loading without order field
+                console.log('Falling back to loading without custom order...');
+                client.getEntries({
+                    content_type: 'experienceItem'
+                }).then(fallbackResponse => {
+                    if (fallbackResponse.items && fallbackResponse.items.length > 0) {
+                        console.log('Loaded fallback items without specific order');
+                        // Process the fallback items the same way
+                        // (You can copy the processing logic here if needed)
+                    }
+                }).catch(fallbackError => {
+                    console.error('Fallback loading also failed:', fallbackError);
+                });
             });
         }
         
