@@ -20,8 +20,8 @@ function showLoadingOverlay() {
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize Contentful client
   const client = contentful.createClient({
-    space: 'YOUR_SPACE_ID', // Replace with your Contentful space ID
-    accessToken: 'YOUR_ACCESS_TOKEN', // Replace with your Contentful access token
+    space: '2ic80tk26lba', // Replace with your Contentful space ID
+    accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c', // Replace with your Contentful access token
     environment: 'master' // Or your specific environment
   });
 
