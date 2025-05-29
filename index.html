@@ -418,6 +418,80 @@
                 }, 500 + (index * 100));
             });
         });
+
+        // Debug script to check siteSettings loading
+// Add this temporarily to your index.html page to debug
+
+console.log('🔍 Starting siteSettings debug...');
+
+const client = contentful.createClient({
+    space: '2ic80tk26lba',
+    accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+});
+
+async function debugSiteSettings() {
+    try {
+        console.log('📡 Fetching siteSettings entries...');
+        
+        // Try to fetch siteSettings entries
+        const response = await client.getEntries({
+            content_type: 'siteSettings',
+            limit: 10
+        });
+        
+        console.log('📊 siteSettings response:', response);
+        console.log('📊 Number of entries found:', response.items.length);
+        
+        if (response.items.length > 0) {
+            console.log('✅ Found siteSettings entries!');
+            
+            response.items.forEach((item, index) => {
+                console.log(`Entry ${index + 1}:`, item);
+                console.log(`Entry ${index + 1} fields:`, item.fields);
+                console.log(`Entry ${index + 1} sys:`, item.sys);
+                
+                // Check if the entry is published
+                if (item.sys.publishedAt) {
+                    console.log(`✅ Entry ${index + 1} is PUBLISHED (${item.sys.publishedAt})`);
+                } else {
+                    console.log(`❌ Entry ${index + 1} is NOT PUBLISHED`);
+                }
+                
+                // Check specific fields
+                const fields = item.fields;
+                console.log('Field values:');
+                console.log('- siteTitle:', fields.siteTitle);
+                console.log('- siteDescription:', fields.siteDescription);
+                console.log('- accentColor:', fields.accentColor);
+                console.log('- briefStatement:', fields.briefStatement);
+                console.log('- footerTagline:', fields.footerTagline);
+                console.log('- ogImage:', fields.ogImage);
+            });
+        } else {
+            console.log('❌ No siteSettings entries found');
+            console.log('Check if:');
+            console.log('1. You have created a siteSettings entry in Contentful');
+            console.log('2. The entry is published (not just saved as draft)');
+            console.log('3. The content type ID is exactly "siteSettings"');
+        }
+        
+        // Also try to fetch ALL entries to see what's actually in your space
+        console.log('\n📋 Fetching ALL entries to see what exists...');
+        const allEntries = await client.getEntries({ limit: 20 });
+        console.log('All entries:', allEntries.items.map(item => ({
+            contentType: item.sys.contentType.sys.id,
+            id: item.sys.id,
+            published: !!item.sys.publishedAt
+        })));
+        
+    } catch (error) {
+        console.error('❌ Error in debugSiteSettings:', error);
+    }
+}
+
+// Run the debug
+debugSiteSettings();
+        
     </script>
 </body>
 </html>
