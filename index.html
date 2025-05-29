@@ -29,43 +29,90 @@
     <link rel="icon" type="image/png" sizes="96x96" href="">
     <link rel="apple-touch-icon" href="">
 
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     <script>
-    // Immediate meta tag update - runs before page body loads
+    // Immediate meta tag update - runs in <head> before body loads
     (function() {
-        // Only run if Contentful is available
-        if (typeof contentful !== 'undefined') {
-            const client = contentful.createClient({
-                space: '2ic80tk26lba',
-                accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
-            });
-            
-            // Quick update of critical meta tags
-            client.getEntries({
-                content_type: 'siteSettings',
-                limit: 1
-            }).then(response => {
-                if (response.items.length > 0) {
-                    const settings = response.items[0].fields;
-                    
-                    // Update critical meta tags immediately
-                    if (settings.siteDescription) {
-                        document.querySelector('meta[name="description"]').setAttribute('content', settings.siteDescription);
-                        document.querySelector('meta[property="og:description"]').setAttribute('content', settings.siteDescription);
-                        document.querySelector('meta[name="twitter:description"]').setAttribute('content', settings.siteDescription);
-                    }
-                    
-                    // Update OG image
-                    if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-                        const imageUrl = 'https:' + settings.ogImage.fields.file.url;
-                        document.querySelector('meta[property="og:image"]').setAttribute('content', imageUrl);
-                        document.querySelector('meta[name="twitter:image"]').setAttribute('content', imageUrl);
-                    }
-                    
-                    // Update URL
-                    document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
-                }
-            }).catch(err => console.log('Meta update error:', err));
+        const client = contentful.createClient({
+            space: '2ic80tk26lba',
+            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
+        });
+        
+        // Function to update meta tag
+        function updateMetaTag(selector, content) {
+            const element = document.querySelector(selector);
+            if (element && content) {
+                element.setAttribute('content', content);
+                console.log('Updated', selector, 'to:', content);
+            }
         }
+        
+        // Fetch and update meta tags immediately
+        client.getEntries({
+            content_type: 'siteSettings',
+            limit: 1
+        }).then(response => {
+            if (response.items.length > 0) {
+                const settings = response.items[0].fields;
+                console.log('🚀 Updating meta tags immediately in head...');
+                
+                // Update descriptions
+                if (settings.siteDescription) {
+                    updateMetaTag('meta[name="description"]', settings.siteDescription);
+                    updateMetaTag('meta[property="og:description"]', settings.siteDescription);
+                    updateMetaTag('meta[name="twitter:description"]', settings.siteDescription);
+                }
+                
+                // Update titles
+                if (settings.siteTitle) {
+                    const currentTitle = document.title;
+                    const newTitle = currentTitle.includes(' | ') ? 
+                        currentTitle.split(' | ')[0] + ' | ' + settings.siteTitle : 
+                        settings.siteTitle;
+                    document.title = newTitle;
+                    updateMetaTag('meta[property="og:title"]', newTitle);
+                    updateMetaTag('meta[name="twitter:title"]', newTitle);
+                }
+                
+                // Update keywords
+                if (settings.siteKeywords) {
+                    updateMetaTag('meta[name="keywords"]', settings.siteKeywords);
+                }
+                
+                // Update Open Graph image - this is the key one for social sharing
+                if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
+                    let imageUrl = settings.ogImage.fields.file.url;
+                    if (imageUrl.startsWith('//')) {
+                        imageUrl = 'https:' + imageUrl;
+                    } else if (!imageUrl.startsWith('http')) {
+                        imageUrl = 'https:' + imageUrl;
+                    }
+                    
+                    updateMetaTag('meta[property="og:image"]', imageUrl);
+                    updateMetaTag('meta[name="twitter:image"]', imageUrl);
+                    
+                    // Update image dimensions if available
+                    if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
+                        updateMetaTag('meta[property="og:image:width"]', settings.ogImage.fields.file.details.image.width.toString());
+                        updateMetaTag('meta[property="og:image:height"]', settings.ogImage.fields.file.details.image.height.toString());
+                    }
+                    
+                    console.log('✅ Updated OG image to:', imageUrl);
+                }
+                
+                // Update URL
+                updateMetaTag('meta[property="og:url"]', window.location.href);
+                
+                // Update other meta tags
+                updateMetaTag('meta[property="og:type"]', 'website');
+                updateMetaTag('meta[name="twitter:card"]', 'summary_large_image');
+                
+                console.log('✅ All meta tags updated in head section!');
+            }
+        }).catch(error => {
+            console.log('Meta tag update failed:', error);
+            // Fallen back to static values in HTML
+        });
     })();
     </script>
     
@@ -273,9 +320,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- Contentful SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
     
     <!-- Shared scripts -->
     <script src="shared-scripts.js"></script>
