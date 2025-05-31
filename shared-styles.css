@@ -1280,3 +1280,171 @@ Too many complex sel
   position: relative;
   overflow: hidden;
 }
+
+/* Password Protection Modal Styles */
+.password-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.password-modal.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.password-modal-content {
+    background: white;
+    padding: 50px 40px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.password-modal.visible .password-modal-content {
+    transform: translateY(0);
+}
+
+.password-modal-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-transform: uppercase;
+}
+
+.password-modal-description {
+    margin-bottom: 30px;
+    color: var(--secondary-color);
+    line-height: 1.5;
+}
+
+.password-input-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.password-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: #fafafa;
+}
+
+.password-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.password-error {
+    color: #c62828;
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.password-error.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.password-submit-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.password-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-color);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.password-submit-btn:hover::before {
+    left: 0;
+}
+
+.password-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.password-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.password-submit-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.password-submit-btn:disabled::before {
+    left: -100%;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .password-modal-content {
+        padding: 40px 30px;
+        margin: 20px;
+    }
+    
+    .password-modal-title {
+        font-size: 20px;
+    }
+    
+    .password-input {
+        padding: 12px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .password-submit-btn {
+        padding: 12px 30px;
+        width: 100%;
+    }
+}
