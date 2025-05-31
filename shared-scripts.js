@@ -291,40 +291,6 @@ function updateMetaAndFavicons(settings) {
     
     console.log('✅ Updated basic Open Graph and Twitter tags');
     
-    // Handle Open Graph image - this is the key fix
-    if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-        let imageUrl = settings.ogImage.fields.file.url;
-        
-        // Ensure the URL is properly formatted with https:
-        if (imageUrl.startsWith('//')) {
-            imageUrl = 'https:' + imageUrl;
-        } else if (!imageUrl.startsWith('http')) {
-            imageUrl = 'https:' + imageUrl;
-        }
-        
-        console.log('Image URL to use:', imageUrl);
-        
-        // Update both Open Graph and Twitter image tags
-        updateOrCreateMetaTag('property', 'og:image', imageUrl);
-        updateOrCreateMetaTag('name', 'twitter:image', imageUrl);
-        
-        // Add image dimensions if available
-        if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
-            const width = settings.ogImage.fields.file.details.image.width;
-            const height = settings.ogImage.fields.file.details.image.height;
-            
-            updateOrCreateMetaTag('property', 'og:image:width', width.toString());
-            updateOrCreateMetaTag('property', 'og:image:height', height.toString());
-            
-            console.log(`✅ Updated Open Graph image: ${imageUrl} (${width}x${height})`);
-        } else {
-            console.log('✅ Updated Open Graph image:', imageUrl);
-        }
-    } else {
-        console.warn('❌ No ogImage found in settings or invalid format');
-        console.log('ogImage field content:', settings.ogImage);
-    }
-    
     // Add favicons with better error handling
     addFavicon(16, settings.favicon16);
     addFavicon(32, settings.favicon32);
