@@ -201,13 +201,11 @@
                     phoneLink.textContent = contactContent.phone;
                 }
                 
-// Replace the social links loading section in contact.html with this:
-
 // Fetch social links from the shared content type
     try {
         const socialResponse = await client.getEntries({
             content_type: 'socialLinks',
-            order: 'fields.order'  // ← This is the key addition!
+            order: 'fields.order'  // Add ordering here
         });
         
         if (socialResponse.items.length > 0) {
@@ -217,14 +215,14 @@
             // Clear existing links
             socialLinksContainer.innerHTML = '';
             
-            // Sort by order field (just in case Contentful didn't return them sorted)
+            // Sort by order field (backup sorting in case Contentful doesn't sort)
             const sortedItems = socialResponse.items.sort((a, b) => {
                 const orderA = a.fields.order || 999;
                 const orderB = b.fields.order || 999;
                 return orderA - orderB;
             });
             
-            // Add each social link in the correct order
+            // Add each social link in correct order
             sortedItems.forEach(item => {
                 const platform = item.fields.platform;
                 const url = item.fields.url;
