@@ -84,56 +84,63 @@ function setupAnimations() {
 }
 
 // Function to load social links for the footer
-async function loadSocialLinks() {
-    try {
-        // Check if Contentful is available
-        if (typeof contentful === 'undefined') {
-            console.warn('Contentful SDK not loaded');
-            return;
-        }
-
-        // Initialize Contentful client
-        const client = contentful.createClient({
-            space: '2ic80tk26lba',
-            accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
-        });
-        
-        // Fetch social links
-        const response = await client.getEntries({
-            content_type: 'socialLinks'
-        });
-        
-        if (response.items.length === 0) {
-            console.warn('No social links found in Contentful.');
-            return;
-        }
-        
-        // Update footer social links
-        const socialLinksContainer = document.querySelector('.footer-column:nth-of-type(2) ul');
-        if (socialLinksContainer) {
-            socialLinksContainer.innerHTML = '';
-            
-            // Add each social link
-            response.items.forEach(item => {
-                const platform = item.fields.platform;
-                const url = item.fields.url;
-                
-                if (platform && url) {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.target = "_blank";
-                    a.textContent = platform;
-                    li.appendChild(a);
-                    socialLinksContainer.appendChild(li);
-                }
+    async function loadSocialLinks() {
+        try {
+            // Check if Contentful is available
+            if (typeof contentful === 'undefined') {
+                console.warn('Contentful SDK not loaded');
+                return;
+            }
+    
+            // Initialize Contentful client
+            const client = contentful.createClient({
+                space: '2ic80tk26lba',
+                accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
             });
+            
+            // Fetch social links with ordering
+            const response = await client.getEntries({
+                content_type: 'socialLinks',
+                order: 'fields.order'  // ← Order by the order field
+            });
+            
+            if (response.items.length === 0) {
+                console.warn('No social links found in Contentful.');
+                return;
+            }
+            
+            // Sort by order field (backup sorting)
+            const sortedItems = response.items.sort((a, b) => {
+                const orderA = a.fields.order || 999;
+                const orderB = b.fields.order || 999;
+                return orderA - orderB;
+            });
+            
+            // Update footer social links
+            const socialLinksContainer = document.querySelector('.footer-column:nth-of-type(2) ul');
+            if (socialLinksContainer) {
+                socialLinksContainer.innerHTML = '';
+                
+                // Add each social link in the correct order
+                sortedItems.forEach(item => {
+                    const platform = item.fields.platform;
+                    const url = item.fields.url;
+                    
+                    if (platform && url) {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.target = "_blank";
+                        a.textContent = platform;
+                        li.appendChild(a);
+                        socialLinksContainer.appendChild(li);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading social links:', error);
         }
-    } catch (error) {
-        console.error('Error loading social links:', error);
     }
-}
-
 // Simplified site settings loader with better error handling
 function loadSiteSettings() {
     // Check if Contentful client is available
