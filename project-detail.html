@@ -175,6 +175,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
+    
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="logo"><a href="index.html">MIKE MAHON</a></div>
@@ -195,7 +196,8 @@
 
     <main>
         <div class="container">
-            <div class="project-header">
+            <!-- Project Header - Add cms-content class to hide until loaded -->
+            <div class="project-header cms-content">
                 <h1 class="project-title slide-in-left">Horizon Interface System</h1>
                 <div class="project-meta slide-in-left" style="transition-delay: 0.1s;">
                     <div class="project-meta-item">
@@ -217,12 +219,13 @@
                 </div>
             </div>
 
-            <!-- Video Hero Section (New) -->
-            <div class="project-video-container fade-in" style="display: none;">
+            <!-- Video Hero Section - Add cms-content class -->
+            <div class="project-video-container fade-in cms-content" style="display: none;">
                 <iframe src="https://player.vimeo.com/video/76979871" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </div>
 
-            <div class="project-images">
+            <!-- Project Images - Add cms-content class -->
+            <div class="project-images cms-content">
                 <!-- Full width image -->
                 <div class="project-image-container fade-in">
                     <img src="/api/placeholder/1400/800" alt="Horizon Interface System overview" class="project-image-full">
@@ -249,8 +252,8 @@
                 </div>
             </div>
 
-            <!-- Credits Section (New) -->
-            <div class="project-credits fade-in">
+            <!-- Credits Section - Add cms-content class -->
+            <div class="project-credits fade-in cms-content">
                 <h2 class="project-credits-title">Credits</h2>
                 <div class="credits-grid">
                     <!-- Credits will be loaded dynamically from Contentful -->
@@ -258,7 +261,8 @@
                 </div>
             </div>
 
-            <div class="project-next">
+            <!-- Next Project - Add cms-content class -->
+            <div class="project-next cms-content">
                 <div class="project-next-title">Next Project</div>
                 <a href="project-detail.html?id=project2" class="project-next-link">EcoTrack Mobile App</a>
             </div>
@@ -501,7 +505,11 @@
             
             if (!projectId) {
                 console.warn('No project ID provided. Showing demo content.');
-                return; // Show demo content if no ID
+                // Show CMS content even if no project ID
+                document.querySelectorAll('.cms-content').forEach(element => {
+                    element.classList.add('loaded');
+                });
+                return;
             }
             
             // Log content types for debugging
@@ -865,6 +873,11 @@
                 nextLink.href = `project-detail.html?id=${project.nextProject.sys.id}`;
             }
             
+            // Show all CMS content now that it's loaded
+            document.querySelectorAll('.cms-content').forEach(element => {
+                element.classList.add('loaded');
+            });
+            
             // Ensure all animations are properly applied
             setTimeout(() => {
                 refreshAnimations();
@@ -872,6 +885,10 @@
             
         } catch (error) {
             console.error('Error loading project details:', error);
+            // Even on error, show the content so user doesn't get stuck
+            document.querySelectorAll('.cms-content').forEach(element => {
+                element.classList.add('loaded');
+            });
         }
     }
     
