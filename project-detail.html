@@ -308,6 +308,177 @@
         accessToken: '0fj8ZC49Pk_cMvoLHkdsxX0Zg1kZY8eStn9AWCaUk_c'
     });
     
+    // Add shake animation to CSS
+    const shakeCSS = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    `;
+
+    // Inject shake animation
+    if (!document.querySelector('#shake-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'shake-animation-style';
+        style.textContent = shakeCSS;
+        document.head.appendChild(style);
+    }
+    
+    // Password Protection Functions
+    
+    // Check if project requires password
+    function checkProjectPassword(project, projectId) {
+        // Check if project has a password field and it's not empty
+        if (project.password && project.password.trim()) {
+            // Check if user has already entered correct password for this session
+            const sessionKey = `project_access_${projectId}`;
+            const hasAccess = sessionStorage.getItem(sessionKey);
+            
+            if (!hasAccess) {
+                showPasswordModal(project.password, projectId, project.title);
+                return false; // Don't load project content yet
+            }
+        }
+        return true; // Load project normally
+    }
+
+    // Show password input modal
+    function showPasswordModal(correctPassword, projectId, projectTitle) {
+        // Create modal HTML
+        const modalHTML = `
+            <div class="password-modal" id="passwordModal">
+                <div class="password-modal-content">
+                    <h2 class="password-modal-title">Protected Project</h2>
+                    <p class="password-modal-description">
+                        This project requires a password to view. Please enter the password provided by the client or project owner.
+                    </p>
+                    <div class="password-input-container">
+                        <input 
+                            type="password" 
+                            id="projectPasswordInput" 
+                            class="password-input"
+                            placeholder="Enter password"
+                            autocomplete="current-password"
+                        >
+                    </div>
+                    <div class="password-error" id="passwordError">
+                        Incorrect password. Please try again.
+                    </div>
+                    <button 
+                        type="button"
+                        class="password-submit-btn"
+                        id="passwordSubmitBtn"
+                        onclick="validateProjectPassword('${correctPassword}', '${projectId}')"
+                    >
+                        Access Project
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Show modal with animation
+        const modal = document.getElementById('passwordModal');
+        setTimeout(() => {
+            modal.classList.add('visible');
+        }, 10);
+        
+        // Focus on password input after animation
+        setTimeout(() => {
+            document.getElementById('projectPasswordInput').focus();
+        }, 300);
+        
+        // Handle Enter key submission
+        document.getElementById('projectPasswordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateProjectPassword(correctPassword, projectId);
+            }
+        });
+        
+        // Handle input changes (clear error state)
+        document.getElementById('projectPasswordInput').addEventListener('input', function() {
+            hidePasswordError();
+        });
+    }
+
+    // Validate entered password
+    function validateProjectPassword(correctPassword, projectId) {
+        const passwordInput = document.getElementById('projectPasswordInput');
+        const submitBtn = document.getElementById('passwordSubmitBtn');
+        const enteredPassword = passwordInput.value.trim();
+        
+        // Disable form during validation
+        passwordInput.disabled = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Checking...';
+        
+        // Small delay to show loading state
+        setTimeout(() => {
+            if (enteredPassword === correctPassword) {
+                // Store access in session storage
+                const sessionKey = `project_access_${projectId}`;
+                sessionStorage.setItem(sessionKey, 'true');
+                
+                // Hide modal with animation
+                hidePasswordModal();
+                
+                // Load project content after modal is hidden
+                setTimeout(() => {
+                    loadProjectDetails();
+                }, 300);
+            } else {
+                // Show error and reset form
+                showPasswordError();
+                passwordInput.disabled = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Access Project';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }, 500);
+    }
+
+    // Show password error
+    function showPasswordError() {
+        const errorEl = document.getElementById('passwordError');
+        const inputEl = document.getElementById('projectPasswordInput');
+        
+        errorEl.classList.add('visible');
+        inputEl.style.borderColor = '#c62828';
+        
+        // Shake animation
+        const modal = document.querySelector('.password-modal-content');
+        modal.style.animation = 'shake 0.5s ease-in-out';
+        setTimeout(() => {
+            modal.style.animation = '';
+        }, 500);
+    }
+
+    // Hide password error
+    function hidePasswordError() {
+        const errorEl = document.getElementById('passwordError');
+        const inputEl = document.getElementById('projectPasswordInput');
+        
+        if (errorEl) {
+            errorEl.classList.remove('visible');
+            inputEl.style.borderColor = '#e0e0e0';
+        }
+    }
+
+    // Hide password modal
+    function hidePasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        if (modal) {
+            modal.classList.remove('visible');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
+        }
+    }
+    
     // Check if we're on iOS or Safari
     function isIOSorSafari() {
         const ua = navigator.userAgent;
@@ -352,6 +523,12 @@
             
             const project = entry.fields;
             console.log('Project data:', project);
+            
+            // ✨ PASSWORD CHECK - This is the key addition ✨
+            // Check password before loading content
+            if (!checkProjectPassword(project, projectId)) {
+                return; // Don't load content, password modal will be shown
+            }
             
             // Update page title
             document.title = `${project.title} | Mike Mahon | Creative Director`;
@@ -759,10 +936,17 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Load project details and hide overlay when done
         loadProjectDetails().finally(() => {
-            // Give a bit more time for images to load
-            setTimeout(() => {
+            // Only hide loading overlay if no password modal is shown
+            const passwordModal = document.getElementById('passwordModal');
+            if (!passwordModal) {
+                // Give a bit more time for images to load
+                setTimeout(() => {
+                    hideLoadingOverlay();
+                }, 500);
+            } else {
+                // If password modal is shown, hide loading overlay immediately
                 hideLoadingOverlay();
-            }, 500);
+            }
         });
         
         // Setup animations for elements
