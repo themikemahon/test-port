@@ -79,27 +79,6 @@
                     updateMetaTag('meta[name="keywords"]', settings.siteKeywords);
                 }
                 
-                // Update Open Graph image - this is the key one for social sharing
-                if (settings.ogImage && settings.ogImage.fields && settings.ogImage.fields.file) {
-                    let imageUrl = settings.ogImage.fields.file.url;
-                    if (imageUrl.startsWith('//')) {
-                        imageUrl = 'https:' + imageUrl;
-                    } else if (!imageUrl.startsWith('http')) {
-                        imageUrl = 'https:' + imageUrl;
-                    }
-                    
-                    updateMetaTag('meta[property="og:image"]', imageUrl);
-                    updateMetaTag('meta[name="twitter:image"]', imageUrl);
-                    
-                    // Update image dimensions if available
-                    if (settings.ogImage.fields.file.details && settings.ogImage.fields.file.details.image) {
-                        updateMetaTag('meta[property="og:image:width"]', settings.ogImage.fields.file.details.image.width.toString());
-                        updateMetaTag('meta[property="og:image:height"]', settings.ogImage.fields.file.details.image.height.toString());
-                    }
-                    
-                    console.log('✅ Updated OG image to:', imageUrl);
-                }
-                
                 // Update URL
                 updateMetaTag('meta[property="og:url"]', window.location.href);
                 
