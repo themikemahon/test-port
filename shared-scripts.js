@@ -317,8 +317,6 @@ function updateMetaAndFavicons(settings) {
     setTimeout(() => {
         console.log('=== FINAL META TAG VALUES ===');
         console.log('og:url:', document.querySelector('meta[property="og:url"]')?.getAttribute('content'));
-        console.log('og:image:', document.querySelector('meta[property="og:image"]')?.getAttribute('content'));
-        console.log('twitter:image:', document.querySelector('meta[name="twitter:image"]')?.getAttribute('content'));
         console.log('og:title:', document.querySelector('meta[property="og:title"]')?.getAttribute('content'));
         console.log('og:description:', document.querySelector('meta[property="og:description"]')?.getAttribute('content'));
     }, 100);
