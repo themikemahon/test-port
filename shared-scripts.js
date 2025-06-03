@@ -164,9 +164,6 @@ function loadSiteSettings() {
             const settings = response.items[0].fields;
             console.log('Found site settings:', settings);
             
-            // Update metadata and favicons
-            updateMetaAndFavicons(settings);
-            
             // Update accent color if provided (FIXED - now works correctly)
             if (settings.accentColor) {
                 let accentColor = settings.accentColor;
