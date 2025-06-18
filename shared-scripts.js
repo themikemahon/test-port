@@ -226,6 +226,9 @@ function loadSiteSettings() {
                 }
             }
             
+            // ✅ FIX: Call updateMetaAndFavicons with the settings
+            updateMetaAndFavicons(settings);
+            
             console.log('✅ Site settings loaded successfully');
         } else {
             console.warn('No site settings found in Contentful - using static content');
