@@ -1,3 +1,16 @@
+// Google Analytics 4
+(function() {
+  var gaId = 'G-FJZXYFQRZZ';
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', gaId);
+})();
+
 // Loading state management
 function hideLoadingOverlay() {
     const overlay = document.getElementById('loadingOverlay');
