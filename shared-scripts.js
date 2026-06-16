@@ -1,6 +1,6 @@
 // Google Analytics 4
 (function() {
-  var gaId = 'G-FJZXYFQRZZ';
+  var gaId = 'G-8T1N3MM4HJ';
   var s = document.createElement('script');
   s.async = true;
   s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
