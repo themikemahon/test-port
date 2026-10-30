@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Terms | Mahonmade LLC</title>
+    <meta name="description" content="Terms for the Mahonmade LLC text messaging program: what is sent, how often, and how to opt out.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        .legal { max-width: 760px; padding: 140px 0 100px; }
+        .legal h1 { font-size: clamp(32px, 5vw, 52px); margin-bottom: 12px; }
+        .legal .legal-updated { color: var(--secondary-color); font-size: 14px; margin-bottom: 48px; }
+        .legal h2 { font-size: 20px; margin: 40px 0 12px; }
+        .legal p, .legal li { font-size: 16px; line-height: 1.7; color: var(--secondary-color); }
+        .legal p { margin-bottom: 16px; }
+        .legal ul { margin: 0 0 16px 20px; }
+        .legal li { margin-bottom: 8px; }
+        .legal a { color: var(--primary-color); text-decoration: underline; }
+        .legal .legal-callout { border-left: 3px solid var(--accent-color); padding: 4px 0 4px 16px; color: var(--primary-color); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay - MUST be first thing after <body> -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo"><a href="index.html">MIKE MAHON</a></div>
+            <button class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Work</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <article class="legal">
+                <h1>SMS Terms</h1>
+                <p class="legal-updated">Mahonmade LLC · Effective October 30, 2026</p>
+
+                <p>These terms cover text messages sent by Mahonmade LLC, a creative studio based in Maplewood, New Jersey.</p>
+
+                <h2>Program: Mahonmade Weekly Digest</h2>
+                <p>The Mahonmade Weekly Digest is a short text sent on Sunday mornings that previews the week ahead at Mahonmade: project deadlines, scheduled client calls and blocks of focused work. It contains no marketing or promotional content.</p>
+
+                <h2>How to opt in</h2>
+                <p>You can opt in by texting <strong>START</strong> to the Mahonmade number, or by giving written consent directly to Mike Mahon, owner of Mahonmade LLC, after being told what the message contains and how often it is sent. Opting in is never a condition of any purchase or service.</p>
+
+                <h2>Message frequency</h2>
+                <p>About one message per week, sent on Sundays. Occasionally a short follow-up may be sent if the week's plans change.</p>
+
+                <h2>Costs</h2>
+                <p>Message and data rates may apply, depending on your mobile plan.</p>
+
+                <h2>How to opt out</h2>
+                <p>Reply <strong>STOP</strong> to any message to unsubscribe. You'll get one confirmation text and no further messages. Reply <strong>START</strong> to subscribe again.</p>
+
+                <h2>Help</h2>
+                <p>Reply <strong>HELP</strong> to any message for help, or email <a href="mailto:mike@mahonmade.com">mike@mahonmade.com</a>.</p>
+
+                <h2>Carriers and delivery</h2>
+                <p>Carriers are not liable for delayed or undelivered messages. Delivery depends on your carrier and device.</p>
+
+                <h2>Privacy</h2>
+                <p>No mobile information will be sold or shared with third parties or affiliates for marketing or promotional purposes. Text messaging opt-in data and consent will not be shared with any third parties. See our <a href="privacy.html">Privacy Policy</a> for details.</p>
+
+                <h2>Contact</h2>
+                <p>Mahonmade LLC<br>Maplewood, New Jersey<br><a href="mailto:mike@mahonmade.com">mike@mahonmade.com</a></p>
+            </article>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-tagline">Creative Director based in New York. Available for collaborations and new opportunities.</div>
+                    <p class="footer-copyright">&copy; 2026 Mahonmade LLC. All rights reserved.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Menu</h4>
+                        <ul>
+                            <li><a href="index.html">Work</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="privacy.html">Privacy</a></li>
+                            <li><a href="sms.html">SMS Terms</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Links</h4>
+                        <ul>
+                            <!-- Social links loaded dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Contentful SDK (used by shared scripts for footer links and site settings) -->
+    <script src="https://cdn.jsdelivr.net/npm/contentful@latest/dist/contentful.browser.min.js"></script>
+    <!-- Shared scripts -->
+    <script src="shared-scripts.js"></script>
+</body>
+</html>
