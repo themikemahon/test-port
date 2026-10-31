@@ -115,6 +115,11 @@
             color: var(--secondary-color);
         }
         
+        /* Extra-wide gallery images span both columns */
+        .project-image-grid > .gallery-wide {
+            grid-column: 1 / -1;
+        }
+
         /* Unified media container for consistent aspect ratio and cropping */
         .gallery-media-container {
             position: relative;
@@ -736,6 +741,13 @@
                         
                         // Add image to container
                         mediaContainer.appendChild(img);
+
+                        // Extra-wide images (2:1 or wider) span the full row at their natural ratio
+                        const dims = file.details && file.details.image;
+                        if (dims && dims.width / dims.height >= 2) {
+                            itemDiv.classList.add('gallery-wide');
+                            mediaContainer.style.paddingBottom = `${(dims.height / dims.width) * 100}%`;
+                        }
                         
                         // Add container to item div
                         itemDiv.appendChild(mediaContainer);
